@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub | Home</title>
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth-state.js"></script>
+</head>
+<body>
+   
+    <header class="header">
+        <nav class="nav container">
+           <div class="nav__data">
+              <a href="#" class="nav__logo">
+                 <img src="img/logo.png" alt="logo">
+              </a>
+
+              
+              
+              <div class="nav-rightt" >
+               <div class="nav-li-right">
+                  <ul>
+                     <li>
+                        <a href="#" class="nav__link">
+                        <div class="bell  nonee">
+                           <i class="fa-regular fa-bell"></i>
+                           <div class="red-circle"></div>
+                        </div>
+                        </a>
+                       </li>
+      
+                       <!-- <li><a href="#" class="nav__link">
+                        <img src="img/happy-client.png" alt="User" class="user nonee" id="img-profile2">
+                       </a></li> -->
+                  </ul>
+               </div>
+
+
+                 <div class="nav__toggle" id="nav-toggle">
+                    <i class="ri-menu-line nav__burger"></i>
+                    <i class="ri-close-line nav__close"></i>
+                  </div>
+
+                  
+
+            </div>
+                 
+
+              
+           </div>
+
+           <!--=============== NAV MENU ===============-->
+           <div class="nav__menu" id="nav-menu">
+              <ul class="nav__list">
+                 <li><a href="#" class="nav__link active">Home</a></li>
+
+                 <li><a href="#" class="nav__link">Jobs</a></li>
+
+                 <!--=============== DROPDOWN 1 ===============-->
+               
+                 <li><a href="html/post-job.html" class="nav__link">Post a Job</a></li>
+                 <li class="dropdown__item" >
+                    <div class="nav__link">
+                       Account <i class="ri-arrow-down-s-line dropdown__arrow "></i>
+                    </div>
+
+                    <ul class="dropdown__menu ">
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                             <i class="ri-user-line"></i> Profile
+                          </a>                          
+                       </li>
+
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                            <i class="ri-settings-3-line"></i>Settings
+                          </a>
+                       </li>
+
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                            <i class="ri-file-text-line"></i> My Jobs
+                          </a>
+                       </li>
+
+                       <li class="remove">
+                        <a href="#" class="dropdown__link">
+                            <i class="ri-bookmark-line"></i>Saved Jobs
+                        </a>
+                     </li>
+
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                            <i class="ri-history-line"></i>History
+                        </a>
+                     </li>
+
+                     <li>
+                        <a href="html/login.html" class="dropdown__link" onclick="logOut()" id="login">
+                           <i class="ri-logout-box-line"></i>Log in
+                        </a>
+                     </li>
+
+                     <li id="sign__up">
+                        <a href="html/sign_up.html" class="dropdown__link">
+                           <i class="ri-login-box-line"></i>Sign up
+                        </a>
+                     </li>
+
+                    </ul>
+                 </li>
+                 <li><a href="#" class="nav__link">About</a></li>
+                 <li><a href="#" class="nav__link">Contact</a></li>
+
+                 <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="bell">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="red-circle"></div>
+                  </div>
+                  </a>
+                 </li>
+<!-- 
+                 <li class="nonee none2"><a href="#" class="nav__link">
+                  <img src="img/happy-client.png" alt="User" class="user" id="img-profile">
+                 </a></li> -->
+
+                 
+                
+                 
+
+                 
+                 
+
+               
+
+                
+              </ul>
+           </div>
+        </nav>
+     </header>
+
+
+     <section class="container">
+         <div class="banner">
+
+            <div class="left-banner">
+
+               <div class="banner-title">
+                  <h1>Start Your Journey with <span>HireHub</span> Today</h1>
+               </div>
+
+               <div class="banner-text">
+                 <p>At HireHub, we connect talent with opportunity like never before. Whether you're searching for the perfect job or looking to hire the best candidates, HireHub has everything you need. Explore personalized job recommendations, post detailed listings, and manage your career or hiring process seamlessly. Your next big move starts here!</p>
+               </div>
+
+               
+               <button class="btn">
+                  <svg height="24" width="24" fill="#FFFFFF" viewBox="0 0 24 24" data-name="Layer 1" id="Layer_1" class="sparkle">
+                     <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+                  </svg>
+
+                  <span class="text">Find Jobs</span>
+               </button>
+
+
+            </div>
+
+            <div class="right-banner">
+               <div class="img-banner">
+                  <img src="img/banner.webp" alt="Banner">
+               </div>
+            </div>
+
+         </div>
+     </section>
+
+
+     
+     <!-- categories -->
+
+     <section class="container">
+      <h2 class="popular">Popular Categories</h2>
+      <div class="statistics-container">
+        
+        <div class="statistics-col">
+          <div class="statistics-content">
+            <div class="statistics-icon">
+               <i class="fa fa-utensils"></i>
+            </div>
+            <h4>120+</h4>
+            <p>Gastro-Hospitality</p>
+          </div>
+        </div>
+
+        <div class="statistics-col">
+          <div class="statistics-content">
+            <div class="statistics-icon">
+               <i class="fa fa-hard-hat"></i>
+            </div>
+            <h4>80+</h4>
+            <p>Build & Design</p>
+          </div>
+        </div>
+
+        <div class="statistics-col">
+          <div class="statistics-content">
+            <div class="statistics-icon">
+               <i class="fa-solid fa-hospital"></i>
+            </div>
+            <h4>100+</h4>
+            <p>MedCare Professionals</p>
+          </div>
+        </div>
+
+        <div class="statistics-col">
+          <div class="statistics-content">
+            <div class="statistics-icon">
+               <i class="fa fa-store"></i>
+            </div>
+            <h4>150+</h4>
+            <p>Retail & Service</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="container">
+
+      <div class="featured-title">
+         <h2>Hot Job Opportunities</h2>
+         <p>Discover top job opportunities from leading companies. Find roles that match your skills and take the next step in your career today!</p>
+      </div>
+
+      <div class="featured-container" id="featured-container">
+
+         <a href="#">
+            <div class="featured-col">
+   
+               <div class="featured-top-row">
+   
+               <div class="featured-top">
+                  <div class="featured-logo">
+                     <img src="img/innovation-academy-job.jpg" alt="Innovation Academy">
+                  </div>
+   
+                  <div class="job-title">
+                     <div class="job-title-top">
+                        <h4>IA</h4>
+                     </div>
+   
+                     <div class="job-title-bottom">
+                       <p>1 days ago</p>
+                     </div>
+                  
+                  </div>
+   
+               </div>
+   
+               <div class="featured-job-time">
+                     <div class="time-job">
+                        <p>Part Time</p>
+                     </div>
+               </div>
+   
+   
+            </div>
+   
+               <div class="featured-price">
+                  <p>Programming Teacher</p>
+               </div>
+   
+               <div class="location">
+                  <div class="location-icon">
+                     <i class="fa fa-map-marker-alt"></i>
+                  </div>
+   
+                  <div class="location-p">
+                     <p>Vushtrri</p>
+                  </div>
+               </div>
+   
+               <div class="featured-bar-container">
+                  <div class="featured-bar">
+                     <div class="featured-bar-color" data-value="60"></div>
+                  </div>
+               </div>
+   
+               <div class="featured-p-number">
+                 <p>3 applied <span>of 5 vacancy</span></p>
+               </div>
+   
+   
+   
+            </div>
+         </a>
+
+         <a href="#">
+         <div class="featured-col">
+
+            <div class="featured-top-row">
+
+            <div class="featured-top">
+               <div class="featured-logo">
+                  <img src="img/mercom-job.png" alt="Mercom company">
+               </div>
+
+               <div class="job-title">
+                  <div class="job-title-top">
+                     <h4>Mercom Company</h4>
+                  </div>
+
+                  <div class="job-title-bottom">
+                    <p>2 days ago</p>
+                  </div>
+               
+               </div>
+
+            </div>
+
+            <div class="featured-job-time">
+                  <div class="time-job">
+                     <p>Full Time</p>
+                  </div>
+            </div>
+
+
+         </div>
+
+            <div class="featured-price">
+               <p>Teknik i ndërtimit</p>
+            </div>
+
+            <div class="location">
+               <div class="location-icon">
+                  <i class="fa fa-map-marker-alt"></i>
+               </div>
+
+               <div class="location-p">
+                  <p>Prishtinë</p>
+               </div>
+            </div>
+
+            <div class="featured-bar-container">
+               <div class="featured-bar">
+                  <div class="featured-bar-color" data-value="85"></div>
+               </div>
+            </div>
+
+            <div class="featured-p-number">
+              <p>34 applied <span>of 40 vacancy</span></p>
+            </div>
+
+
+
+         </div>
+         </a>
+
+
+         <a href="#">
+         <div class="featured-col">
+
+            <div class="featured-top-row">
+
+            <div class="featured-top">
+               <div class="featured-logo">
+                  <img src="img/peugout-kosova-job.png" alt="Peugot Kosova">
+               </div>
+
+               <div class="job-title">
+                  <div class="job-title-top">
+                     <h4>Peugot Kosova</h4>
+                  </div>
+
+                  <div class="job-title-bottom">
+                    <p>5 days ago</p>
+                  </div>
+               
+               </div>
+
+            </div>
+
+            <div class="featured-job-time">
+                  <div class="time-job">
+                     <p>Part Time</p>
+                  </div>
+            </div>
+
+
+         </div>
+
+            <div class="featured-price">
+               <p>Konsulentë/e të shitjes</p>
+            </div>
+
+            <div class="location">
+               <div class="location-icon">
+                  <i class="fa fa-map-marker-alt"></i>
+               </div>
+
+               <div class="location-p">
+                  <p>Ferizaj</p>
+               </div>
+            </div>
+
+            <div class="featured-bar-container">
+               <div class="featured-bar">
+                  <div class="featured-bar-color"  data-value="40"></div>
+               </div>
+            </div>
+
+            <div class="featured-p-number">
+              <p>4 applied <span>of 10 vacancy</span></p>
+            </div>
+
+
+
+         </div>
+         </a>
+
+         <a href="#">
+         <div class="featured-col">
+
+            <div class="featured-top-row">
+
+            <div class="featured-top">
+               <div class="featured-logo">
+                  <img src="img/viva-fresh-job.png" alt="Viva fresh">
+               </div>
+
+               <div class="job-title">
+                  <div class="job-title-top">
+                     <h4>Viva Fresh</h4>
+                  </div>
+
+                  <div class="job-title-bottom">
+                    <p>3 days ago</p>
+                  </div>
+               
+               </div>
+
+            </div>
+
+            <div class="featured-job-time">
+                  <div class="time-job">
+                     <p>Full Time</p>
+                  </div>
+            </div>
+
+
+         </div>
+
+            <div class="featured-price">
+               <p>Menagjer/e</p>
+            </div>
+
+            <div class="location">
+               <div class="location-icon">
+                  <i class="fa fa-map-marker-alt"></i>
+               </div>
+
+               <div class="location-p">
+                  <p>Vushtrri</p>
+               </div>
+            </div>
+
+            <div class="featured-bar-container">
+               <div class="featured-bar">
+                  <div class="featured-bar-color" data-value="33"></div>
+               </div>
+            </div>
+
+            <div class="featured-p-number">
+              <p>1 applied <span>of 3 vacancy</span></p>
+            </div>
+
+
+
+         </div>
+         </a>
+
+
+         <!-- second row -->
+
+
+         <a href="#">
+            <div class="featured-col">
+   
+               <div class="featured-top-row">
+   
+               <div class="featured-top">
+                  <div class="featured-logo">
+                     <img src="img/hib-logo-job.png" alt="Hib Petrol">
+                  </div>
+   
+                  <div class="job-title">
+                     <div class="job-title-top">
+                        <h4>Hib Petrol</h4>
+                     </div>
+   
+                     <div class="job-title-bottom">
+                       <p>6 days ago</p>
+                     </div>
+                  
+                  </div>
+   
+               </div>
+   
+               <div class="featured-job-time">
+                     <div class="time-job">
+                        <p>Full Time</p>
+                     </div>
+               </div>
+   
+   
+            </div>
+   
+               <div class="featured-price">
+                  <p>Kamarier/e</p>
+               </div>
+   
+               <div class="location">
+                  <div class="location-icon">
+                     <i class="fa fa-map-marker-alt"></i>
+                  </div>
+   
+                  <div class="location-p">
+                     <p>Gjilan</p>
+                  </div>
+               </div>
+   
+               <div class="featured-bar-container">
+                  <div class="featured-bar">
+                     <div class="featured-bar-color"  data-value="60"></div>
+                  </div>
+               </div>
+   
+               <div class="featured-p-number">
+                 <p>3 applied <span>of 5 vacancy</span></p>
+               </div>
+   
+   
+   
+            </div>
+            </a>
+   
+   
+            <a href="#">
+            <div class="featured-col">
+   
+               <div class="featured-top-row">
+   
+               <div class="featured-top">
+                  <div class="featured-logo">
+                     <img src="img/etc-logo-job.png" alt="Etc">
+                  </div>
+   
+                  <div class="job-title">
+                     <div class="job-title-top">
+                        <h4>ETC</h4>
+                     </div>
+   
+                     <div class="job-title-bottom">
+                       <p>4 days ago</p>
+                     </div>
+                  
+                  </div>
+   
+               </div>
+   
+               <div class="featured-job-time">
+                     <div class="time-job">
+                        <p>Full Time</p>
+                     </div>
+               </div>
+   
+   
+            </div>
+   
+               <div class="featured-price">
+                  <p>Punëtor/e në Market</p>
+               </div>
+   
+               <div class="location">
+                  <div class="location-icon">
+                     <i class="fa fa-map-marker-alt"></i>
+                  </div>
+   
+                  <div class="location-p">
+                     <p>Gjakovë</p>
+                  </div>
+               </div>
+   
+               <div class="featured-bar-container">
+                  <div class="featured-bar">
+                     <div class="featured-bar-color"  data-value="85"></div>
+                  </div>
+               </div>
+   
+               <div class="featured-p-number">
+                 <p>6 applied <span>of 7 vacancy</span></p>
+               </div>
+
+     
+   
+   
+   
+            </div>
+            </a>
+   
+           
+
+
+      </div>
+
+    </section>
+
+
+    <div class="container">
+      <div class="best-reviews-container">
+
+         <div class="best-reviews-content best-reviews-content-img">
+           <div class="reviews-img">
+             <img src="img/drini.png" alt="Client">
+   
+             <div class="emoji">
+               <img src="img/emoy.webp" alt="Happy emoji">
+             </div>
+           </div>
+         </div>
+   
+         <div class="best-reviews-content">
+   
+           <i class="fa-solid fa-quote-left"></i>
+           <p>HireHub made it so easy for me to find part-time jobs and internships that fit my schedule. I never thought job hunting could be this simple! The categories are super helpful, and the website is really easy to use. I even found my first paid internship through HireHub, and it's been an amazing experience. I'm so glad I signed up!</p>
+           <div class="best-reviews-stars">
+             <i class="fa-solid fa-star"></i>
+             <i class="fa-solid fa-star"></i>
+             <i class="fa-solid fa-star"></i>
+             <i class="fa-solid fa-star"></i>
+             <i class="fa-solid fa-star-half-stroke"></i>
+             <h3>Drin Zahiti</h3>
+
+            <div class="review-button">
+               <a href="#">Share Job</a>
+            </div>
+            
+
+           </div>
+         </div>
+       </div>
+    </div>
+
+
+    <section class="container work">
+
+      <div class="work-title">
+          <h2>How HireHub Works</h2>
+      </div>
+
+      <div class="work-all">
+
+          <div class="work-row first-row">
+              <div class="work-col-img">
+                  <img src="img/work-first.png" alt="Meeting With The Customer">
+              </div>
+
+              <div class="work-col-row">
+
+             
+              <div class="work-col">
+                  <div class="skills-icon work-icon">01</div>
+                  <div class="narrator-line">
+                      <img src="img/narrator-third.png" alt="Narrator line">
+                  </div>
+              </div>
+
+              <div class="work-col-text">
+                  <h2>Create an Account</h2>
+                  <p>Sign up for a single account, whether you're a job seeker or an employer. Customize your profile by adding your details, such as skills, experience, or company information, to get started.</p>
+              </div>
+
+              
+          </div>
+
+          </div>
+
+          <div class="work-row row-reverse second-row">
+              <div class="work-col-img">
+                  <img src="img/work-second.png" alt="Meeting With The Customer">
+              </div>
+
+              <div class="work-col-row" style="justify-content: end;">
+
+             
+                  <div class="work-col">
+                      <div class="skills-icon work-icon">02</div>
+                      <div class="narrator-line opposite">
+                          <img src="img/narrator-line-opposite.png" alt="Narrator line">
+                      </div>
+                  </div>
+
+              <div class="work-col-text">
+                  <h2>Search or Post Jobs</h2>
+                  <p>Browse job listings tailored to your skills and interests, or post job opportunities with clear requirements and descriptions.</p>
+              </div>
+
+                 
+          </div>
+
+          </div>
+
+
+          <div class="work-row first-row">
+              <div class="work-col-img">
+                  <img src="img/work-third.png" alt="Meeting With The Customer">
+              </div>
+
+              <div class="work-col-row">
+
+             
+              <div class="work-col">
+                  <div class="skills-icon work-icon">03</div>
+                  <div class="narrator-line">
+                      <img src="img/narrator-third.png" alt="Narrator line">
+                  </div>
+              </div>
+
+              <div class="work-col-text">
+                  <h2>Apply or Manage Applications</h2>
+                  <p>Apply for jobs with a few clicks or manage job applications as an employer, reviewing profiles and communicating with candidates.</p>
+              </div>
+
+              
+          </div>
+
+          </div>
+
+          <div class="work-row row-reverse second-row">
+              <div class="work-col-img">
+                  <img src="img/work-fourth.png" alt="Meeting With The Customer">
+              </div>
+
+              <div class="work-col-row" style="justify-content: end;">
+
+             
+                  <div class="work-col">
+                      <div class="skills-icon work-icon">04</div>
+                      <div class="narrator-line opposite">
+                          <img src="img/narrator-fourth.png" alt="Narrator line">
+                      </div>
+                  </div>
+
+              <div class="work-col-text">
+                  <h2>Track & Save</h2>
+                  <p>Keep track of your application statuses or save jobs you're interested in. Employers can monitor job post activity and shortlist candidates.</p>
+              </div>
+
+          </div>
+
+          </div>
+
+
+          <div class="work-row first-row">
+              <div class="work-col-img">
+                  <img src="img/work-fivth.png" alt="Meeting With The Customer">
+              </div>
+
+              <div class="work-col-row">
+
+             
+              <div class="work-col">
+                  <div class="skills-icon work-icon">05</div>
+
+              </div>
+
+              <div class="work-col-text">
+                  <h2>Connect & Finalize</h2>
+                  <p>Communicate with potential hires or employers through the platform and finalize the hiring process with ease.</p>
+              </div>
+
+              
+          </div>
+
+          </div>
+         
+
+
+          
+
+      </div>
+
+  </section>
+
+
+  <footer>
+   <div class="container">
+      <div class="wrapper">
+         <div class="footer-widget wrapper-center">
+            <a href="#">
+               <img src="img/logo.png" alt="" class="logo">
+            </a>
+
+            <p class="desc">
+               Connecting skilled professionals with top employers for success and growth.
+            </p>
+
+            <ul class="socials">
+               <li>
+                  <a href="#">
+                     <i class="fab fa-facebook-f"></i>
+                  </a>
+               </li>
+
+
+               <li>
+                  <a href="#">
+                     <i class="fab fa-twitter"></i>
+                  </a>
+               </li>
+
+               <li>
+                  <a href="#">
+                     <i class="fab fa-instagram"></i>
+                  </a>
+               </li>
+
+               <li>
+                  <a href="#">
+                     <i class="fab fa-linkedin-in"></i>
+                  </a>
+               </li>
+            </ul>
+         </div>
+         <div class="footer-widget">
+            <h6>Quick Links</h6>
+            <ul class="links">
+               <li><a href="../index.html">Home</a></li>
+               <li><a href="">Jobs</a></li>
+               <li><a href="html/post-job.html">Post a Job</a></li>
+               <li><a href="">About</a></li>
+               <li><a href="">Contact</a></li>
+            </ul>
+         </div>
+
+         <div class="footer-widget">
+            <h6>Services</h6>
+            <ul class="links">
+               <li><a href="#">Job Search</a></li>
+               <li><a href="">Save Jobs</a></li>
+               <li><a href="html/post-job.html">Post a Job</a></li>
+               <li><a href="">Manage Applications</a></li>
+               <li><a href="">Job Alerts</a></li>
+            </ul>
+         </div>
+
+         <div class="footer-widget">
+            <h6>Help &amp; Support</h6>
+            <ul class="links">
+               <li><a href="#">FAQ</a></li>
+               <li><a href="">Live Chat</a></li>
+               <li><a href="">Privacy Policy</a></li>
+               <li><a href="">Terms of Service</a></li>
+            </ul>
+         </div>
+      </div>
+      <div class="copyright-wrapper">
+         <p>&copy; 2025 HireHub. All rights reserved.</p>
+         <p>Designed and Developed by
+            <a href="https://www.linkedin.com/in/rijon-tahiri-156169275/" target="_blank">Rijon</a>
+         </p>
+
+      </div>
+   </div>
+  </footer>
+
+   <script type="text/javascript">
+      var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+      (function(){
+      var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+      s1.async=true;
+      s1.src='https://embed.tawk.to/6780777649e2fd8dfe056513/1ih6t59ql';
+      s1.charset='UTF-8';
+      s1.setAttribute('crossorigin','*');
+      s0.parentNode.insertBefore(s1,s0);
+      })();
+   </script>
+
+   
+
+
+     <script src="js/header.js"></script>
+     <script src="js/home.js"></script>
+</body>
+</html>

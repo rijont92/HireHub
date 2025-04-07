@@ -1,0 +1,471 @@
+:root {
+    --primary-color: #755ea3;
+    --secondary-color: #002e54;
+    --hover: #5e4b82;
+}
+
+.post-job-section {
+    padding: 4rem 0;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+}
+
+.post-job-container {
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    margin-top: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.post-job-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.post-job-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #f0f0f0;
+    position: relative;
+}
+
+.post-job-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.post-job-header h1 {
+    font-size: 2.5rem;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.post-job-header p {
+    color: #666;
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+.post-job-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Make Job Description, Requirements, and Benefits take full width */
+.form-group.full-width,
+.form-group:has(textarea[id="jobDescription"]),
+.form-group:has(textarea[id="requirements"]),
+.form-group:has(textarea[id="benefits"]) {
+    grid-column: 1 / -1;
+}
+
+.form-group.half-width {
+    grid-column: span 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+    position: relative;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 24px;
+    line-height: 24px;
+    transition: all 0.3s ease;
+}
+
+.form-group label i {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 1rem 1.2rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+    width: 100%;
+    height: 55px;
+    box-sizing: border-box;
+    line-height: normal;
+    vertical-align: middle;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(117, 94, 163, 0.1);
+    background-color: #fff;
+    transform: translateY(-2px);
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: var(--primary-color);
+    background-color: #fff;
+}
+
+.form-group textarea {
+    resize: none;
+    height: 150px !important;
+    min-height: 150px;
+    line-height: 1.6;
+    padding: 1rem 1.2rem;
+    overflow-y: auto;
+}
+
+/* Remove the previous rule that was putting Benefits and Application Deadline in the same row */
+.form-group:has(textarea[placeholder*="benefits"]),
+.form-group:has(input[type="date"]) {
+    margin-top: 0.8rem;
+}
+
+.logo-upload-container {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    border: 2px dashed var(--primary-color);
+    border-radius: 12px;
+    background-color: rgba(117, 94, 163, 0.02);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.logo-upload-container:hover {
+    border-color: var(--hover);
+    background-color: rgba(117, 94, 163, 0.05);
+    transform: translateY(-2px);
+}
+
+.logo-preview {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    color: var(--primary-color);
+}
+
+.preview-placeholder i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+}
+
+.logo-upload-container:hover .preview-placeholder i {
+    transform: translateY(-5px);
+}
+
+.preview-placeholder span {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+#logoPreview {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.form-group input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* Remove previous file input styles */
+.form-group input[type="file"]::before {
+    display: none;
+}
+
+.form-group input[type="file"]:hover::before {
+    display: none;
+}
+
+.form-submit {
+    grid-column: 1 / -1;
+    margin-top: 3rem;
+    text-align: center;
+    width: 100%;
+}
+
+.submit-btn {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.2rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 15px rgba(117, 94, 163, 0.2);
+}
+
+.submit-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--hover);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+    border-radius: 12px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(117, 94, 163, 0.4);
+}
+
+.submit-btn:hover:before {
+    opacity: 1;
+}
+
+/* Remove the span styling since we don't need it anymore */
+.submit-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+/* Responsive styles */
+@media (max-width: 1400px) {
+    .post-job-container {
+        max-width: 95%;
+        margin: 1.5rem auto;
+    }
+}
+
+@media (max-width: 1200px) {
+    .post-job-container {
+        padding: 1.8rem;
+        margin: 1.5rem auto;
+    }
+    
+    .post-job-form {
+        gap: 1.2rem;
+    }
+
+    .form-group label {
+        width: 130px;
+    }
+}
+
+@media (max-width: 992px) {
+    .post-job-container {
+        max-width: 90%;
+        padding: 2rem;
+        margin: 1.5rem auto;
+    }
+    
+    .post-job-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .post-job-header h1 {
+        font-size: 2rem;
+    }
+
+    .form-group.half-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea:not([rows]) {
+        height: 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .post-job-section {
+        padding: 3rem 0;
+    }
+
+    .post-job-container {
+        max-width: 95%;
+        padding: 1.5rem;
+        margin: 1.5rem auto;
+        border-radius: 12px;
+    }
+
+    .post-job-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+    }
+
+    .post-job-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .post-job-header p {
+        font-size: 0.95rem;
+        padding: 0 0.8rem;
+    }
+
+    .form-group {
+        min-height: 70px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea:not([rows]) {
+        height: 45px;
+        font-size: 0.95rem;
+    }
+    
+    .form-group textarea {
+        min-height: 120px;
+    }
+
+    .form-submit {
+        margin-top: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .post-job-section {
+        padding: 2.5rem 0;
+    }
+
+    .post-job-container {
+        max-width: 100%;
+        padding: 1.2rem;
+        margin: 1rem auto;
+        border-radius: 10px;
+    }
+
+    .post-job-header h1 {
+        font-size: 1.6rem;
+        padding: 0 0.4rem;
+    }
+
+    .post-job-header p {
+        font-size: 0.9rem;
+        padding: 0 0.4rem;
+    }
+
+    .form-group {
+        min-height: 65px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea:not([rows]) {
+        height: 45px;
+        font-size: 0.9rem;
+    }
+    
+    .form-group textarea {
+        min-height: 120px;
+    }
+
+    .submit-btn {
+        padding: 0.9rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* Custom select styling */
+.form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1.2rem center;
+    background-size: 1em;
+    padding-right: 3rem;
+    cursor: pointer;
+    color: #333;
+    height: 55px;
+}
+
+.form-group select option {
+    color: #333;
+    background-color: #fff;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+.form-group select:focus option {
+    background-color: #f8f9fa;
+}
+
+/* Required field indicator */
+.form-group label[for]:after {
+    content: "*";
+    color: #ff4444;
+    font-size: 0.9rem;
+    margin-left: 0.3rem;
+    opacity: 0.8;
+} 

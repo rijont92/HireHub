@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub | Login</title>
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="all-cnt">
+    <div class="container">
+        <div class="left">
+            <div class="img">
+                <img src="../img/login-svg.svg" alt="Login ilustration">
+            </div>
+        </div>
+
+        <div class="right">
+            <div class="logo">
+                <img src="../img/logo.png" alt="logo">
+            </div>
+
+            <h2>Welcome back</h2>
+
+            <p class="new-here">New here? <a href="sign_up.html">Create an Account</a> or <a href="../index.html">Guest</a></p>
+
+            <div class="form">
+                <form id="loginForm">
+                    <div class="input-container">
+                        <div class="input-row">
+                            <label for="email">Enter email id</label>
+                            <input type="email" id="email" >
+                            <p id="error-email"></p>
+                        </div>
+
+                        <div class="input-row">
+                            <label for="password">Enter password</label>
+                            <div class="password-row">
+                                <input type="password" id="password" >
+                                <i class="fa-solid fa-eye-slash" onclick="changeIcon()" id="icon"></i>
+                            </div>
+                            <p id="error-password"></p>
+                        </div>
+                    </div>
+
+                    <p id="general-error" style="color: red; text-align: center; margin: 10px 0;"></p>
+
+                    <div class="remember-forgot-row">
+                        <div class="remember-me">
+                            <input type="checkbox" id="check">
+                            <label for="check">Remember me?</label>
+                        </div>
+
+                        <div class="forgot">
+                            <a href="forgot.html">Forgot Password?</a>
+                        </div>
+                    </div>
+
+                    <input type="submit" id="submit" value="Login">
+
+                    <div class="or-signin-with">
+                        <hr>
+                        <p>Or sign in with</p>
+                    </div>
+
+                    <div class="google">
+                        <i class="fa-brands fa-google"></i>
+                        <p>Sign in with Google</p>
+                    </div>
+
+                    <div class="facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <p>Sign in with Facebook</p>
+                    </div>
+
+                    <p class="last">&copy;2024 <span>Rijon Tahiri.</span> All rights reserved</p>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script type="module">
+        import { signIn } from '../js/auth.js';
+        import { setupLoginValidation, validateLoginForm } from '../js/validation.js';
+        
+        const loginForm = document.getElementById('loginForm');
+        const errorEmail = document.getElementById('error-email');
+        const errorPassword = document.getElementById('error-password');
+        const generalError = document.getElementById('general-error');
+        const passwordInput = document.getElementById('password');
+        const icon = document.getElementById('icon');
+
+        // Password visibility toggle
+        window.changeIcon = function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        };
+
+        // Setup real-time validation
+        setupLoginValidation();
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Clear previous errors
+            errorEmail.textContent = '';
+            errorPassword.textContent = '';
+            generalError.textContent = '';
+
+            // Validate form before submission
+            const validation = validateLoginForm(email, password);
+            if (!validation.isValid) {
+                // Display validation errors
+                if (!email || !password) {
+                    generalError.textContent = 'Please fill in all fields';
+                } else {
+                    generalError.textContent = 'Email or password is invalid';
+                }
+                return;
+            }
+
+            const result = await signIn(email, password);
+
+            if (result.success) {
+                // Login successful
+                window.location.href = '../index.html';
+            } else {
+                // Handle error
+                if (result.error.includes('user-not-found') || 
+                    result.error.includes('wrong-password') || 
+                    result.error.includes('auth/wrong-password') ||
+                    result.error.includes('auth/user-not-found')) {
+                    generalError.textContent = 'Email or password is invalid';
+                } else if (result.error.includes('too-many-requests')) {
+                    generalError.textContent = 'Too many failed attempts. Please try again later.';
+                } else if (result.error.includes('invalid-email')) {
+                    generalError.textContent = 'Please enter a valid email address';
+                } else {
+                    generalError.textContent = 'An error occurred. Please try again.';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

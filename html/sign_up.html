@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub | Sign up</title>
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="all-cnt">
+    <div class="container container-signup">
+        <div class="right">
+            <div class="logo">
+                <img src="../img/logo.png" alt="logo">
+            </div>
+
+            <h2>Create new account</h2>
+
+            <p class="new-here">Already a member? <a href="login.html">Log in</a></p>
+
+            <div class="form">
+                <form id="signupForm">
+                    <div class="input-container">
+                        <div class="useri-img">
+                            <img id="preview-img" src="../img/useri.png" alt="User">
+                            <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                        </div>
+                        
+                        <div class="input-row">
+                            <label for="email">Enter email id</label>
+                            <input type="email" id="email" >
+                            <p id="error-email"></p>
+                        </div>
+
+                        <div class="input-row">
+                            <label for="password">Enter password</label>
+                            <div class="password-row">
+                                <input type="password" id="password" >
+                                <i class="fa-solid fa-eye-slash" onclick="changeIcon()" id="icon"></i>
+                            </div>
+                            <p id="error-password"></p>
+                        </div>
+
+                        <div class="input-row">
+                            <label for="password2">Enter password</label>
+                            <div class="password-row">
+                                <input type="password" id="password2" >
+                                <i class="fa-solid fa-eye-slash" onclick="changeIcon2()" id="icon2"></i>
+                            </div>
+                            <p id="error-password2"></p>
+                        </div>
+                    </div>
+
+                    <div class="remember-forgot-row">
+                        <div class="remember-me">
+                            <input type="checkbox" id="check">
+                            <label for="check">Remember me?</label>
+                        </div>
+                    </div>
+
+                    <input type="submit" id="submit" value="Sign Up">
+
+                    <div class="or-signin-with">
+                        <hr>
+                        <p>Or sign in with</p>
+                    </div>
+
+                    <div class="google">
+                        <i class="fa-brands fa-google"></i>
+                        <p>Sign in with Google</p>
+                    </div>
+
+                    <div class="facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                        <p>Sign in with Facebook</p>
+                    </div>
+
+                    <p class="last">&copy;2024 <span>Rijon Tahiri.</span> All rights reserved</p>
+                </form>
+            </div>
+        </div>
+
+        <div class="left" style="border: none; border-left: 1px solid #f1f1f2;">
+            <div class="img">
+                <img src="../img/login-svg.svg" alt="Login ilustration">
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script type="module">
+        import { signUp } from '../js/auth.js';
+        import { setupSignupValidation, validateSignupForm } from '../js/validation.js';
+        
+        const signupForm = document.getElementById('signupForm');
+        const errorEmail = document.getElementById('error-email');
+        const errorPassword = document.getElementById('error-password');
+        const errorPassword2 = document.getElementById('error-password2');
+        const generalError = document.getElementById('general-error');
+        const passwordInput = document.getElementById('password');
+        const password2Input = document.getElementById('password2');
+        const icon = document.getElementById('icon');
+        const icon2 = document.getElementById('icon2');
+
+        // Password visibility toggle for first password
+        window.changeIcon = function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        };
+
+        // Password visibility toggle for second password
+        window.changeIcon2 = function() {
+            if (password2Input.type === 'password') {
+                password2Input.type = 'text';
+                icon2.classList.remove('fa-eye-slash');
+                icon2.classList.add('fa-eye');
+            } else {
+                password2Input.type = 'password';
+                icon2.classList.remove('fa-eye');
+                icon2.classList.add('fa-eye-slash');
+            }
+        };
+
+        // Setup real-time validation
+        setupSignupValidation();
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value;
+
+            // Validate form before submission
+            const validation = validateSignupForm(email, password, password2);
+            if (!validation.isValid) {
+                // Display validation errors
+                errorEmail.textContent = validation.errors.email;
+                errorEmail.style.color = 'red';
+                errorPassword.textContent = validation.errors.password;
+                errorPassword.style.color = 'red';
+                errorPassword2.textContent = validation.errors.confirmPassword;
+                errorPassword2.style.color = 'red';
+                return;
+            }
+
+            // Clear previous errors
+            errorEmail.textContent = '';
+            errorPassword.textContent = '';
+            errorPassword2.textContent = '';
+
+            const result = await signUp(email, password);
+
+            if (result.success) {
+                // Signup successful
+                window.location.href = '../index.html';
+            } else {
+                // Handle error
+                if (result.error.includes('email-already-in-use')) {
+                    errorEmail.textContent = 'An account with this email already exists';
+                    errorEmail.style.color = 'red';
+                } else if (result.error.includes('invalid-email')) {
+                    errorEmail.textContent = 'Please enter a valid email address';
+                    errorEmail.style.color = 'red';
+                } else if (result.error.includes('weak-password')) {
+                    errorPassword.textContent = 'Password is too weak. Please follow the requirements.';
+                    errorPassword.style.color = 'red';
+                } else if (result.error.includes('too-many-requests')) {
+                    errorEmail.textContent = 'Too many attempts. Please try again later.';
+                    errorEmail.style.color = 'red';
+                } else {
+                    errorEmail.textContent = 'An error occurred. Please try again.';
+                    errorEmail.style.color = 'red';
+                }
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    // Attach the click event listener after DOM content is loaded
+    const useriImg = document.querySelector('.useri-img');
+    useriImg.addEventListener('click', triggerFileInput);
+});
+
+// Function to trigger file input click
+function triggerFileInput() {
+    document.getElementById('file-input').click();
+}
+
+// Function to handle image upload and preview
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+
+        // Check if the selected file is an image
+        if (file.type.startsWith('image/')) {
+            reader.onload = function (e) {
+                const base64Image = e.target.result;  // Get base64 encoded image data
+                // Set the preview image src to the base64 image data
+                document.getElementById('preview-img').src = base64Image;
+                // Optionally, save the image to localStorage (if needed for future use)
+                localStorage.setItem('profileImage', base64Image);
+            };
+            reader.readAsDataURL(file);  // Convert the image file to base64
+        } else {
+            alert('Please upload a valid image file.');
+        }
+    }
+}
+
+    </script>
+
+</body>
+</html>
