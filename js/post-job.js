@@ -5,12 +5,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewPlaceholder = document.querySelector('.preview-placeholder');
     const applicationDeadline = document.getElementById('applicationDeadline');
     const btn = document.getElementById("btn");
+    const postJobContainer = document.querySelector('.blured');
 
-    if(localStorage.getItem("token")) {
-        btn.innerHTML = "Post Job"
-    }else {
-        btn.innerHTML = "Sign Up to post"
-
+    // Check authentication on page load
+    if(!localStorage.getItem("token")) {
+        btn.innerHTML = "Sign Up to post";
+        showLoginPopup();
+        postJobContainer.classList.add('blurred');
+    } else {
+        btn.innerHTML = "Post Job";
+        postJobContainer.classList.remove('blurred');
     }
 
     // Set minimum date to today
@@ -62,7 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Real-time validation for inputs
-    const inputs = postJobForm.querySelectorAll('input, select, textarea');
+    const inputs = postJobForm.querySelectorAll(
+        'input:not([type="file"]), select, textarea'    
+      );
+      
     inputs.forEach(input => {
         input.addEventListener('input', function() {
             removeError(input);
@@ -201,6 +208,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (postJobForm) {
         postJobForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Check if user is authenticated
+            if (!localStorage.getItem("token")) {
+                showLoginPopup();
+                return;
+            }
             
             // Reset previous error messages
             clearErrors();
@@ -416,4 +429,48 @@ document.addEventListener('DOMContentLoaded', function() {
         const errorInputs = document.querySelectorAll('.error');
         errorInputs.forEach(input => input.classList.remove('error'));
     }
+
+    // Function to show login popup
+    function showLoginPopup() {
+        const loginPopupOverlay = document.getElementById('loginPopupOverlay');
+        loginPopupOverlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Enable all form inputs
+        const formInputs = postJobForm.querySelectorAll('input, select, textarea');
+        formInputs.forEach(input => {
+            input.disabled = false;
+            input.style.opacity = '1';
+        });
+
+        const submitBtn = document.getElementById("btn");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+    }
+
+    // Function to close login popup
+    function closeLoginPopup() {
+        const loginPopupOverlay = document.getElementById('loginPopupOverlay');
+        loginPopupOverlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        
+        // Disable all form inputs except the submit button
+        const formInputs = postJobForm.querySelectorAll('input,select, textarea');
+        formInputs.forEach(input => {
+            input.disabled = true;
+            input.style.opacity = '1';
+        });
+        
+        // Keep submit button enabled and full opacity
+        const submitBtn = document.getElementById("btn");
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+        }
+    }
+
+    // Make closeLoginPopup function available globally
+    window.closeLoginPopup = closeLoginPopup;
 }); 

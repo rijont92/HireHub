@@ -190,12 +190,6 @@ a,li {
   opacity: 0;
 }
 
-
-/* Override parent's display none */
-.nav-rightt .nav__toggle {
-  display: flex !important;
-}
-
 /* Navigation for mobile devices */
 @media screen and (max-width: 1118px) {
   .nav__menu {
