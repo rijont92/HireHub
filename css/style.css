@@ -88,7 +88,7 @@ body {
   } 
 
   .remove {
-    display: none !important;
+    display: none;
   }
 
 
@@ -672,7 +672,7 @@ body {
     }
 
     .nonee.none2.hiqe {
-      display: none !important;
+      display: none;
     }
   }
 

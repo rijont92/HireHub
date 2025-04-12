@@ -52,12 +52,13 @@ a,li {
 }
 
 .nav-rightt {
-  display: none;
-  align-items: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .nav-li-right {
-  display: none;
+  display: flex;
 }
 
 .nav-rightt a {
@@ -165,6 +166,11 @@ a,li {
   position: relative;
   width: 32px;
   height: 32px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
 }
 
 .nav__burger, 
@@ -177,10 +183,17 @@ a,li {
   font-size: 1.25rem;
   cursor: pointer;
   transition: opacity .1s, transform .4s;
+  color: var(--black-color);
 }
 
 .nav__close {
   opacity: 0;
+}
+
+
+/* Override parent's display none */
+.nav-rightt .nav__toggle {
+  display: flex !important;
 }
 
 /* Navigation for mobile devices */
@@ -202,6 +215,17 @@ a,li {
   .nav__list {
     background-color: #755ea3;
     padding-top: 1rem;
+  }
+  .nav__toggle {
+    display: flex;
+  }
+  .nav__burger {
+    opacity: 1;
+    transform: none;
+  }
+  .nav__close {
+    opacity: 0;
+    transform: none;
   }
 }
 
@@ -305,11 +329,11 @@ a,li {
 }
 
 .nonee {
-  display: none !important;
+  display: none;
 }
 
 .none2 {
-  display: none !important;
+  display: none;
 }
 
 /*=============== BREAKPOINTS ===============*/
@@ -333,7 +357,7 @@ a,li {
     justify-content: space-between;
   }
   .nav__toggle {
-    display: none;
+    display: none; /* Hide on desktop */
   }
   .nav__list {
     height: 100%;
@@ -438,7 +462,7 @@ a,li {
     }
 
     .nonee.none2 {
-      display: none !important;
+      display: none;
     }
 
     .nav-li-right a:hover {
@@ -528,24 +552,68 @@ a,li {
 
 /* Update display rules for authentication-dependent elements */
 .nonee {
-    display: none !important;
+    display: none;
 }
 
 .none2 {
-    display: none !important;
+    display: none;
 }
 
 /* Only show these elements when authenticated */
-.nav-rightt {
-    display: none;
+.nav-rightt.show {
+    display: flex;
 }
 
 @media screen and (max-width: 1118px) {
     .nav-li-right {
-        display: none !important;
+        display: flex;
     }
 
     .nav-li-right.show {
-        display: flex !important;
+        display: flex;
     }
+}
+
+
+/* Show nav-rightt on mobile */
+@media screen and (max-width: 1118px) {
+  .nav-rightt {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .nav-li-right {
+    display: flex;
+    align-items: center;
+  }
+}
+
+
+/* Override inline display: none for mobile */
+@media screen and (max-width: 1118px) {
+  .nav-rightt {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .nav__toggle {
+    display: flex;
+  }
+}
+
+/* Hide on desktop */
+@media screen and (min-width: 1118px) {
+  .nav-rightt {
+    display: none;
+  }
+}
+
+/* Remove duplicate media query */
+@media (max-width: 1118px) {
+  .nav-rightt {
+    display: flex;
+    align-items: center;
+  }
 }

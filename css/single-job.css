@@ -15,14 +15,15 @@
 }
 
 .single-job-section {
-    padding: 4rem 0;
-    min-height: calc(100vh - 80px);
+    padding: 2rem 0;
+    min-height: calc(100vh - 200px);
+    background-color: #f8f9fa;
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    max-width: 1300px;
+    width: 90%;
+    margin: auto;
 }
 
 .single-job-container {
@@ -252,46 +253,38 @@
 }
 
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .single-job-container {
+
+
+@media (max-width: 1200px) {
+  
+    .job-details-grid {
         grid-template-columns: 1fr;
     }
-    
-    .similar-jobs-grid {
-        grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 1024px) {
+    .job-details-grid {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 768px) {
-    .single-job-section {
-        padding: 2rem 0;
-    }
-    
-    .job-title {
-        font-size: 1.8rem;
-    }
-    
-    .job-meta-info {
+    .job-actions {
         flex-direction: column;
     }
-    
-    .meta-item {
+    .job-actions button {
         width: 100%;
-    }
-    
-    .similar-jobs-grid {
-        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 576px) {
-    .job-actions {
+    .job-header {
         flex-direction: column;
+        align-items: flex-start;
     }
-    
-    .save-btn {
-        width: 100%;
+    .job-meta {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }
 

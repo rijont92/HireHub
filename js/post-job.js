@@ -4,6 +4,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoPreview = document.getElementById('logoPreview');
     const previewPlaceholder = document.querySelector('.preview-placeholder');
     const applicationDeadline = document.getElementById('applicationDeadline');
+    const btn = document.getElementById("btn");
+
+    if(localStorage.getItem("token")) {
+        btn.innerHTML = "Post Job"
+    }else {
+        btn.innerHTML = "Sign Up to post"
+
+    }
 
     // Set minimum date to today
     const today = new Date();

@@ -57,46 +57,46 @@ function updateHeader(user) {
                     await auth.signOut();
                 }
                 localStorage.removeItem('token');
-                window.location.href = 'html/login.html';
+                window.location.href = '../html/login.html';
             } catch (error) {
                 console.error('Error signing out:', error);
             }
         });
 
         // Show elements when authenticated
-        navRightt.style.cssText = 'display: flex !important';
+        navRightt.classList.add('show');
         navLiRight.classList.add('show');
         noneElements.forEach(element => {
-            element.style.cssText = 'display: block !important';
+            element.classList.add('show');
         });
         none2Elements.forEach(element => {
-            element.style.cssText = 'display: block';
+            element.classList.add('show');
         });
 
     } else {
         // User is not logged in - show login/signup menu
         dropdownMenu.innerHTML = `
             <li>
-                <a href="html/login.html" class="dropdown__link">
+                <a href="../html/login.html" class="dropdown__link">
                     <i class="ri-login-box-line"></i> Log In
                 </a>
             </li>
 
             <li>
-                <a href="html/sign_up.html" class="dropdown__link">
+                <a href="../html/sign_up.html" class="dropdown__link">
                     <i class="ri-user-add-line"></i> Sign up
                 </a>
             </li>
         `;
 
         // Hide elements when not authenticated
-        navRightt.style.cssText = 'display: none !important';
+        navRightt.classList.remove('show');
         navLiRight.classList.remove('show');
         noneElements.forEach(element => {
-            element.style.cssText = 'display: none !important';
+            element.classList.remove('show');
         });
         none2Elements.forEach(element => {
-            element.style.cssText = 'display: none !important';
+            element.classList.remove('show');
         });
     }
 }
@@ -110,28 +110,16 @@ function initAuthState() {
     onAuthStateChanged(auth, (user) => {
         updateHeader(user);
     });
-    
-    // Handle responsive design
-    window.addEventListener('resize', () => {
-        const navRightt = document.querySelector('.nav-rightt');
-        if (window.innerWidth <= 1118 && !auth.currentUser && !localStorage.getItem('token')) {
-            navRightt.style.display = 'none';
-        } else if (auth.currentUser || localStorage.getItem('token')) {
-            navRightt.style.display = 'flex';
-        }
-    });
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    initAuthState();
-});
+// Initialize auth state
+initAuthState();
 
 // Export functions if needed
 window.logOut = () => {
     localStorage.removeItem('token');
     updateHeader(null);
-    window.location.href = 'html/login.html';
+    window.location.href = '../html/login.html';
 };
 
 export { initAuthState }; 
