@@ -57,6 +57,8 @@ function updateHeader(user) {
                     await auth.signOut();
                 }
                 localStorage.removeItem('token');
+                localStorage.setItem("isAuthenticated",false);
+
                 window.location.href = '../html/login.html';
             } catch (error) {
                 console.error('Error signing out:', error);

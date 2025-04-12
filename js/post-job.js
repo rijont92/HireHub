@@ -8,14 +8,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const postJobContainer = document.querySelector('.blured');
 
     // Check authentication on page load
-    if(!localStorage.getItem("token")) {
+    if(localStorage.getItem("isAuthenticated") === "true") {
+        btn.innerHTML = "Post Job";
+        postJobContainer.classList.remove('blurred');
+       
+    } else {
         btn.innerHTML = "Sign Up to post";
         showLoginPopup();
         postJobContainer.classList.add('blurred');
-    } else {
-        btn.innerHTML = "Post Job";
-        postJobContainer.classList.remove('blurred');
     }
+
+    console.log(localStorage.getItem("isAuthenticated"));
 
     // Set minimum date to today
     const today = new Date();
