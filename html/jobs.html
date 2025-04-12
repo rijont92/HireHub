@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HireHub | Post a Job</title>
+    <title>HireHub | Jobs</title>
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="../css/post-job.css">
+    <link rel="stylesheet" href="../css/jobs.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
     <script type="module" src="../js/auth-state.js"></script>
 </head>
 <body>
-   <header class="header">
+    <header class="header">
       <nav class="nav container">
          <div class="nav__data">
             <a href="../index.html" class="nav__logo">
@@ -48,8 +48,8 @@
          <div class="nav__menu" id="nav-menu">
             <ul class="nav__list">
                <li><a href="../index.html" class="nav__link">Home</a></li>
-               <li><a href="jobs.html" class="nav__link">Jobs</a></li>
-               <li><a href="post-job.html" class="nav__link active">Post a Job</a></li>
+               <li><a href="jobs.html" class="nav__link active">Jobs</a></li>
+               <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
                <li class="dropdown__item">
                   <div class="nav__link">
                      Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
@@ -115,99 +115,53 @@
       </nav>
    </header>
 
-     <section class="post-job-section">
+    <main class="jobs-section">
         <div class="container">
-            <div class="post-job-container">
-                <div class="post-job-header">
-                    <h1>Post a New Job</h1>
-                    <p>Fill out the form below to post your job listing</p>
-                </div>
-
-                <form class="post-job-form" id="postJobForm">
-                    <div class="form-group">
-                        <label for="jobTitle">Job Title</label>
-                        <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Senior Web Developer" >
+            <div class="jobs-header">
+                <h1>Available Jobs</h1>
+                <div class="search-filters">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search jobs...">
+                        <i class="fas fa-search"></i>
                     </div>
-
-                    <div class="form-group">
-                        <label for="companyName">Company Name </label>
-                        <input type="text" id="companyName" name="companyName" placeholder="Enter your company name" >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="jobType">Job Type </label>
-                        <select id="jobType" name="jobType" >
-                            <option value="">Select job type</option>
-                            <option value="full-time">Full Time</option>
-                            <option value="part-time">Part Time</option>
-                            <option value="contract">Contract</option>
-                            <option value="internship">Internship</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="location">Location </label>
-                        <input type="text" id="location" name="location" placeholder="e.g. Prishtinë, Kosovo" >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="salary">Salary Range</label>
-                        <input type="text" id="salary" name="salary" placeholder="e.g. €1000 - €2000">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="vacancy">Number of Vacancies </label>
-                        <input type="number" id="vacancy" name="vacancy" min="1" >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="jobDescription">Job Description </label>
-                        <textarea id="jobDescription" name="jobDescription" rows="6" placeholder="Describe the job responsibilities and requirements..." ></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="requirements">Requirements </label>
-                        <textarea id="requirements" name="requirements" rows="4" placeholder="List the  skills and qualifications..." ></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="benefits">Benefits</label>
-                        <textarea id="benefits" name="benefits" rows="4" placeholder="List any benefits or perks..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="applicationDeadline">Application Deadline</label>
-                        <input type="date" id="applicationDeadline" name="applicationDeadline" min="">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="contactEmail">Contact Email </label>
-                        <input type="email" id="contactEmail" name="contactEmail" placeholder="Enter contact email" >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="companyLogo">Company Logo</label>
-                        <div class="logo-upload-container">
-                            <input type="file" id="companyLogo" name="companyLogo" accept="image/jpeg,image/png,image/gif" onchange="validateImage(this)">
-                            <div class="logo-preview">
-                                <img id="logoPreview" src="#" alt="Logo preview" style="display: none;">
-                                <div class="preview-placeholder">
-                                    <i class="fa fa-cloud-upload-alt"></i>
-                                    <span>Upload your company logo (JPEG, PNG, or GIF)</span>
-                                </div>
-                            </div>
+                    <div class="filters">
+                        <div class="select-wrapper">
+                            <select id="jobTypeFilter">
+                                <option value="">All Job Types</option>
+                                <option value="full-time">Full Time</option>
+                                <option value="part-time">Part Time</option>
+                                <option value="contract">Contract</option>
+                                <option value="internship">Internship</option>
+                            </select>
+                            <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                        </div>
+                        <div class="select-wrapper">
+                            <select id="locationFilter">
+                                <option value="">All Locations</option>
+                            </select>
+                            <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="form-submit">
-                        <button type="submit" class="submit-btn">Post Job</button>
-                    </div>
-                </form>
+            <div class="jobs-grid" id="jobsContainer">
+                <!-- Jobs will be dynamically inserted here -->
+            </div>
+
+            <div class="no-jobs-message" id="noJobsMessage" style="display: none;">
+                <i class="fas fa-briefcase"></i>
+                <h3>No jobs found</h3>
+                <p>Try adjusting your search criteria</p>
+            </div>
+
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
             </div>
         </div>
-     </section>
+    </main>
 
-     <footer>
+    <footer>
       <div class="container">
          <div class="wrapper">
             <div class="footer-widget wrapper-center">
@@ -279,17 +233,7 @@
       </div>
    </footer>
 
-     <script src="../js/header.js"></script>
-     <script src="../js/post-job.js"></script>
-
-     <!-- Success Popup -->
-     <div class="popup-overlay" id="popupOverlay" style="display: none;">
-        <div class="success-popup">
-            <i class="fas fa-check-circle"></i>
-            <h2>Job Posted Successfully!</h2>
-            <p>Your job listing has been posted and is now visible to potential candidates.</p>
-            <button onclick="closePopup()">Continue</button>
-        </div>
-     </div>
+    <script src="../js/header.js"></script>
+    <script src="../js/jobs.js"></script>
 </body>
 </html> 

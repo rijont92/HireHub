@@ -3,6 +3,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoInput = document.getElementById('companyLogo');
     const logoPreview = document.getElementById('logoPreview');
     const previewPlaceholder = document.querySelector('.preview-placeholder');
+    const applicationDeadline = document.getElementById('applicationDeadline');
+
+    // Set minimum date to today
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    applicationDeadline.min = formattedDate;
 
     // Add error message display
     function showError(input, message) {
@@ -188,61 +194,218 @@ document.addEventListener('DOMContentLoaded', function() {
         postJobForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Remove all existing error messages
-            document.querySelectorAll('.error-message').forEach(error => error.remove());
-            
+            // Reset previous error messages
+            clearErrors();
+
             // Validate all fields
-            let isValid = true;
-            inputs.forEach(input => {
-                if (!validateField(input) && input.required) {
-                    isValid = false;
-                }
-            });
+            const isValid = validateForm();
+            
+            if (isValid) {
+                try {
+                    // Collect form data
+                    const formData = new FormData(postJobForm);
+                    const jobData = {};
+                    
+                    // Convert FormData to object
+                    for (let [key, value] of formData.entries()) {
+                        jobData[key] = value;
+                    }
 
-            if (!isValid) {
-                // Scroll to the first error
-                const firstError = document.querySelector('.error-message');
-                if (firstError) {
-                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                return;
-            }
+                    // Add timestamp and ID
+                    jobData.id = Date.now().toString();
+                    jobData.postedDate = new Date().toISOString();
 
-            try {
-                // Collect form data
-                const formData = new FormData(postJobForm);
-                
-                // Log form data (replace with your actual submission logic)
-                for (let [key, value] of formData.entries()) {
-                    console.log(key, value);
+                    // Handle company logo
+                    const logoFile = formData.get('companyLogo');
+                    if (logoFile) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            jobData.companyLogo = e.target.result;
+                            saveAndRedirect(jobData);
+                        }
+                        reader.readAsDataURL(logoFile);
+                    } else {
+                        jobData.companyLogo = '../img/default-logo.png';
+                        saveAndRedirect(jobData);
+                    }
+                    
+                } catch (error) {
+                    console.error('Error posting job:', error);
+                    alert('Error posting job. Please try again.');
                 }
-                
-                // Show success message
-                const successMessage = document.createElement('div');
-                successMessage.className = 'success-message';
-                successMessage.style.backgroundColor = '#4CAF50';
-                successMessage.style.color = 'white';
-                successMessage.style.padding = '1rem';
-                successMessage.style.borderRadius = '8px';
-                successMessage.style.marginBottom = '1rem';
-                successMessage.style.textAlign = 'center';
-                successMessage.textContent = 'Job posted successfully!';
-                
-                postJobForm.insertBefore(successMessage, postJobForm.firstChild);
-                
-                // Reset form after 2 seconds
-                setTimeout(() => {
-                    postJobForm.reset();
-                    successMessage.remove();
-                    logoPreview.src = '#';
-                    logoPreview.style.display = 'none';
-                    previewPlaceholder.style.display = 'flex';
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error posting job:', error);
-                alert('Error posting job. Please try again.');
             }
         });
+    }
+
+    function saveAndRedirect(jobData) {
+        // Get existing jobs from localStorage
+        let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+        
+        // Add new job
+        jobs.push(jobData);
+        
+        // Save back to localStorage
+        localStorage.setItem('jobs', JSON.stringify(jobs));
+        
+        // Show success popup
+        showSuccessPopup();
+    }
+
+    function showSuccessPopup() {
+        const popupOverlay = document.getElementById('popupOverlay');
+        popupOverlay.style.display = 'block';
+        
+        // Prevent scrolling when popup is shown
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePopup() {
+        const popupOverlay = document.getElementById('popupOverlay');
+        popupOverlay.style.display = 'none';
+        
+        // Restore scrolling
+        document.body.style.overflow = 'auto';
+        
+        // Redirect to jobs page after a short delay
+        setTimeout(() => {
+            window.location.href = 'jobs.html';
+        }, 300);
+    }
+
+    // Make closePopup function available globally
+    window.closePopup = closePopup;
+
+    function validateForm() {
+        let isValid = true;
+
+        // Job Title validation
+        const jobTitle = document.getElementById('jobTitle');
+        if (!jobTitle.value.trim()) {
+            showError(jobTitle, 'Job title is required');
+            isValid = false;
+        } else if (jobTitle.value.trim().length < 3) {
+            showError(jobTitle, 'Job title must be at least 3 characters long');
+            isValid = false;
+        }
+
+        // Company Name validation
+        const companyName = document.getElementById('companyName');
+        if (!companyName.value.trim()) {
+            showError(companyName, 'Company name is required');
+            isValid = false;
+        }
+
+        // Job Type validation
+        const jobType = document.getElementById('jobType');
+        if (!jobType.value) {
+            showError(jobType, 'Please select a job type');
+            isValid = false;
+        }
+
+        // Location validation
+        const location = document.getElementById('location');
+        if (!location.value.trim()) {
+            showError(location, 'Location is required');
+            isValid = false;
+        }
+
+        // Salary validation
+        const salary = document.getElementById('salary');
+        if (!salary.value.trim()) {
+            showError(salary, 'Salary range is required');
+            isValid = false;
+        } else if (!/^[€$]?\d+(\s*-\s*[€$]?\d+)?$/.test(salary.value.trim())) {
+            showError(salary, 'Please enter a valid salary range (e.g., €1000 - €2000)');
+            isValid = false;
+        }
+
+        // Vacancy validation
+        const vacancy = document.getElementById('vacancy');
+        if (!vacancy.value) {
+            showError(vacancy, 'Number of vacancies is required');
+            isValid = false;
+        } else if (parseInt(vacancy.value) < 1) {
+            showError(vacancy, 'Number of vacancies must be at least 1');
+            isValid = false;
+        }
+
+        // Job Description validation
+        const jobDescription = document.getElementById('jobDescription');
+        if (!jobDescription.value.trim()) {
+            showError(jobDescription, 'Job description is required');
+            isValid = false;
+        } else if (jobDescription.value.trim().length < 50) {
+            showError(jobDescription, 'Job description must be at least 50 characters long');
+            isValid = false;
+        }
+
+        // Requirements validation
+        const requirements = document.getElementById('requirements');
+        if (!requirements.value.trim()) {
+            showError(requirements, 'Requirements are required');
+            isValid = false;
+        } else if (requirements.value.trim().length < 30) {
+            showError(requirements, 'Requirements must be at least 30 characters long');
+            isValid = false;
+        }
+
+        // Benefits validation
+        const benefits = document.getElementById('benefits');
+        if (!benefits.value.trim()) {
+            showError(benefits, 'Benefits are required');
+            isValid = false;
+        } else if (benefits.value.trim().length < 20) {
+            showError(benefits, 'Benefits must be at least 20 characters long');
+            isValid = false;
+        }
+
+        // Application Deadline validation
+        if (!applicationDeadline.value) {
+            showError(applicationDeadline, 'Application deadline is required');
+            isValid = false;
+        } else {
+            const selectedDate = new Date(applicationDeadline.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                showError(applicationDeadline, 'Application deadline cannot be in the past');
+                isValid = false;
+            }
+        }
+
+        // Contact Email validation
+        const contactEmail = document.getElementById('contactEmail');
+        if (!contactEmail.value.trim()) {
+            showError(contactEmail, 'Contact email is required');
+            isValid = false;
+        } else if (!isValidEmail(contactEmail.value.trim())) {
+            showError(contactEmail, 'Please enter a valid email address');
+            isValid = false;
+        }
+
+        // Company Logo validation
+        const companyLogo = document.getElementById('companyLogo');
+        if (!companyLogo.files || companyLogo.files.length === 0) {
+            showError(companyLogo, 'Company logo is required');
+            isValid = false;
+        } else {
+            const file = companyLogo.files[0];
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                showError(companyLogo, 'Please upload a valid image file (JPEG, PNG, or GIF)');
+                isValid = false;
+            }
+        }
+
+        return isValid;
+    }
+
+    function clearErrors() {
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(error => error.remove());
+        
+        const errorInputs = document.querySelectorAll('.error');
+        errorInputs.forEach(input => input.classList.remove('error'));
     }
 }); 
