@@ -103,17 +103,8 @@
     font-weight: 600;
     color: var(--secondary-color);
     font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    height: 24px;
     line-height: 24px;
     transition: all 0.3s ease;
-}
-
-.form-group label i {
-    color: var(--primary-color);
-    font-size: 0.9rem;
 }
 
 .form-group input,
@@ -326,10 +317,6 @@
     .post-job-form {
         gap: 1.2rem;
     }
-
-    .form-group label {
-        width: 130px;
-    }
 }
 
 @media (max-width: 992px) {
@@ -473,13 +460,14 @@
     background-color: #f8f9fa;
 }
 
-/* Required field indicator */
-.form-group label[for]:after {
-    content: "*";
-    color: #ff4444;
-    font-size: 0.9rem;
-    margin-left: 0.3rem;
-    opacity: 0.8;
+.form-group span {
+    color: red;
+}
+
+
+.logo-upload-container span {
+    color: var(--primary-color);
+    text-align: center;
 }
 
 /* Form Validation Styles */

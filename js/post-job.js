@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             // Check if user is authenticated
-            if (!localStorage.getItem("token")) {
+            if (localStorage.getItem("isAuthenticated") === "false") {
                 showLoginPopup();
                 return;
             }

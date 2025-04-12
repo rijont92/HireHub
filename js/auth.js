@@ -22,7 +22,7 @@ export async function signIn(email, password) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        localStorage.setItem("isAuthenticated",true);
+        localStorage.setItem("isAuthenticated","true");
         return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };
