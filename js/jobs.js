@@ -127,42 +127,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 const sampleJobs = [
                     {
                         id: '1',
-                        jobTitle: 'Frontend Developer',
-                        companyName: 'Tech Solutions Inc.',
-                        companyLogo: '../img/company-logo.png',
-                        jobType: 'Full Time',
-                        location: 'New York',
-                        salary: '$80,000 - $100,000',
-                        applicationDeadline: '2024-12-31',
-                        jobDescription: 'We are looking for a skilled Frontend Developer to join our team...',
-                        requirements: ['3+ years of experience', 'Proficiency in React', 'Strong CSS skills'],
-                        benefits: ['Health insurance', 'Remote work options', 'Professional development']
+                        jobTitle: 'Programming Teacher',
+                        companyName: 'Innovation Academy',
+                        companyLogo: '../img/innovation-academy-job.jpg',
+                        jobType: 'Part Time',
+                        location: 'Vushtrri',
+                        salary: '1000-1200',
+                        applicationDeadline: '2025-06-30',
+                        jobDescription: 'We are looking for a skilled Programming Teacher to join our team and inspire the next generation of developers. Responsibilities include creating lesson plans, teaching programming languages, and mentoring students.',
+                        requirements: ['3+ years of teaching experience', 'Proficiency in Python and JavaScript', 'Strong communication skills'],
+                        benefits: ['Flexible hours', 'Health insurance', 'Professional development opportunities']
                     },
                     {
                         id: '2',
-                        jobTitle: 'Backend Developer',
-                        companyName: 'Data Systems Ltd.',
-                        companyLogo: '../img/company-logo.png',
+                        jobTitle: 'Sales Consultant',
+                        companyName: 'Peugeot Kosova',
+                        companyLogo: '../img/peugout-kosova-job.png',
                         jobType: 'Part Time',
-                        location: 'San Francisco',
-                        salary: '$70,000 - $90,000',
-                        applicationDeadline: '2024-12-15',
-                        jobDescription: 'Join our backend team to build scalable applications...',
-                        requirements: ['Node.js experience', 'Database knowledge', 'API design'],
-                        benefits: ['Flexible hours', 'Competitive salary', 'Team events']
+                        location: 'Ferizaj',
+                        salary: '700-850',
+                        applicationDeadline: '2025-07-20',
+                        jobDescription: 'Peugeot Kosova is looking for Sales Consultants to assist customers in selecting vehicles and providing excellent customer service. Responsibilities include product knowledge, customer interaction, and sales support.',
+                        requirements: ['Experience in sales', 'Strong communication skills', 'Customer-oriented attitude'],
+                        benefits: ['Flexible hours', 'Employee discounts', 'Training opportunities'],
+                        vacancies: { total: 10, applied: 4 }
                     },
                     {
                         id: '3',
-                        jobTitle: 'UI/UX Designer',
-                        companyName: 'Creative Design Co.',
-                        companyLogo: '../img/company-logo.png',
+                        jobTitle: 'Manager',
+                        companyName: 'Viva Fresh',
+                        companyLogo: '../img/viva-fresh-job.png',
                         jobType: 'Full Time',
-                        location: 'Los Angeles',
-                        salary: '$75,000 - $95,000',
-                        applicationDeadline: '2024-12-20',
-                        jobDescription: 'We need a creative UI/UX Designer to enhance our products...',
-                        requirements: ['Portfolio required', 'Figma expertise', 'User research skills'],
-                        benefits: ['Design tools provided', 'Creative environment', 'Career growth']
+                        location: 'Vushtrri',
+                        salary: "850-950",
+                        applicationDeadline: '2025-07-25',
+                        jobDescription: 'Viva Fresh is seeking a Manager to oversee operations at our supermarket. Responsibilities include managing staff, ensuring customer satisfaction, and maintaining inventory.',
+                        requirements: ['Experience in retail management', 'Strong leadership skills', 'Excellent communication abilities'],
+                        benefits: ['Health insurance', 'Paid time off', 'Employee discounts'],
+                        vacancies: { total: 3, applied: 1 }
                     }
                 ];
                 
