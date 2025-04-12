@@ -917,14 +917,12 @@
 }
 
 .save-btn {
-    background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    background-color: var(--secondary-color);
+    color: white;
 }
 
 .save-btn:hover {
-    background: var(--hover);
-    color: white;
+    background-color: #001f3d;
     transform: translateY(-2px);
 }
 

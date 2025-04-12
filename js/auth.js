@@ -11,6 +11,8 @@ export async function signUp(email, password) {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+        localStorage.setItem("isAuthenticated","true");
+
         return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };

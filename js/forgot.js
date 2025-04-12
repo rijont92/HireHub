@@ -1,3 +1,6 @@
+import { auth } from './firebase-config.js'; // Import the auth object from your config file
+import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form");
     const Email = document.getElementById("email");
@@ -9,8 +12,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const isEmailValid = validateEmail(Email.value);
 
         if (isEmailValid) {
-            // Redirect to login page only if email is valid
-            window.location.href = "login.html";  // Redirect to login page
+            // Send password reset email using Firebase
+            sendPasswordResetEmail(auth, Email.value)
+                .then(() => {
+                    // Show the modal
+                    const modal = document.getElementById("successModal");
+                    modal.style.display = "flex";
+
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = "login.html";  // Redirect to login page
+                    }, 2000); // Redirect after 2 seconds
+                })
+                .catch((error) => {
+                    // Handle Errors here.
+                    errorEmail.innerHTML = error.message; // Display error message
+                    Email.classList.add("error");
+                });
         }
     });
 
@@ -34,5 +52,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         return isValid;
+    }
+
+    // Get the modal
+    const modal = document.getElementById("successModal");
+
+    // Get the <span> element that closes the modal
+    const span = document.getElementById("closeModal");
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
     }
 });
