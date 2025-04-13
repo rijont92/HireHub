@@ -1,10 +1,17 @@
 import { auth } from './firebase-config.js'; // Import the auth object from your config file
 import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { isAuthenticated } from '../js/auth.js';
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("form");
     const Email = document.getElementById("email");
     const errorEmail = document.getElementById("error-email");
+
+    if (isAuthenticated()) {
+        window.location.replace("../index.html"); 
+    }
+    
 
     form.addEventListener("submit", function(event) {
         event.preventDefault(); // Prevent form submission

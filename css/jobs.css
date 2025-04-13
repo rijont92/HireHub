@@ -137,6 +137,7 @@
     transition: transform 0.3s ease;
     overflow: hidden;
     margin-bottom: 1.5rem;
+    cursor: pointer;
 }
 
 .job-card:hover {

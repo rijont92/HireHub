@@ -47,3 +47,8 @@ export function checkAuthState(callback) {
         callback(user);
     });
 } 
+
+export function isAuthenticated() {
+    return localStorage.getItem("isAuthenticated") === "true";
+}
+

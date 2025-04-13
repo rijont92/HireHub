@@ -130,6 +130,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `;
+
+        // Add click event to navigate to the single job page
+        card.addEventListener('click', function () {
+            window.location.href = `single-job.html?id=${job.id}`;
+        });
+
+        // Prevent card click event when buttons are clicked
+        const applyBtn = card.querySelector('.apply-btn');
+        const saveBtn = card.querySelector('.save-btn');
+
+        applyBtn.addEventListener('click', function (event) {
+            event.stopPropagation(); // Prevent card click event
+            // Add your logic for the apply button here
+            console.log(`Apply button clicked for job ID: ${job.id}`);
+        });
+
+        saveBtn.addEventListener('click', function (event) {
+            event.stopPropagation(); // Prevent card click event
+            // Add your logic for the save button here
+            console.log(`Save button clicked for job ID: ${job.id}`);
+        });
+
         return card;
     }
 
@@ -194,4 +216,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize page
     loadJobData();
     checkSavedStatus();
-}); 
+});

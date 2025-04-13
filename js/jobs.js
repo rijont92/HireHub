@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         jobTitle: 'Programming Teacher',
                         companyName: 'Innovation Academy',
                         companyLogo: '../img/innovation-academy-job.jpg',
-                        jobType: 'Part Time',
+                        jobType: 'part-time',
                         location: 'Vushtrri',
                         salary: '1000-1200',
                         applicationDeadline: '2025-06-30',
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         jobTitle: 'Sales Consultant',
                         companyName: 'Peugeot Kosova',
                         companyLogo: '../img/peugout-kosova-job.png',
-                        jobType: 'Part Time',
+                        jobType: 'part-time',
                         location: 'Ferizaj',
                         salary: '700-850',
                         applicationDeadline: '2025-07-20',
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         jobTitle: 'Manager',
                         companyName: 'Viva Fresh',
                         companyLogo: '../img/viva-fresh-job.png',
-                        jobType: 'Full Time',
+                        jobType: 'full-time',
                         location: 'Vushtrri',
                         salary: "850-950",
                         applicationDeadline: '2025-07-25',
@@ -201,33 +201,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add event delegation for job card clicks
     jobsContainer.addEventListener('click', function(e) {
         const jobCard = e.target.closest('.job-card');
+        const applyBtn = e.target.closest('.apply-btn');
+        const saveBtn = e.target.closest('.save-btn');
+
+        // Prevent navigation if "Apply Now" or "Save Job" buttons are clicked
+        if (applyBtn) {
+            e.stopPropagation(); // Prevent card click
+            const jobId = applyBtn.dataset.jobId;
+            applyForJob(jobId);
+            return; // Stop further execution
+        }
+
+        if (saveBtn) {
+            e.stopPropagation(); // Prevent card click
+            const jobId = saveBtn.dataset.jobId;
+            saveJob(jobId);
+            return; // Stop further execution
+        }
+
+        // Navigate to the single job page if the card itself is clicked
         if (jobCard) {
             const jobId = jobCard.dataset.jobId;
             window.location.href = `single-job.html?id=${jobId}`;
         }
     });
 
-    // Add event delegation for apply and save buttons
-    jobsContainer.addEventListener('click', function(e) {
-        const applyBtn = e.target.closest('.apply-btn');
-        const saveBtn = e.target.closest('.save-btn');
-        
-        if (applyBtn) {
-            e.stopPropagation(); // Prevent card click
-            const jobId = applyBtn.dataset.jobId;
-            applyForJob(jobId);
-        }
-        
-        if (saveBtn) {
-            e.stopPropagation(); // Prevent card click
-            const jobId = saveBtn.dataset.jobId;
-            saveJob(jobId);
-        }
-    });
-});
+    // Function to handle job application
+    function applyForJob(jobId) {
+        // Add your job application logic here
+        console.log('Applying for job:', jobId);
+    }
 
-// Function to handle job application
-function applyForJob(jobId) {
-    // Add your job application logic here
-    console.log('Applying for job:', jobId);
-} 
+    // Function to handle saving a job
+    function saveJob(jobId) {
+        // Add your save job logic here
+        console.log('Saving job:', jobId);
+    }
+});

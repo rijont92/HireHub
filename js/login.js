@@ -1,223 +1,76 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("form");
-    const Email = document.getElementById("email");
-    const Password = document.getElementById("password");
-    const errorEmail = document.getElementById("error-email");
-    const errorPassword = document.getElementById("error-password");
-    const icon = document.getElementById("icon");
+import { signIn } from '../js/auth.js';
+import { setupLoginValidation, validateLoginForm } from '../js/validation.js';
 
+const loginForm = document.getElementById('loginForm');
+const errorEmail = document.getElementById('error-email');
+const errorPassword = document.getElementById('error-password');
+const generalError = document.getElementById('general-error');
+const passwordInput = document.getElementById('password');
+const icon = document.getElementById('icon');
+
+import { isAuthenticated } from '../js/auth.js';
+
+if (isAuthenticated()) {
+    window.location.replace("../index.html"); 
+}
+
+// Password visibility toggle
+window.changeIcon = function() {
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    }
+};
+
+// Setup real-time validation
+setupLoginValidation();
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-    // Submit event listener
-    form.addEventListener("submit", function (event) {
-        event.preventDefault();
+    // Clear previous errors
+    errorEmail.textContent = '';
+    errorPassword.textContent = '';
+    generalError.textContent = '';
 
-        const isEmailValid = validateEmail(Email.value);
-        const isPasswordValid = validatePassword(Password.value);
-
-        if (isEmailValid && isPasswordValid) {
-            window.location.href = "../index.html";
-            localStorage.setItem('tahiri', 'true');
-            localStorage.setItem('profileImage', "img/useri.png")
-        }
-    });
-
-    // Email validation function
-    function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (email === "") {
-            errorEmail.innerHTML = "Email cannot be blank";
-            Email.classList.add("error");
-            return false;
-        }
-
-        const isValid = re.test(String(email).toLowerCase());
-
-        if (isValid) {
-            errorEmail.innerHTML = "";
-            Email.classList.remove("error");
+    // Validate form before submission
+    const validation = validateLoginForm(email, password);
+    if (!validation.isValid) {
+        // Display validation errors
+        if (!email || !password) {
+            generalError.textContent = 'Please fill in all fields';
         } else {
-            errorEmail.innerHTML = "Invalid email address";
-            Email.classList.add("error");
+            generalError.textContent = 'Email or password is invalid';
         }
-
-        return isValid;
+        return;
     }
 
-    // Password validation function
-    function validatePassword(password) {
-        if (password === "") {
-            errorPassword.innerHTML = "Password cannot be blank";
-            Password.classList.add("error");
-            return false;
-        }
+    const result = await signIn(email, password);
 
-        const isValid = password.length >= 8 && password.length <= 30;
-
-        if (isValid) {
-            errorPassword.innerHTML = "";
-            Password.classList.remove("error");
+    if (result.success) {
+        // Login successful
+        window.location.href = '../index.html';
+    } else {
+        // Handle error
+        if (result.error.includes('user-not-found') || 
+            result.error.includes('wrong-password') || 
+            result.error.includes('auth/wrong-password') ||
+            result.error.includes('auth/user-not-found')) {
+            generalError.textContent = 'Email or password is invalid';
+        } else if (result.error.includes('too-many-requests')) {
+            generalError.textContent = 'Too many failed attempts. Please try again later.';
+        } else if (result.error.includes('invalid-email')) {
+            generalError.textContent = 'Please enter a valid email address';
         } else {
-            errorPassword.innerHTML = "Password must be between 8 and 30 characters";
-            Password.classList.add("error");
+            generalError.textContent = 'An error occurred. Please try again.';
         }
-
-        return isValid;
     }
-
-    // Toggle the visibility of the password and icon
-    window.changeIcon = function () {
-        if (Password.type === "password") {
-            icon.classList.replace("fa-eye-slash", "fa-eye"); // Change icon to eye
-            Password.type = "text"; // Show password
-        } else {
-            icon.classList.replace("fa-eye", "fa-eye-slash"); // Change icon to eye-slash
-            Password.type = "password"; // Hide password
-        }
-    };
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // Import necessary Firebase functions
-// import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-// import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-
-// // Firebase config
-// const firebaseConfig = {
-//   apiKey: "AIzaSyCePiJ0t4AjSnh_pYj0K4syZ_ATNZCfEhs",
-//   authDomain: "hirehub-d7a32.firebaseapp.com",
-//   projectId: "hirehub-d7a32",
-//   storageBucket: "hirehub-d7a32.firebasestorage.app",
-//   messagingSenderId: "709139851875",
-//   appId: "1:709139851875:web:6e871ff4df6c72a3662656",
-//   measurementId: "G-0VPRE8XGWC"
-// };
-
-// // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-// const auth = getAuth(app);
-
-// document.addEventListener("DOMContentLoaded", function () {
-//     const form = document.getElementById("form");
-//     const Email = document.getElementById("email");
-//     const Password = document.getElementById("password");
-//     const errorEmail = document.getElementById("error-email");
-//     const errorPassword = document.getElementById("error-password");
-//     const icon = document.getElementById("icon");
-
-//     // Submit event listener for login form
-//     form.addEventListener("submit", function (event) {
-//         event.preventDefault();
-
-//         const isEmailValid = validateEmail(Email.value);
-//         const isPasswordValid = validatePassword(Password.value);
-
-//         if (isEmailValid && isPasswordValid) {
-//             signInWithEmailAndPassword(auth, Email.value, Password.value)
-//                 .then((userCredential) => {
-//                     // Successfully signed in
-//                     const user = userCredential.user;
-//                     console.log("User logged in:", user);
-
-//                     // Redirect to the homepage
-//                     window.location.href = "../index.html";
-//                     localStorage.setItem('tahiri', 'true');
-//                     localStorage.setItem('profileImage', "img/useri.png");
-//                 })
-//                 .catch((error) => {
-//                     // Handle errors here
-//                     const errorCode = error.code;
-//                     const errorMessage = error.message;
-//                     console.log("Login error:", errorCode, errorMessage);
-//                     errorPassword.innerHTML="Invalid email or password. Please try again.";
-//                 });
-//         }
-//     });
-
-//     // Email validation function
-//     function validateEmail(email) {
-//         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//         if (email === "") {
-//             errorEmail.innerHTML = "Email cannot be blank";
-//             Email.classList.add("error");
-//             return false;
-//         }
-//         const isValid = re.test(String(email).toLowerCase());
-//         if (isValid) {
-//             errorEmail.innerHTML = "";
-//             Email.classList.remove("error");
-//         } else {
-//             errorEmail.innerHTML = "Invalid email address";
-//             Email.classList.add("error");
-//         }
-//         return isValid;
-//     }
-
-//     // Password validation function
-//     function validatePassword(password) {
-//         if (password === "") {
-//             errorPassword.innerHTML = "Password cannot be blank";
-//             Password.classList.add("error");
-//             return false;
-//         }
-//         const isValid = password.length >= 8 && password.length <= 30;
-//         if (isValid) {
-//             errorPassword.innerHTML = "";
-//             Password.classList.remove("error");
-//         } else {
-//             errorPassword.innerHTML = "Password must be between 8 and 30 characters";
-//             Password.classList.add("error");
-//         }
-//         return isValid;
-//     }
-
-//     // Toggle the visibility of the password and icon
-//     window.changeIcon = function () {
-//         if (Password.type === "password") {
-//             icon.classList.replace("fa-eye-slash", "fa-eye");
-//             Password.type = "text"; // Show password
-//         } else {
-//             icon.classList.replace("fa-eye", "fa-eye-slash");
-//             Password.type = "password"; // Hide password
-//         }
-//     };
-// });

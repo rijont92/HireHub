@@ -1,340 +1,137 @@
+import { signUp } from '../js/auth.js';
+import { setupSignupValidation, validateSignupForm } from '../js/validation.js';
+
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("form");
-    const Email = document.getElementById("email");
-    const Password = document.getElementById("password");
-    const Password2 = document.getElementById("password2");
-    const errorEmail = document.getElementById("error-email");
-    const errorPassword = document.getElementById("error-password");
-    const errorPassword2 = document.getElementById("error-password2");
-    const icon = document.getElementById("icon");
-    const icon2 = document.getElementById("icon2");
+    const signupForm = document.getElementById('signupForm');
+    const errorEmail = document.getElementById('error-email');
+    const errorPassword = document.getElementById('error-password');
+    const errorPassword2 = document.getElementById('error-password2');
+    const passwordInput = document.getElementById('password');
+    const password2Input = document.getElementById('password2');
+    const icon = document.getElementById('icon');
+    const icon2 = document.getElementById('icon2');
+    const useriImg = document.querySelector('.useri-img');
+    const fileInput = document.getElementById('file-input');
 
-    const storedImage = localStorage.getItem('profileImage');
+    // Password visibility toggle for first password
+    window.changeIcon = function () {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    };
 
-    form.addEventListener("submit", function(event) {
-        event.preventDefault();
+    // Password visibility toggle for second password
+    window.changeIcon2 = function () {
+        if (password2Input.type === 'password') {
+            password2Input.type = 'text';
+            icon2.classList.remove('fa-eye-slash');
+            icon2.classList.add('fa-eye');
+        } else {
+            password2Input.type = 'password';
+            icon2.classList.remove('fa-eye');
+            icon2.classList.add('fa-eye-slash');
+        }
+    };
 
-        const isEmailValid = validateEmail(Email.value);
-        const isPasswordValid = validatePassword(Password.value);
-        const isConfirmPasswordValid = validatePassword2(Password.value, Password2.value);
+    // Setup real-time validation
+    setupSignupValidation();
 
-        if (isEmailValid && isPasswordValid && isConfirmPasswordValid) {
-            window.location.href = "../index.html";  // Redirect to login page
-            localStorage.setItem('tahiri', 'true');
-            
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const password2 = document.getElementById('password2').value;
+
+        // Validate form before submission
+        const validation = validateSignupForm(email, password, password2);
+        if (!validation.isValid) {
+            // Display validation errors
+            errorEmail.textContent = validation.errors.email;
+            errorEmail.style.color = 'red';
+            errorPassword.textContent = validation.errors.password;
+            errorPassword.style.color = 'red';
+            errorPassword2.textContent = validation.errors.confirmPassword;
+            errorPassword2.style.color = 'red';
+            return;
+        }
+
+        // Clear previous errors
+        errorEmail.textContent = '';
+        errorPassword.textContent = '';
+        errorPassword2.textContent = '';
+
+        const result = await signUp(email, password);
+
+        if (result.success) {
+            // Signup successful
+            window.location.href = '../index.html';
+        } else {
+            // Handle error
+            if (result.error.includes('email-already-in-use')) {
+                errorEmail.textContent = 'An account with this email already exists';
+                errorEmail.style.color = 'red';
+            } else if (result.error.includes('invalid-email')) {
+                errorEmail.textContent = 'Please enter a valid email address';
+                errorEmail.style.color = 'red';
+            } else if (result.error.includes('weak-password')) {
+                errorPassword.textContent = 'Password is too weak. Please follow the requirements.';
+                errorPassword.style.color = 'red';
+            } else if (result.error.includes('too-many-requests')) {
+                errorEmail.textContent = 'Too many attempts. Please try again later.';
+                errorEmail.style.color = 'red';
+            } else {
+                errorEmail.textContent = 'An error occurred. Please try again.';
+                errorEmail.style.color = 'red';
+            }
         }
     });
 
-    function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Attach the click event listener to trigger the file input
+    useriImg.addEventListener('click', function () {
+        fileInput.click();
+    });
 
-        if (email === "") {
-            errorEmail.innerHTML = "Email cannot be blank";
-            Email.classList.add("error");
-            return false;
-        }
-
-        const isValid = re.test(String(email).toLowerCase());
-
-        if (isValid) {
-            errorEmail.innerHTML = "";
-            Email.classList.remove("error");
-        } else {
-            errorEmail.innerHTML = "Invalid email address";
-            Email.classList.add("error");
-        }
-
-        return isValid;
-    }
-
-    function validatePassword(password) {
-        if (password === "") {
-            errorPassword.innerHTML = "Password cannot be blank";
-            Password.classList.add("error");
-            return false;
-        }
-
-        const isValid = password.length >= 8 && password.length <= 30;
-
-        if (isValid) {
-            errorPassword.innerHTML = "";
-            Password.classList.remove("error");
-        } else {
-            errorPassword.innerHTML = "Password must be between 8 and 30 characters";
-            Password.classList.add("error");
-        }
-
-        return isValid;
-    }
-
-    function validatePassword2(password, confirmPasswordValue) {
-        if (confirmPasswordValue === "") {
-            errorPassword2.innerHTML = "Confirm Password cannot be blank";
-            Password2.classList.add("error");
-            return false;
-        }
-
-        const isValid = password === confirmPasswordValue;
-
-        if (isValid) {
-            errorPassword2.innerHTML = "";
-            Password2.classList.remove("error");
-        } else {
-            errorPassword2.innerHTML = "Passwords do not match";
-            Password2.classList.add("error");
-        }
-
-        return isValid;
-    }
-
-    // Function to toggle password visibility for the first password input
-    window.changeIcon = function () {
-        if (Password.type === "password") {
-            icon.classList.replace("fa-eye-slash", "fa-eye");
-            Password.type = "text";
-        } else {
-            icon.classList.replace("fa-eye", "fa-eye-slash");
-            Password.type = "password";
-        }
-    }
-
-    // Function to toggle password visibility for the confirm password input
-    window.changeIcon2 = function () {
-        if (Password2.type === "password") {
-            icon2.classList.replace("fa-eye-slash", "fa-eye");
-            Password2.type = "text";
-        } else {
-            icon2.classList.replace("fa-eye", "fa-eye-slash");
-            Password2.type = "password";
-        }
-    }
+    // Attach the change event listener to handle image upload
+    fileInput.addEventListener('change', handleImageUpload);
 });
 
-
-
+// Function to trigger file input click
 function triggerFileInput() {
     document.getElementById('file-input').click();
 }
 
+// Function to handle image upload and preview
 function handleImageUpload(event) {
-    const file = event.target.files[0];
+    const file = event.target.files[0]; // Get the selected file
     if (file) {
         const reader = new FileReader();
-        reader.onload = function (e) {
-            const base64Image  = e.target.result
-            document.getElementById('preview-img').src = base64Image ;
-            localStorage.setItem('profileImage', base64Image);
-        };
-        reader.readAsDataURL(file);
+
+        // Check if the selected file is an image
+        if (file.type.startsWith('image/')) {
+            reader.onload = function (e) {
+                const base64Image = e.target.result; // Get base64 encoded image data
+                // Set the preview image src to the base64 image data
+                const previewImg = document.getElementById('preview-img');
+                previewImg.src = base64Image;
+                previewImg.alt = "Uploaded Image"; // Update alt text for accessibility
+                // Optionally, save the image to localStorage (if needed for future use)
+                localStorage.setItem('profileImage', base64Image);
+            };
+            reader.readAsDataURL(file); // Convert the image file to base64
+        } else {
+            alert('Please upload a valid image file (e.g., .jpg, .png).');
+        }
+    } else {
+        alert('No file selected. Please choose an image to upload.');
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Import necessary Firebase functions
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
-import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-
-// Initialize Firebase app
-const firebaseConfig = {
-  apiKey: "AIzaSyCePiJ0t4AjSnh_pYj0K4syZ_ATNZCfEhs",
-  authDomain: "hirehub-d7a32.firebaseapp.com",
-  projectId: "hirehub-d7a32",
-  storageBucket: "hirehub-d7a32.firebasestorage.app",
-  messagingSenderId: "709139851875",
-  appId: "1:709139851875:web:6e871ff4df6c72a3662656",
-  measurementId: "G-0VPRE8XGWC"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Sign-up form and input elements
-const signupForm = document.getElementById("form");
-const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-
-// Handle form submission
-signupForm.addEventListener("submit", async function (event) {
-  event.preventDefault();
-
-  const email = emailInput.value;
-  const password = passwordInput.value;
-
-  try {
-    
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    
-    await setDoc(doc(db, "users", user.uid), {
-      email: user.email,
-      createdAt: new Date()
-    });
-
-    
-    window.location.href = "login.html";
-  } catch (error) {
-    console.error("Error creating user:", error);
-  
-  }
-});
-
-
-
-// document.addEventListener("DOMContentLoaded", function () {
-//     const form = document.getElementById("form");
-//     const Email = document.getElementById("email");
-//     const Password = document.getElementById("password");
-//     const Password2 = document.getElementById("password2");
-//     const errorEmail = document.getElementById("error-email");
-//     const errorPassword = document.getElementById("error-password");
-//     const errorPassword2 = document.getElementById("error-password2");
-//     const icon = document.getElementById("icon");
-//     const icon2 = document.getElementById("icon2");
-
-//     const storedImage = localStorage.getItem('profileImage');
-
-//     form.addEventListener("submit", function(event) {
-//         event.preventDefault();
-
-//         const isEmailValid = validateEmail(Email.value);
-//         const isPasswordValid = validatePassword(Password.value);
-//         const isConfirmPasswordValid = validatePassword2(Password.value, Password2.value);
-
-//         if (isEmailValid && isPasswordValid && isConfirmPasswordValid) {
-//             window.location.href = "../index.html";  // Redirect to login page
-//             localStorage.setItem('tahiri', 'true');
-            
-//         }
-//     });
-
-//     function validateEmail(email) {
-//         const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-//         if (email === "") {
-//             errorEmail.innerHTML = "Email cannot be blank";
-//             Email.classList.add("error");
-//             return false;
-//         }
-
-//         const isValid = re.test(String(email).toLowerCase());
-
-//         if (isValid) {
-//             errorEmail.innerHTML = "";
-//             Email.classList.remove("error");
-//         } else {
-//             errorEmail.innerHTML = "Invalid email address";
-//             Email.classList.add("error");
-//         }
-
-//         return isValid;
-//     }
-
-//     function validatePassword(password) {
-//         if (password === "") {
-//             errorPassword.innerHTML = "Password cannot be blank";
-//             Password.classList.add("error");
-//             return false;
-//         }
-
-//         const isValid = password.length >= 8 && password.length <= 30;
-
-//         if (isValid) {
-//             errorPassword.innerHTML = "";
-//             Password.classList.remove("error");
-//         } else {
-//             errorPassword.innerHTML = "Password must be between 8 and 30 characters";
-//             Password.classList.add("error");
-//         }
-
-//         return isValid;
-//     }
-
-//     function validatePassword2(password, confirmPasswordValue) {
-//         if (confirmPasswordValue === "") {
-//             errorPassword2.innerHTML = "Confirm Password cannot be blank";
-//             Password2.classList.add("error");
-//             return false;
-//         }
-
-//         const isValid = password === confirmPasswordValue;
-
-//         if (isValid) {
-//             errorPassword2.innerHTML = "";
-//             Password2.classList.remove("error");
-//         } else {
-//             errorPassword2.innerHTML = "Passwords do not match";
-//             Password2.classList.add("error");
-//         }
-
-//         return isValid;
-//     }
-
-//     // Function to toggle password visibility for the first password input
-//     window.changeIcon = function () {
-//         if (Password.type === "password") {
-//             icon.classList.replace("fa-eye-slash", "fa-eye");
-//             Password.type = "text";
-//         } else {
-//             icon.classList.replace("fa-eye", "fa-eye-slash");
-//             Password.type = "password";
-//         }
-//     }
-
-//     // Function to toggle password visibility for the confirm password input
-//     window.changeIcon2 = function () {
-//         if (Password2.type === "password") {
-//             icon2.classList.replace("fa-eye-slash", "fa-eye");
-//             Password2.type = "text";
-//         } else {
-//             icon2.classList.replace("fa-eye", "fa-eye-slash");
-//             Password2.type = "password";
-//         }
-//     }
-// });
 
 
 
