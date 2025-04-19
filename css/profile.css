@@ -1,0 +1,27 @@
+:root {
+    --primary-color: #755ea3;
+    --secondary-color: #002e54;
+    --accent-color: #ff4081;
+    --text-color: #2c3e50;
+    --text-light: #7f8c8d;
+    --bg-color: #f5f7fa;
+    --card-bg: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  --hover:rgb(75, 41, 139);
+
+}
+
+.container {
+    max-width: 1300px;
+    width: 90%;
+    margin: auto;
+}
+
+.dropdown__link.active {
+    background-color: var(--hover); /* Change to your desired color */
+    font-weight: bold;
+}
