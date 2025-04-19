@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script type="module" src="../js/firebase-config.js"></script>
     <script type="module" src="../js/auth-state.js"></script>
+    <script type="module" src="../js/profile.js"></script>
 </head>
 <body>
     <header class="header">
@@ -115,14 +116,81 @@
       </nav>
    </header>
 
-  
+   <main class="profile-container">
+      <div class="profile-header">
+         <div class="profile-banner">
+            <div class="profile-picture">
+               <img src="../img/default-profile.png" alt="Profile Picture" id="profileImage">
+               <button class="edit-profile-pic"><i class="ri-camera-line"></i></button>
+            </div>
+         </div>
+         <div class="profile-info">
+            <h1 id="userName">User Name</h1>
+            <p class="title" id="userTitle">Professional Title</p>
+            <p class="location" id="userLocation">Location</p>
+            <p class="email" id="userEmail">Email</p>
+            <div class="edit-buttons">
+                <button class="edit-profile-btn">Edit Profile</button>
+            </div>
+         </div>
+      </div>
 
+      <div class="profile-content">
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>About Me</h2>
+                <button class="edit-about-btn">Edit</button>
+            </div>
+            <p id="userBio">No bio available</p>
+         </div>
 
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>Skills</h2>
+                <button class="edit-skills-btn">Edit</button>
+            </div>
+            <div id="skillsList">
+                <p>No skills added yet</p>
+            </div>
+         </div>
 
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>Experience</h2>
+                <button class="edit-experience-btn">Edit</button>
+            </div>
+            <div id="experienceList">
+                <p>No experience added yet</p>
+            </div>
+         </div>
 
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>Education</h2>
+                <button class="edit-education-btn">Edit</button>
+            </div>
+            <div id="educationList">
+                <p>No education added yet</p>
+            </div>
+         </div>
 
+         <div class="profile-section">
+            <h2>My Jobs</h2>
+            <div class="jobs-tabs">
+               <button class="tab-btn active" data-tab="applied">Applied Jobs</button>
+               <button class="tab-btn" data-tab="saved">Saved Jobs</button>
+            </div>
+            <div class="jobs-list" id="appliedJobs">
+               <!-- Applied jobs will be populated here -->
+            </div>
+            <div class="jobs-list hidden" id="savedJobs">
+               <!-- Saved jobs will be populated here -->
+            </div>
+         </div>
+      </div>
+   </main>
 
-    <footer style="margin-top: 100%;">
+   <footer>
       <div class="container">
          <div class="wrapper">
             <div class="footer-widget wrapper-center">
@@ -195,6 +263,113 @@
    </footer>
 
     <script src="../js/header.js"></script>
-    <script src="../js/profile.js"></script>
+    <script type="module" src="../js/profile.js"></script>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Profile</h2>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label for="editName">Full Name</label>
+                    <input type="text" id="editName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTitle">Title</label>
+                    <input type="text" id="editTitle" name="title">
+                </div>
+                <div class="form-group">
+                    <label for="editLocation">Location</label>
+                    <input type="text" id="editLocation" name="location">
+                </div>
+                <div class="form-group">
+                    <label for="themeColor">Theme Color</label>
+                    <input type="color" id="themeColor" name="themeColor" value="#755ea3">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit About Me Modal -->
+    <div id="editAboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit About Me</h2>
+            <form id="editAboutForm">
+                <div class="form-group">
+                    <label for="editBio">About Me</label>
+                    <textarea id="editBio" name="bio" rows="4" placeholder="Describe yourself"></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Skills Modal -->
+    <div id="editSkillsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Skills</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="editSkillsForm">
+                <div id="skillsContainer">
+                    <!-- Skill entries will be added here -->
+                </div>
+                <button type="button" class="add-skill">Add Skill</button>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Experience Modal -->
+    <div id="editExperienceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Experience</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <span class="close-modal">&times;</span>
+            <form id="editExperienceForm">
+                <div id="experienceContainer">
+                    <!-- Experience entries will be added here -->
+                </div>
+                <button type="button" class="add-experience">Add Experience</button>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Education Modal -->
+    <div id="editEducationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Education</h2>
+            <form id="editEducationForm">
+                <div id="educationContainer">
+                    <!-- Education entries will be added here -->
+                </div>
+                <button type="button" class="add-education">Add Education</button>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html> 

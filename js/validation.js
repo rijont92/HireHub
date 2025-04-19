@@ -10,6 +10,20 @@ function validateEmail(email) {
     return { isValid: true, message: '' };
 }
 
+// Name validation
+function validateName(name) {
+    if (!name) {
+        return { isValid: false, message: 'Name is required' };
+    }
+    if (name.length < 2) {
+        return { isValid: false, message: 'Name must be at least 2 characters long' };
+    }
+    if (!/^[a-zA-Z\s'-]+$/.test(name)) {
+        return { isValid: false, message: 'Name can only contain letters, spaces, hyphens, and apostrophes' };
+    }
+    return { isValid: true, message: '' };
+}
+
 // Password validation for login
 function validateLoginPassword(password) {
     if (!password) {
@@ -84,14 +98,16 @@ function validateLoginForm(email, password) {
 }
 
 // Form validation for signup
-function validateSignupForm(email, password, confirmPassword) {
+function validateSignupForm(name, email, password, confirmPassword) {
+    const nameValidation = validateName(name);
     const emailValidation = validateEmail(email);
     const passwordValidation = validateSignupPassword(password);
     const confirmPasswordValidation = validateConfirmPassword(password, confirmPassword);
 
     return {
-        isValid: emailValidation.isValid && passwordValidation.isValid && confirmPasswordValidation.isValid,
+        isValid: nameValidation.isValid && emailValidation.isValid && passwordValidation.isValid && confirmPasswordValidation.isValid,
         errors: {
+            name: nameValidation.message,
             email: emailValidation.message,
             password: passwordValidation.message,
             confirmPassword: confirmPasswordValidation.message
@@ -145,22 +161,34 @@ function setupLoginValidation() {
 
 // Real-time validation for signup form
 function setupSignupValidation() {
+    const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const password2Input = document.getElementById('password2');
+    const errorName = document.getElementById('error-name');
     const errorEmail = document.getElementById('error-email');
     const errorPassword = document.getElementById('error-password');
     const errorPassword2 = document.getElementById('error-password2');
     const submitButton = document.getElementById('submit');
 
+    let isNameValid = false;
     let isEmailValid = false;
     let isPasswordValid = false;
     let isPassword2Valid = false;
 
     function updateSubmitButton() {
-        submitButton.disabled = !(isEmailValid && isPasswordValid && isPassword2Valid);
+        submitButton.disabled = !(isNameValid && isEmailValid && isPasswordValid && isPassword2Valid);
         submitButton.style.opacity = submitButton.disabled ? '0.5' : '1';
     }
+
+    // Name validation
+    nameInput.addEventListener('input', () => {
+        const result = validateName(nameInput.value);
+        errorName.textContent = result.message;
+        errorName.style.color = result.isValid ? 'green' : 'red';
+        isNameValid = result.isValid;
+        updateSubmitButton();
+    });
 
     // Email validation
     emailInput.addEventListener('input', () => {
@@ -198,6 +226,10 @@ function setupSignupValidation() {
     });
 
     // Clear error messages when input is focused
+    nameInput.addEventListener('focus', () => {
+        errorName.textContent = '';
+    });
+
     emailInput.addEventListener('focus', () => {
         errorEmail.textContent = '';
     });
