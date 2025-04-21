@@ -1,5 +1,6 @@
 import { auth, db } from './firebase-config.js';
-import { doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileImage = document.getElementById('profileImage');
@@ -41,29 +42,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get user data from localStorage
     let userData = JSON.parse(localStorage.getItem('userData') || '{}');
-
-    // Set up real-time listener for Firestore changes
-    if (auth.currentUser) {
-        const userRef = doc(db, 'users', auth.currentUser.uid);
-        
-        // Set up real-time listener
-        const unsubscribe = onSnapshot(userRef, (doc) => {
-            if (doc.exists()) {
-                const firestoreData = doc.data();
-                
-                // Update userData with Firestore data
-                userData = { ...userData, ...firestoreData };
-                
-                // Update localStorage
-                localStorage.setItem('userData', JSON.stringify(userData));
-                
-                // Update UI
-                updateProfileDisplay();
-            }
-        }, (error) => {
-            console.error("Error listening to Firestore changes:", error);
-        });
-    }
+    
+    // Set up auth state listener and Firestore real-time listener
+    let unsubscribeFirestore;
+    
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("User is authenticated:", user.uid);
+            
+            // Set up real-time listener for Firestore changes
+            const userRef = doc(db, 'users', user.uid);
+            
+            // First, get the latest data from Firestore
+            getDoc(userRef).then((docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const firestoreData = docSnapshot.data();
+                    console.log("Initial Firestore data:", firestoreData);
+                    
+                    // Update userData with Firestore data
+                    userData = { ...userData, ...firestoreData };
+                    
+                    // Update localStorage
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    
+                    // Update UI
+                    updateProfileDisplay();
+                }
+            }).catch(error => {
+                console.error("Error fetching initial user data:", error);
+            });
+            
+            // Set up real-time listener
+            unsubscribeFirestore = onSnapshot(userRef, (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const firestoreData = docSnapshot.data();
+                    console.log("Firestore update received:", firestoreData);
+                    
+                    // Update userData with Firestore data
+                    userData = { ...userData, ...firestoreData };
+                    
+                    // Update localStorage
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    
+                    // Update UI
+                    updateProfileDisplay();
+                }
+            }, (error) => {
+                console.error("Error listening to Firestore changes:", error);
+            });
+        } else {
+            console.log("User is not authenticated");
+            window.location.href = '/html/login.html';
+        }
+    });
 
     // Function to update theme color
     function updateThemeColor(color) {
