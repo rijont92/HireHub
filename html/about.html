@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - HireHub</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/about.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth-state.js"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav container">
+           <div class="nav__data">
+              <a href="../index.html" class="nav__logo">
+                 <img src="../img/logo.png" alt="logo">
+              </a>
+
+              <div class="nav-rightt" >
+               <div class="nav-li-right">
+                  <ul>
+                     <li>
+                        <a href="#" class="nav__link">
+                        <div class="bell  nonee">
+                           <i class="fa-regular fa-bell"></i>
+                           <div class="red-circle"></div>
+                        </div>
+                        </a>
+                       </li>
+                  </ul>
+               </div>
+
+                 <div class="nav__toggle" id="nav-toggle">
+                    <i class="ri-menu-line nav__burger"></i>
+                    <i class="ri-close-line nav__close"></i>
+                  </div>
+            </div>
+           </div>
+
+           <!--=============== NAV MENU ===============-->
+           <div class="nav__menu" id="nav-menu">
+              <ul class="nav__list">
+                 <li><a href="../index.html" class="nav__link">Home</a></li>
+                 <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+                 <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                 <li class="dropdown__item" >
+                    <div class="nav__link">
+                       Account <i class="ri-arrow-down-s-line dropdown__arrow "></i>
+                    </div>
+
+                    <ul class="dropdown__menu ">
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                             <i class="ri-user-line"></i> Profile
+                          </a>                          
+                       </li>
+
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                            <i class="ri-settings-3-line"></i>Settings
+                          </a>
+                       </li>
+
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                            <i class="ri-file-text-line"></i> My Jobs
+                          </a>
+                       </li>
+
+                       <li class="remove">
+                        <a href="#" class="dropdown__link">
+                            <i class="ri-bookmark-line"></i>Saved Jobs
+                        </a>
+                     </li>
+
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                            <i class="ri-history-line"></i>History
+                        </a>
+                     </li>
+
+                     <li>
+                        <a href="login.html" class="dropdown__link" onclick="logOut()" id="login">
+                           <i class="ri-logout-box-line"></i>Log in
+                        </a>
+                     </li>
+
+                     <li id="sign__up">
+                        <a href="sign_up.html" class="dropdown__link">
+                           <i class="ri-login-box-line"></i>Sign up
+                        </a>
+                     </li>
+                    </ul>
+                 </li>
+                 <li><a href="about.html" class="nav__link active">About</a></li>
+                 <li><a href="contact.html" class="nav__link">Contact</a></li>
+
+                 <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="bell">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="red-circle"></div>
+                  </div>
+                  </a>
+                 </li>
+              </ul>
+           </div>
+        </nav>
+     </header>
+
+    <main>
+        <section class="about-hero">
+            <div class="container">
+                <div class="about-hero-content">
+                    <div class="hero-left">
+                        <div class="hero-badge">
+                            <span>About HireHub</span>
+                        </div>
+                        <h1>Connecting Talent with <span>Opportunity</span></h1>
+                        <p class="hero-description">We're revolutionizing the way companies and professionals connect, making hiring simpler, faster, and more effective.</p>
+                        <div class="hero-cta">
+                            <a href="#" class="btn-primary">Get Started</a>
+                            <a href="#" class="btn-secondary">Learn More</a>
+                        </div>
+                    </div>
+                    <div class="hero-right">
+                        <div class="hero-image">
+                            <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80" alt="HireHub Platform">
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stat-card">
+                                <div class="stat-number">50K+</div>
+                                <div class="stat-label">Active Users</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">10K+</div>
+                                <div class="stat-label">Companies</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">25K+</div>
+                                <div class="stat-label">Jobs Posted</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-mission">
+            <div class="container">
+                <div class="mission-header">
+                    <h2>Our Mission</h2>
+                    <p>To create a world where finding the right job or the perfect candidate is effortless.</p>
+                </div>
+                <div class="mission-content">
+                    <div class="mission-card">
+                        <div class="mission-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h3>Our Mission</h3>
+                        <p>To revolutionize the hiring process through innovative technology and human-centered design.</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <h3>Our Vision</h3>
+                        <p>To become the global standard for professional connections and career growth.</p>
+                    </div>
+                    <div class="mission-card">
+                        <div class="mission-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Our Values</h3>
+                        <p>We believe in transparency, innovation, and creating meaningful connections that last.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-features">
+            <div class="container">
+                <div class="features-header">
+                    <h2>Why Choose HireHub?</h2>
+                    <p>We're changing the way people find jobs and companies find talent.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Smart Matching</h3>
+                        <p>Our AI-powered matching system connects you with the most relevant opportunities.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Verified Profiles</h3>
+                        <p>Every profile is verified to ensure authenticity and build trust.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Career Insights</h3>
+                        <p>Get valuable insights to make informed career decisions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3>Direct Communication</h3>
+                        <p>Connect directly with employers through our messaging platform.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-cta">
+            <div class="container">
+                <div class="cta-content">
+                    <h2>Ready to Start Your Journey?</h2>
+                    <p>Join thousands of professionals who have found their dream jobs through HireHub.</p>
+                    <div class="cta-buttons">
+                        <a href="jobs.html" class="btn-primary">Find Jobs</a>
+                        <a href="post-job.html" class="btn-secondary">Post a Job</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+      <div class="container">
+         <div class="wrapper">
+            <div class="footer-widget wrapper-center">
+               <a href="#">
+                  <img src="../img/logo.png" alt="" class="logo">
+               </a>
+               <p class="desc">
+                  Connecting skilled professionals with top employers for success and growth.
+               </p>
+               <ul class="socials">
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-facebook-f"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-twitter"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-instagram"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-linkedin-in"></i>
+                     </a>
+                  </li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Quick Links</h6>
+               <ul class="links">
+                  <li><a href="../index.html">Home</a></li>
+                  <li><a href="jobs.html">Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="about.html">About</a></li>
+                  <li><a href="contact.html">Contact</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Services</h6>
+               <ul class="links">
+                  <li><a href="#">Job Search</a></li>
+                  <li><a href="">Save Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="">Manage Applications</a></li>
+                  <li><a href="">Job Alerts</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Help &amp; Support</h6>
+               <ul class="links">
+                  <li><a href="#">FAQ</a></li>
+                  <li><a href="">Live Chat</a></li>
+                  <li><a href="">Privacy Policy</a></li>
+                  <li><a href="">Terms of Service</a></li>
+               </ul>
+            </div>
+         </div>
+         <div class="copyright-wrapper">
+            <p>&copy; 2025 HireHub. All rights reserved.</p>
+            <p>Designed and Developed by
+               <a href="https://www.linkedin.com/in/rijon-tahiri-156169275/" target="_blank">Rijon</a>
+            </p>
+         </div>
+      </div>
+   </footer>
+
+    <script src="../js/header.js"></script>
+    <script src="../js/about.js"></script>
+</body>
+</html> 
