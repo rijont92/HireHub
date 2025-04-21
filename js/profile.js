@@ -689,19 +689,70 @@ document.addEventListener('DOMContentLoaded', () => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
+        input.capture = 'environment'; // This helps with mobile camera access
+        input.style.display = 'none';
+        document.body.appendChild(input); // Add to DOM to ensure it works on all devices
+        
+        // Trigger the file input click
         input.click();
-
-        input.addEventListener('change', (e) => {
+        
+        // Handle file selection
+        input.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    profileImage.src = e.target.result;
-                    userData.profileImage = e.target.result;
-                    localStorage.setItem('userData', JSON.stringify(userData));
-                };
-                reader.readAsDataURL(file);
+                try {
+                    // Show loading indicator
+                    const loadingIndicator = document.createElement('div');
+                    loadingIndicator.className = 'loading-indicator';
+                    loadingIndicator.innerHTML = 'Uploading image...';
+                    document.body.appendChild(loadingIndicator);
+                    
+                    // Convert file to base64
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const base64Image = e.target.result;
+                            
+                            // Update profile image in UI
+                            profileImage.src = base64Image;
+                            
+                            // Update userData in localStorage
+                            userData.profileImage = base64Image;
+                            localStorage.setItem('userData', JSON.stringify(userData));
+                            
+                            // Update Firestore
+                            const userRef = doc(db, 'users', auth.currentUser.uid);
+                            await updateDoc(userRef, {
+                                profileImage: base64Image
+                            });
+                            
+                            // Remove loading indicator
+                            loadingIndicator.remove();
+                            
+                            // Show success message
+                            alert('Profile picture updated successfully!');
+                        } catch (error) {
+                            console.error('Error processing image:', error);
+                            loadingIndicator.remove();
+                            alert('Error processing image. Please try again.');
+                        }
+                    };
+                    
+                    reader.onerror = () => {
+                        console.error('Error reading file');
+                        loadingIndicator.remove();
+                        alert('Error reading file. Please try again.');
+                    };
+                    
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('Error handling file selection:', error);
+                    alert('Error handling file selection. Please try again.');
+                }
             }
+            
+            // Clean up the input element
+            document.body.removeChild(input);
         });
     });
 
