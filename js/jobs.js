@@ -237,4 +237,28 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add your save job logic here
         console.log('Saving job:', jobId);
     }
+
+    // Get all job cards
+    const jobCards = document.querySelectorAll('.job-card');
+    
+    // Add search functionality
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            jobCards.forEach(card => {
+                const jobTitle = card.querySelector('.job-title').textContent.toLowerCase();
+                const companyName = card.querySelector('.company-name').textContent.toLowerCase();
+                const jobLocation = card.querySelector('.location').textContent.toLowerCase();
+                
+                if (jobTitle.includes(searchTerm) || 
+                    companyName.includes(searchTerm) || 
+                    jobLocation.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
 });
