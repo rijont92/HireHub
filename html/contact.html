@@ -13,59 +13,109 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth-state.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
     <header class="header">
         <nav class="nav container">
-            <div class="nav__data">
-                <a href="../index.html" class="nav__logo">
-                    <img src="../img/logo.png" alt="logo">
-                </a>
-                <div class="nav-rightt">
-                    <div class="nav-li-right">
-                        <ul>
-                            <li>
-                                <a href="#" class="nav__link">
-                                    <div class="bell nonee">
-                                        <i class="fa-regular fa-bell"></i>
-                                        <div class="red-circle"></div>
-                                    </div>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="nav__toggle" id="nav-toggle">
-                        <i class="ri-menu-line nav__burger"></i>
-                        <i class="ri-close-line nav__close"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="nav__menu" id="nav-menu">
-                <ul class="nav__list">
-                    <li><a href="../index.html" class="nav__link">Home</a></li>
-                    <li><a href="jobs.html" class="nav__link">Jobs</a></li>
-                    <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
-                    <li class="dropdown__item">
-                        <div class="nav__link">
-                            Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+           <div class="nav__data">
+              <a href="../index.html" class="nav__logo">
+                 <img src="../img/logo.png" alt="logo">
+              </a>
+              
+              <div class="nav-rightt" >
+               <div class="nav-li-right">
+                  <ul>
+                     <li>
+                        <a href="#" class="nav__link">
+                        <div class="bell  nonee">
+                           <i class="fa-regular fa-bell"></i>
+                           <div class="red-circle"></div>
                         </div>
-                        <ul class="dropdown__menu">
-                            <li class="remove"><a href="#" class="dropdown__link"><i class="ri-user-line"></i> Profile</a></li>
-                            <li class="remove"><a href="#" class="dropdown__link"><i class="ri-settings-3-line"></i>Settings</a></li>
-                            <li class="remove"><a href="#" class="dropdown__link"><i class="ri-file-text-line"></i> My Jobs</a></li>
-                            <li class="remove"><a href="#" class="dropdown__link"><i class="ri-bookmark-line"></i>Saved Jobs</a></li>
-                            <li class="remove"><a href="#" class="dropdown__link"><i class="ri-history-line"></i>History</a></li>
-                            <li><a href="login.html" class="dropdown__link" onclick="logOut()" id="login"><i class="ri-logout-box-line"></i>Log in</a></li>
-                            <li id="sign__up"><a href="sign_up.html" class="dropdown__link"><i class="ri-login-box-line"></i>Sign up</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#" class="nav__link">About</a></li>
-                    <li><a href="contact.html" class="nav__link active">Contact</a></li>
-                </ul>
+                        </a>
+                       </li>
+                  </ul>
+               </div>
+  
+                 <div class="nav__toggle" id="nav-toggle">
+                    <i class="ri-menu-line nav__burger"></i>
+                    <i class="ri-close-line nav__close"></i>
+                  </div>
             </div>
+           </div>
+  
+           <div class="nav__menu" id="nav-menu">
+              <ul class="nav__list">
+                 <li><a href="../index.html" class="nav__link">Home</a></li>
+                 <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+                 <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                 <li class="dropdown__item">
+                    <div class="nav__link">
+                       Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                    </div>
+  
+                    <ul class="dropdown__menu">
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                             <i class="ri-user-line"></i> Profile
+                          </a>                          
+                       </li>
+  
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                            <i class="ri-settings-3-line"></i>Settings
+                          </a>
+                       </li>
+  
+                       <li class="remove">
+                          <a href="#" class="dropdown__link">
+                            <i class="ri-file-text-line"></i> My Jobs
+                          </a>
+                       </li>
+  
+                       <li class="remove">
+                        <a href="#" class="dropdown__link">
+                            <i class="ri-bookmark-line"></i>Saved Jobs
+                        </a>
+                     </li>
+  
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                            <i class="ri-history-line"></i>History
+                        </a>
+                     </li>
+  
+                     <li>
+                        <a href="/html/login.html" class="dropdown__link" onclick="logOut()" id="login">
+                           <i class="ri-logout-box-line"></i>Log in
+                        </a>
+                     </li>
+  
+                     <li id="sign__up">
+                        <a href="/html/sign_up.html" class="dropdown__link">
+                           <i class="ri-login-box-line"></i>Sign up
+                        </a>
+                     </li>
+                    </ul>
+                 </li>
+                 <li><a href="#" class="nav__link">About</a></li>
+                 <li><a href="contact.html" class="nav__link active">Contact</a></li>
+  
+                 <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="bell">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="red-circle"></div>
+                  </div>
+                  </a>
+                 </li>
+              </ul>
+           </div>
         </nav>
-    </header>
+     </header>
+  
 
     <div class="contact-container">
         <div class="contact-header">
@@ -96,19 +146,19 @@
                 <form id="contactForm">
                     <div class="form-group">
                         <label for="name">Full Name</label>
-                        <input type="text" id="name" name="name" required>
+                        <input type="text" id="name" name="name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email">
                     </div>
                     <div class="form-group">
                         <label for="subject">Subject</label>
-                        <input type="text" id="subject" name="subject" required>
+                        <input type="text" id="subject" name="subject">
                     </div>
                     <div class="form-group">
                         <label for="message">Message</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
+                        <textarea id="message" name="message" rows="5"></textarea>
                     </div>
                     <button type="submit" class="submit-btn">Send Message</button>
                 </form>
@@ -177,6 +227,16 @@
     </footer>
 
     <style>
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .error {
+            border-color: #dc3545 !important;
+        }
+        
         .success-message {
             display: none;
             position: fixed;
@@ -224,13 +284,140 @@
     </style>
 
     <script>
+        // Initialize EmailJS
+        (function() {
+            try {
+                emailjs.init("5T7gOiJsCCN0SRMsL");
+                console.log("EmailJS initialized successfully");
+            } catch (error) {
+                console.error("EmailJS initialization failed:", error);
+            }
+        })();
+
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            document.getElementById('successMessage').classList.add('active');
-            this.reset();
+            
+            // Get form elements
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const subject = document.getElementById('subject');
+            const message = document.getElementById('message');
+            
+            // Reset previous error states
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => element.remove());
+            
+            let isValid = true;
+            
+            // Name validation
+            if (name.value.trim() === '') {
+                showError(name, 'Name is required');
+                isValid = false;
+            } else if (name.value.trim().length < 2) {
+                showError(name, 'Name must be at least 2 characters');
+                isValid = false;
+            }
+            
+            // Email validation
+            if (email.value.trim() === '') {
+                showError(email, 'Email is required');
+                isValid = false;
+            } else if (!isValidEmail(email.value)) {
+                showError(email, 'Please enter a valid email address');
+                isValid = false;
+            }
+            
+            // Subject validation
+            if (subject.value.trim() === '') {
+                showError(subject, 'Subject is required');
+                isValid = false;
+            } else if (subject.value.trim().length < 5) {
+                showError(subject, 'Subject must be at least 5 characters');
+                isValid = false;
+            }
+            
+            // Message validation
+            if (message.value.trim() === '') {
+                showError(message, 'Message is required');
+                isValid = false;
+            } else if (message.value.trim().length < 10) {
+                showError(message, 'Message must be at least 10 characters');
+                isValid = false;
+            }
+            
+            if (isValid) {
+                // Show loading state
+                const submitBtn = document.querySelector('.submit-btn');
+                const originalBtnText = submitBtn.textContent;
+                submitBtn.textContent = 'Sending...';
+                submitBtn.disabled = true;
+
+                // Prepare email parameters
+                const templateParams = {
+                    from_name: name.value.trim(),
+                    from_email: email.value.trim(),
+                    subject: subject.value.trim(),
+                    message: message.value.trim()
+                };
+
+                console.log("Sending email with params:", templateParams);
+
+                // Send email using EmailJS
+                emailjs.send('service_nb1jn0a', 'template_9z5n9hn', templateParams)
+                    .then(function(response) {
+                        console.log('SUCCESS!', response.status, response.text);
+                        // Show success message
+                        document.getElementById('successMessage').classList.add('active');
+                        // Reset form
+                        document.getElementById('contactForm').reset();
+                    })
+                    .catch(function(error) {
+                        console.error('Email sending failed:', error);
+                        // Show error message
+                        const errorMessage = document.createElement('div');
+                        errorMessage.className = 'error-message';
+                        errorMessage.textContent = 'Failed to send message. Please try again later. Error: ' + error.text;
+                        document.querySelector('.contact-form').appendChild(errorMessage);
+                    })
+                    .finally(function() {
+                        // Reset button state
+                        submitBtn.textContent = originalBtnText;
+                        submitBtn.disabled = false;
+                    });
+            }
         });
+        
+        // Helper function to show error messages
+        function showError(input, message) {
+            const formGroup = input.parentElement;
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error-message';
+            errorElement.textContent = message;
+            formGroup.appendChild(errorElement);
+            input.classList.add('error');
+        }
+        
+        // Email validation helper function
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        // Close success message
         document.querySelector('.close-btn').addEventListener('click', function() {
             document.getElementById('successMessage').classList.remove('active');
+        });
+        
+        // Remove error class when user starts typing
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+                const errorMessage = this.parentElement.querySelector('.error-message');
+                if (errorMessage) {
+                    errorMessage.remove();
+                }
+            });
         });
     </script>
 </body>
