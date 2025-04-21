@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileImage = document.getElementById('profileImage');
@@ -248,44 +248,37 @@ document.addEventListener('DOMContentLoaded', () => {
         editProfileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Get form values
             const name = document.getElementById('editName').value;
             const title = document.getElementById('editTitle').value;
             const location = document.getElementById('editLocation').value;
             const themeColor = document.getElementById('themeColor').value;
-            
-            // Update user data
+
+            // Update userData object
             userData.name = name;
             userData.title = title;
             userData.location = location;
             userData.themeColor = themeColor;
-            
-            // Update theme color
-            updateThemeColor(themeColor);
-            
-            // Update localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            // Update Firestore if user is authenticated
-            if (auth.currentUser) {
-                try {
-                    const userRef = doc(db, 'users', auth.currentUser.uid);
-                    await updateDoc(userRef, {
-                        name: name,
-                        title: title,
-                        location: location,
-                        themeColor: themeColor
-                    });
-                } catch (error) {
-                    console.error('Error updating profile:', error);
-                }
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    name: name,
+                    title: title,
+                    location: location,
+                    themeColor: themeColor
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('profile');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile. Please try again.');
             }
-            
-            // Update display
-            updateProfileDisplay();
-            
-            // Close modal
-            closeModal('profile');
         });
     }
 
@@ -293,32 +286,28 @@ document.addEventListener('DOMContentLoaded', () => {
         editAboutForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Get form values
             const bio = document.getElementById('editBio').value;
-            
-            // Update user data
+
+            // Update userData object
             userData.bio = bio;
-            
-            // Update localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            // Update Firestore if user is authenticated
-            if (auth.currentUser) {
-                try {
-                    const userRef = doc(db, 'users', auth.currentUser.uid);
-                    await updateDoc(userRef, {
-                        bio: bio
-                    });
-                } catch (error) {
-                    console.error('Error updating bio:', error);
-                }
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    bio: bio
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('about');
+            } catch (error) {
+                console.error('Error updating bio:', error);
+                alert('Error updating bio. Please try again.');
             }
-            
-            // Update display
-            updateProfileDisplay();
-            
-            // Close modal
-            closeModal('about');
         });
     }
 
@@ -326,35 +315,30 @@ document.addEventListener('DOMContentLoaded', () => {
         editSkillsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Get all skill inputs
-            const skillInputs = document.querySelectorAll('#skillsContainer [name="skill"]');
-            const skills = Array.from(skillInputs)
-                .map(input => input.value.trim())
-                .filter(skill => skill !== '');
-            
-            // Update user data
+            const skills = Array.from(document.querySelectorAll('[name="skill"]'))
+                .map(input => input.value)
+                .filter(skill => skill.trim() !== '');
+
+            // Update userData object
             userData.skills = skills;
-            
-            // Update localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            // Update Firestore if user is authenticated
-            if (auth.currentUser) {
-                try {
-                    const userRef = doc(db, 'users', auth.currentUser.uid);
-                    await updateDoc(userRef, {
-                        skills: skills
-                    });
-                } catch (error) {
-                    console.error('Error updating skills:', error);
-                }
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    skills: skills
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('skills');
+            } catch (error) {
+                console.error('Error updating skills:', error);
+                alert('Error updating skills. Please try again.');
             }
-            
-            // Update display
-            updateProfileDisplay();
-            
-            // Close modal
-            closeModal('skills');
         });
     }
 
@@ -362,43 +346,39 @@ document.addEventListener('DOMContentLoaded', () => {
         editExperienceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Get all experience entries
-            const experienceEntries = document.querySelectorAll('.experience-entry');
-            const experience = Array.from(experienceEntries).map(entry => {
+            const experienceEntries = Array.from(document.querySelectorAll('.experience-entry'));
+            const experience = experienceEntries.map(entry => {
+                const currentJob = entry.querySelector('.current-job').checked;
                 return {
                     title: entry.querySelector('[name="jobTitle"]').value,
                     company: entry.querySelector('[name="company"]').value,
                     location: entry.querySelector('[name="jobLocation"]').value,
                     startDate: entry.querySelector('[name="startDate"]').value,
-                    endDate: entry.querySelector('[name="endDate"]').value,
-                    current: entry.querySelector('[name="currentJob"]').checked,
+                    endDate: currentJob ? null : entry.querySelector('[name="endDate"]').value,
                     description: entry.querySelector('[name="jobDescription"]').value
                 };
-            });
-            
-            // Update user data
+            }).filter(exp => exp.title && exp.company); // Only include entries with at least title and company
+
+            // Update userData object
             userData.experience = experience;
-            
-            // Update localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            // Update Firestore if user is authenticated
-            if (auth.currentUser) {
-                try {
-                    const userRef = doc(db, 'users', auth.currentUser.uid);
-                    await updateDoc(userRef, {
-                        experience: experience
-                    });
-                } catch (error) {
-                    console.error('Error updating experience:', error);
-                }
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    experience: experience
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('experience');
+            } catch (error) {
+                console.error('Error updating experience:', error);
+                alert('Error updating experience. Please try again.');
             }
-            
-            // Update display
-            updateProfileDisplay();
-            
-            // Close modal
-            closeModal('experience');
         });
     }
 
@@ -406,236 +386,175 @@ document.addEventListener('DOMContentLoaded', () => {
         editEducationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Get all education entries
-            const educationEntries = document.querySelectorAll('.education-entry');
-            const education = Array.from(educationEntries).map(entry => {
+            const educationEntries = Array.from(document.querySelectorAll('.education-entry'));
+            const education = educationEntries.map(entry => {
+                const currentlyStudying = entry.querySelector('.current-study').checked;
                 return {
                     school: entry.querySelector('[name="school"]').value,
                     degree: entry.querySelector('[name="degree"]').value,
-                    fieldOfStudy: entry.querySelector('[name="fieldOfStudy"]').value,
+                    field: entry.querySelector('[name="field"]').value,
                     startDate: entry.querySelector('[name="eduStartDate"]').value,
-                    endDate: entry.querySelector('[name="eduEndDate"]').value,
-                    current: entry.querySelector('[name="currentEducation"]').checked,
-                    description: entry.querySelector('[name="educationDescription"]').value
+                    endDate: currentlyStudying ? null : entry.querySelector('[name="eduEndDate"]').value,
+                    description: entry.querySelector('[name="eduDescription"]').value
                 };
-            });
-            
-            // Update user data
+            }).filter(edu => edu.school && edu.degree); // Only include entries with at least school and degree
+
+            // Update userData object
             userData.education = education;
-            
-            // Update localStorage
-            localStorage.setItem('userData', JSON.stringify(userData));
-            
-            // Update Firestore if user is authenticated
-            if (auth.currentUser) {
-                try {
-                    const userRef = doc(db, 'users', auth.currentUser.uid);
-                    await updateDoc(userRef, {
-                        education: education
-                    });
-                } catch (error) {
-                    console.error('Error updating education:', error);
-                }
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    education: education
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('education');
+            } catch (error) {
+                console.error('Error updating education:', error);
+                alert('Error updating education. Please try again.');
             }
-            
-            // Update display
-            updateProfileDisplay();
-            
-            // Close modal
-            closeModal('education');
         });
     }
 
-    // Function to update profile display
+    // Update profile information
     function updateProfileDisplay() {
+        document.getElementById('userName').textContent = userData.name || 'User';
+        document.getElementById('userTitle').textContent = userData.title || 'Professional';
+        document.getElementById('userLocation').textContent = userData.location || 'Not specified';
+        document.getElementById('userEmail').textContent = userData.email || 'No email provided';
+        document.getElementById('userBio').textContent = userData.bio || 'No bio available';
+        
         // Update profile image
-        if (profileImage && userData.profileImage) {
+        if (userData.profileImage) {
             profileImage.src = userData.profileImage;
+            profileImage.onerror = function() {
+                this.src = '../img/useri.png';
+            };
+        } else {
+            profileImage.src = '../img/useri.png';
         }
-        
-        // Update user name
-        const userName = document.getElementById('userName');
-        if (userName) {
-            userName.textContent = userData.name || 'User';
-        }
-        
-        // Update user title
-        const userTitle = document.getElementById('userTitle');
-        if (userTitle) {
-            userTitle.textContent = userData.title || 'No title provided';
-        }
-        
-        // Update user location
-        const userLocation = document.getElementById('userLocation');
-        if (userLocation) {
-            userLocation.textContent = userData.location || 'No location provided';
-        }
-        
-        // Update user bio
-        const userBio = document.getElementById('userBio');
-        if (userBio) {
-            userBio.textContent = userData.bio || 'No bio provided';
-        }
-        
+
         // Update skills
         const skillsList = document.getElementById('skillsList');
-        if (skillsList) {
-            skillsList.innerHTML = '';
-            if (userData.skills && userData.skills.length > 0) {
-                userData.skills.forEach(skill => {
-                    const skillTag = document.createElement('span');
-                    skillTag.className = 'skill-tag';
-                    skillTag.textContent = skill;
-                    skillsList.appendChild(skillTag);
-                });
-            } else {
-                const noSkills = document.createElement('p');
-                noSkills.textContent = 'No skills added yet';
-                skillsList.appendChild(noSkills);
-            }
+        if (userData.skills && userData.skills.length > 0) {
+            skillsList.innerHTML = userData.skills
+                .map(skill => `<span class="skill-tag">${skill}</span>`)
+                .join('');
+        } else {
+            skillsList.innerHTML = '<p>No skills added yet</p>';
         }
-        
+
         // Update experience
         const experienceList = document.getElementById('experienceList');
-        if (experienceList) {
-            experienceList.innerHTML = '';
-            if (userData.experience && userData.experience.length > 0) {
-                userData.experience.forEach(exp => {
-                    const expItem = document.createElement('div');
-                    expItem.className = 'experience-item';
-                    
-                    const title = document.createElement('h3');
-                    title.textContent = exp.title;
-                    
-                    const company = document.createElement('p');
-                    company.className = 'company';
-                    company.textContent = exp.company;
-                    
-                    const location = document.createElement('p');
-                    location.className = 'location';
-                    location.textContent = exp.location;
-                    
-                    const duration = document.createElement('p');
-                    duration.className = 'duration';
-                    duration.textContent = `${exp.startDate} - ${exp.current ? 'Present' : exp.endDate}`;
-                    
-                    const description = document.createElement('p');
-                    description.className = 'description';
-                    description.textContent = exp.description;
-                    
-                    expItem.appendChild(title);
-                    expItem.appendChild(company);
-                    expItem.appendChild(location);
-                    expItem.appendChild(duration);
-                    expItem.appendChild(description);
-                    
-                    experienceList.appendChild(expItem);
-                });
-            } else {
-                const noExp = document.createElement('p');
-                noExp.textContent = 'No experience added yet';
-                experienceList.appendChild(noExp);
-            }
+        if (userData.experience && userData.experience.length > 0) {
+            experienceList.innerHTML = userData.experience
+                .map(exp => `
+                    <div class="experience-item">
+                        <h3>${exp.title}</h3>
+                        <p class="company">${exp.company}</p>
+                        <p class="duration">${exp.startDate} - ${exp.endDate || 'Present'}</p>
+                        <p class="description">${exp.description}</p>
+                    </div>
+                `)
+                .join('');
+        } else {
+            experienceList.innerHTML = '<p>No experience added yet</p>';
         }
-        
+
         // Update education
         const educationList = document.getElementById('educationList');
-        if (educationList) {
-            educationList.innerHTML = '';
-            if (userData.education && userData.education.length > 0) {
-                userData.education.forEach(edu => {
-                    const eduItem = document.createElement('div');
-                    eduItem.className = 'education-item';
-                    
-                    const school = document.createElement('h3');
-                    school.textContent = edu.school;
-                    
-                    const degree = document.createElement('p');
-                    degree.className = 'degree';
-                    degree.textContent = `${edu.degree} in ${edu.fieldOfStudy}`;
-                    
-                    const duration = document.createElement('p');
-                    duration.className = 'duration';
-                    duration.textContent = `${edu.startDate} - ${edu.current ? 'Present' : edu.endDate}`;
-                    
-                    const description = document.createElement('p');
-                    description.className = 'description';
-                    description.textContent = edu.description;
-                    
-                    eduItem.appendChild(school);
-                    eduItem.appendChild(degree);
-                    eduItem.appendChild(duration);
-                    eduItem.appendChild(description);
-                    
-                    educationList.appendChild(eduItem);
-                });
-            } else {
-                const noEdu = document.createElement('p');
-                noEdu.textContent = 'No education added yet';
-                educationList.appendChild(noEdu);
-            }
+        if (userData.education && userData.education.length > 0) {
+            educationList.innerHTML = userData.education
+                .map(edu => `
+                    <div class="education-item">
+                        <h3>${edu.degree}</h3>
+                        <p class="institution">${edu.institution}</p>
+                        <p class="duration">${edu.startDate} - ${edu.endDate || 'Present'}</p>
+                    </div>
+                `)
+                .join('');
+        } else {
+            educationList.innerHTML = '<p>No education added yet</p>';
         }
+
+        // Update theme color
+        const themeColor = userData.themeColor || defaultThemeColor;
+        updateThemeColor(themeColor);
     }
+
+    // Initialize profile display
+    updateProfileDisplay();
 
     // Initialize theme color
     function initializeThemeColor() {
-        // Get theme color from user data or use default
-        const themeColor = userData.themeColor || defaultThemeColor;
-        
-        // Update theme color
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        const themeColor = userData.themeColor || '#755ea3';
         updateThemeColor(themeColor);
-        
-        // Set theme color input value
-        if (themeColorInput) {
-            themeColorInput.value = themeColor;
-        }
     }
 
-    // Function to add experience entry
+    // Call initializeThemeColor when the page loads
+    initializeThemeColor();
+
+    // Update theme color when user changes it
+    document.getElementById('themeColor')?.addEventListener('input', async (e) => {
+        const color = e.target.value;
+        updateThemeColor(color);
+
+        try {
+            // Update Firestore
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            await updateDoc(userRef, {
+                themeColor: color
+            });
+
+            // Update localStorage
+            userData.themeColor = color;
+            localStorage.setItem('userData', JSON.stringify(userData));
+        } catch (error) {
+            console.error('Error saving theme color:', error);
+        }
+    });
+
+    // Add experience entry
     function addExperienceEntry(data = {}) {
-        const experienceContainer = document.getElementById('experienceContainer');
-        if (!experienceContainer) return;
-        
+        const container = document.getElementById('experienceContainer');
         const entry = document.createElement('div');
         entry.className = 'experience-entry';
-        
         entry.innerHTML = `
+            <div class="form-group">
+                <input type="text" name="jobTitle" placeholder="Job Title" value="${data.title || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="company" placeholder="Company" value="${data.company || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="jobLocation" placeholder="Location" value="${data.location || ''}">
+            </div>
+            <div class="form-group">
+                <input type="date" name="startDate" placeholder="Start Date" value="${data.startDate || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="date" name="endDate" placeholder="End Date" value="${data.endDate || ''}">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="currentJob" class="current-job">
+                    <label>I currently work here</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <textarea name="jobDescription" placeholder="Description">${data.description || ''}</textarea>
+            </div>
             <button type="button" class="remove-experience">Remove</button>
-            <div class="form-group">
-                <label for="jobTitle">Job Title</label>
-                <input type="text" id="jobTitle" name="jobTitle" value="${data.title || ''}" required>
-            </div>
-            <div class="form-group">
-                <label for="company">Company</label>
-                <input type="text" id="company" name="company" value="${data.company || ''}" required>
-            </div>
-            <div class="form-group">
-                <label for="jobLocation">Location</label>
-                <input type="text" id="jobLocation" name="jobLocation" value="${data.location || ''}">
-            </div>
-            <div class="form-group">
-                <label for="startDate">Start Date</label>
-                <input type="date" id="startDate" name="startDate" value="${data.startDate || ''}" required>
-            </div>
-            <div class="form-group">
-                <label for="endDate">End Date</label>
-                <input type="date" id="endDate" name="endDate" value="${data.endDate || ''}" ${data.current ? 'disabled' : ''}>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="currentJob" name="currentJob" ${data.current ? 'checked' : ''}>
-                <label for="currentJob">I currently work here</label>
-            </div>
-            <div class="form-group">
-                <label for="jobDescription">Description</label>
-                <textarea id="jobDescription" name="jobDescription">${data.description || ''}</textarea>
-            </div>
         `;
-        
-        experienceContainer.appendChild(entry);
-        
+
         // Add event listener for current job checkbox
-        const currentJobCheckbox = entry.querySelector('#currentJob');
-        const endDateInput = entry.querySelector('#endDate');
+        const currentJobCheckbox = entry.querySelector('.current-job');
+        const endDateInput = entry.querySelector('[name="endDate"]');
         
         currentJobCheckbox.addEventListener('change', () => {
             endDateInput.disabled = currentJobCheckbox.checked;
@@ -643,129 +562,259 @@ document.addEventListener('DOMContentLoaded', () => {
                 endDateInput.value = '';
             }
         });
-        
+
         // Add event listener for remove button
-        const removeButton = entry.querySelector('.remove-experience');
-        removeButton.addEventListener('click', () => {
+        entry.querySelector('.remove-experience').addEventListener('click', () => {
             entry.remove();
         });
+
+        container.appendChild(entry);
     }
 
-    // Function to add education entry
+    // Add education entry
     function addEducationEntry(data = {}) {
-        const educationContainer = document.getElementById('educationContainer');
-        if (!educationContainer) return;
-        
+        const container = document.getElementById('educationContainer');
         const entry = document.createElement('div');
         entry.className = 'education-entry';
-        
         entry.innerHTML = `
+            <div class="form-group">
+                <input type="text" name="school" placeholder="School/University" value="${data.school || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="degree" placeholder="Degree" value="${data.degree || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="field" placeholder="Field of Study" value="${data.field || ''}">
+            </div>
+            <div class="form-group">
+                <input type="date" name="eduStartDate" placeholder="Start Date" value="${data.startDate || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="date" name="eduEndDate" placeholder="End Date" value="${data.endDate || ''}">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="currentlyStudying" class="current-study">
+                    <label>I am currently studying here</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <textarea name="eduDescription" placeholder="Description">${data.description || ''}</textarea>
+            </div>
             <button type="button" class="remove-education">Remove</button>
-            <div class="form-group">
-                <label for="school">School</label>
-                <input type="text" id="school" name="school" value="${data.school || ''}" required>
-            </div>
-            <div class="form-group">
-                <label for="degree">Degree</label>
-                <input type="text" id="degree" name="degree" value="${data.degree || ''}" required>
-            </div>
-            <div class="form-group">
-                <label for="fieldOfStudy">Field of Study</label>
-                <input type="text" id="fieldOfStudy" name="fieldOfStudy" value="${data.fieldOfStudy || ''}" required>
-            </div>
-            <div class="form-group">
-                <label for="eduStartDate">Start Date</label>
-                <input type="date" id="eduStartDate" name="eduStartDate" value="${data.startDate || ''}" required>
-            </div>
-            <div class="form-group">
-                <label for="eduEndDate">End Date</label>
-                <input type="date" id="eduEndDate" name="eduEndDate" value="${data.endDate || ''}" ${data.current ? 'disabled' : ''}>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="currentEducation" name="currentEducation" ${data.current ? 'checked' : ''}>
-                <label for="currentEducation">I am currently studying here</label>
-            </div>
-            <div class="form-group">
-                <label for="educationDescription">Description</label>
-                <textarea id="educationDescription" name="educationDescription">${data.description || ''}</textarea>
-            </div>
         `;
+
+        // Add event listener for currently studying checkbox
+        const currentStudyCheckbox = entry.querySelector('.current-study');
+        const endDateInput = entry.querySelector('[name="eduEndDate"]');
         
-        educationContainer.appendChild(entry);
-        
-        // Add event listener for current education checkbox
-        const currentEducationCheckbox = entry.querySelector('#currentEducation');
-        const endDateInput = entry.querySelector('#eduEndDate');
-        
-        currentEducationCheckbox.addEventListener('change', () => {
-            endDateInput.disabled = currentEducationCheckbox.checked;
-            if (currentEducationCheckbox.checked) {
+        currentStudyCheckbox.addEventListener('change', () => {
+            endDateInput.disabled = currentStudyCheckbox.checked;
+            if (currentStudyCheckbox.checked) {
                 endDateInput.value = '';
             }
         });
-        
+
         // Add event listener for remove button
-        const removeButton = entry.querySelector('.remove-education');
-        removeButton.addEventListener('click', () => {
+        entry.querySelector('.remove-education').addEventListener('click', () => {
             entry.remove();
         });
+
+        container.appendChild(entry);
     }
+
+    // Add event listeners for add buttons
+    document.querySelector('.add-experience')?.addEventListener('click', () => {
+        addExperienceEntry();
+    });
+
+    document.querySelector('.add-education')?.addEventListener('click', () => {
+        addEducationEntry();
+    });
+
+    // Profile picture upload functionality
+    editProfilePic.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.click();
+
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    profileImage.src = e.target.result;
+                    userData.profileImage = e.target.result;
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+    // Jobs tabs functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const jobsLists = document.querySelectorAll('.jobs-list');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            jobsLists.forEach(list => list.classList.add('hidden'));
+            const tabName = button.getAttribute('data-tab');
+            document.getElementById(`${tabName}Jobs`).classList.remove('hidden');
+        });
+    });
 
     // Handle responsive design
     function handleResponsive() {
-        const profilePicture = document.querySelector('.profile-picture');
         const profileInfo = document.querySelector('.profile-info');
-        
         if (window.innerWidth <= 768) {
-            if (profilePicture) {
-                profilePicture.style.left = '50%';
-                profilePicture.style.transform = 'translateX(-50%)';
-                profilePicture.style.bottom = '-75px';
-            }
-            
-            if (profileInfo) {
-                profileInfo.style.paddingTop = '100px';
-                profileInfo.style.textAlign = 'center';
-            }
-            
-            const profileStats = document.querySelector('.profile-stats');
-            if (profileStats) {
-                profileStats.style.justifyContent = 'center';
-            }
-            
-            const editProfileBtn = document.querySelector('.edit-profile-btn');
-            if (editProfileBtn) {
-                editProfileBtn.style.margin = '0 auto';
-            }
+            profileInfo.style.flexDirection = 'column';
+            profileInfo.style.alignItems = 'center';
+            profileInfo.style.textAlign = 'center';
         } else {
-            if (profilePicture) {
-                profilePicture.style.left = '50px';
-                profilePicture.style.transform = 'none';
-                profilePicture.style.bottom = '-50px';
-            }
-            
-            if (profileInfo) {
-                profileInfo.style.paddingTop = '70px';
-                profileInfo.style.textAlign = 'left';
-            }
-            
-            const profileStats = document.querySelector('.profile-stats');
-            if (profileStats) {
-                profileStats.style.justifyContent = 'flex-start';
-            }
-            
-            const editProfileBtn = document.querySelector('.edit-profile-btn');
-            if (editProfileBtn) {
-                editProfileBtn.style.margin = '20px 0';
-            }
+            profileInfo.style.flexDirection = 'row';
+            profileInfo.style.alignItems = 'flex-start';
+            profileInfo.style.textAlign = 'left';
         }
     }
 
-    // Add event listener for window resize
+    handleResponsive();
     window.addEventListener('resize', handleResponsive);
 
-    // Initialize
-    updateProfileDisplay();
-    initializeThemeColor();
-    handleResponsive();
+    // Experience and Education entry templates
+    const experienceTemplate = `
+        <div class="experience-entry">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" required>
+            </div>
+            <div class="form-group">
+                <label>Company</label>
+                <input type="text" name="company" required>
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" name="startDate" required>
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" name="endDate">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="currentJob" class="current-job">
+                    <label>I currently work here</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3"></textarea>
+            </div>
+            <button type="button" class="remove-experience">Remove</button>
+        </div>
+    `;
+
+    const educationTemplate = `
+        <div class="education-entry">
+            <div class="form-group">
+                <label>Degree</label>
+                <input type="text" name="degree" required>
+            </div>
+            <div class="form-group">
+                <label>Institution</label>
+                <input type="text" name="institution" required>
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" name="startDate" required>
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" name="endDate">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="currentlyStudying" class="current-study">
+                    <label>I currently study here</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3"></textarea>
+            </div>
+            <button type="button" class="remove-education">Remove</button>
+        </div>
+    `;
+
+    // Skills entry template
+    const skillTemplate = `
+        <div class="skill-entry">
+            <div class="form-group">
+                <input type="text" name="skill" placeholder="Enter skill" required>
+                <button type="button" class="remove-skill">Remove</button>
+            </div>
+        </div>
+    `;
+
+    // Add Skill button functionality
+    document.querySelector('.add-skill')?.addEventListener('click', () => {
+        const container = document.getElementById('skillsContainer');
+        const entry = document.createElement('div');
+        entry.innerHTML = skillTemplate;
+        container.appendChild(entry);
+        
+        // Add remove functionality to the new entry
+        entry.querySelector('.remove-skill').addEventListener('click', () => {
+            entry.remove();
+        });
+    });
+
+    // Load existing skills when opening modal
+    document.querySelector('.edit-skills-btn')?.addEventListener('click', () => {
+        const container = document.getElementById('skillsContainer');
+        container.innerHTML = ''; // Clear existing entries
+        
+        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+        const skills = userData.skills || [];
+        
+        if (skills.length === 0) {
+            // Add one empty entry if no skills exist
+            const entry = document.createElement('div');
+            entry.innerHTML = skillTemplate;
+            container.appendChild(entry);
+        } else {
+            // Add existing skills
+            skills.forEach(skill => {
+                const entry = document.createElement('div');
+                entry.innerHTML = skillTemplate;
+                container.appendChild(entry);
+                
+                // Fill in the value
+                entry.querySelector('[name="skill"]').value = skill;
+            });
+        }
+        
+        // Add remove functionality to all entries
+        container.querySelectorAll('.remove-skill').forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('.skill-entry').remove();
+            });
+        });
+    });
+
+    // Update the updateUserData function
+    function updateUserData(newData) {
+        // Get current user data from localStorage
+        const currentData = JSON.parse(localStorage.getItem('userData') || '{}');
+        
+        // Merge new data with current data
+        const updatedData = { ...currentData, ...newData };
+        
+        // Save to localStorage
+        localStorage.setItem('userData', JSON.stringify(updatedData));
+        
+        // Update the global userData variable
+        userData = updatedData;
+        
+        // Update the profile display
+        updateProfileDisplay();
+    }
 });
