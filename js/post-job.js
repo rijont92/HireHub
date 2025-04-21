@@ -8,12 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const postJobContainer = document.querySelector('.blured');
 
     // Check authentication on page load
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true" && currentUser && currentUser.uid;
-    
-    if (isAuthenticated) {
+    if(localStorage.getItem("isAuthenticated") === "true") {
         btn.innerHTML = "Post Job";
         postJobContainer.classList.remove('blurred');
+       
     } else {
         btn.innerHTML = "Sign Up to post";
         showLoginPopup();
@@ -218,9 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsDataURL(file);
                 removeError(logoInput);
             } else {
-                logoPreview.src = '../img/default-logo.png';
-                logoPreview.style.display = 'block';
-                previewPlaceholder.style.display = 'none';
+                logoPreview.src = '#';
+                logoPreview.style.display = 'none';
+                previewPlaceholder.style.display = 'flex';
             }
         });
     }
@@ -231,8 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             // Check if user is authenticated
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (!currentUser || !currentUser.uid) {
+            if (localStorage.getItem("isAuthenticated") === "false") {
                 showLoginPopup();
                 return;
             }
@@ -254,14 +251,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         jobData[key] = value;
                     }
 
-                    // Add user ID and metadata
-                    jobData.postedBy = currentUser.uid;
+                    // Add timestamp and ID
                     jobData.id = Date.now().toString();
                     jobData.postedDate = new Date().toISOString();
 
                     // Handle company logo
                     const logoFile = formData.get('companyLogo');
-                    if (logoFile && logoFile.size > 0) {
+                    if (logoFile) {
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             jobData.companyLogo = e.target.result;
@@ -272,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         jobData.companyLogo = '../img/default-logo.png';
                         saveAndRedirect(jobData);
                     }
+                    
                 } catch (error) {
                     console.error('Error posting job:', error);
                     alert('Error posting job. Please try again.');
@@ -281,74 +278,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveAndRedirect(jobData) {
-        try {
-            // Get existing jobs
-            let allJobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-            let myJobs = JSON.parse(localStorage.getItem('myJobs') || '[]');
-            
-            // Optimize job data
-            const optimizedJobData = {
-                id: jobData.id,
-                postedBy: jobData.postedBy,
-                postedDate: jobData.postedDate,
-                jobTitle: jobData.jobTitle,
-                companyName: jobData.companyName,
-                jobType: jobData.jobType,
-                location: jobData.location,
-                salary: jobData.salary,
-                jobDescription: jobData.jobDescription,
-                requirements: jobData.requirements,
-                benefits: jobData.benefits,
-                applicationDeadline: jobData.applicationDeadline
-            };
-
-            // Handle company logo - only store if it's not the default logo
-            if (jobData.companyLogo && !jobData.companyLogo.includes('default-logo.png')) {
-                // Check if the logo is too large (more than 100KB)
-                if (jobData.companyLogo.length > 100 * 1024) {
-                    // If logo is too large, use default logo
-                    optimizedJobData.companyLogo = '../img/default-logo.png';
-                } else {
-                    optimizedJobData.companyLogo = jobData.companyLogo;
-                }
-            } else {
-                optimizedJobData.companyLogo = '../img/default-logo.png';
-            }
-
-            // Add to all jobs
-            allJobs.push(optimizedJobData);
-            
-            // Add to my jobs
-            myJobs.push(optimizedJobData);
-            
-            // Check if we're approaching storage limit
-            const totalSize = JSON.stringify(allJobs).length + JSON.stringify(myJobs).length;
-            if (totalSize > 2 * 1024 * 1024) { // 2MB limit
-                // Remove oldest jobs if we're approaching the limit
-                allJobs = allJobs.slice(-20); // Keep only last 20 jobs
-                myJobs = myJobs.slice(-20);
-            }
-            
-            // Save to localStorage
-            localStorage.setItem('jobs', JSON.stringify(allJobs));
-            localStorage.setItem('myJobs', JSON.stringify(myJobs));
-            
-            // Show success popup
-            const successPopup = document.getElementById('successPopup');
-            successPopup.style.display = 'flex';
-            
-            // Add event listener for close button
-            const closePopup = document.getElementById('closeSuccessPopup');
-            closePopup.addEventListener('click', function() {
-                successPopup.style.display = 'none';
-                // Redirect to my jobs page after closing popup
-                window.location.href = 'my-jobs.html';
-            });
-            
-        } catch (error) {
-            console.error('Error saving job:', error);
-            alert('Error saving job. Please try again with a smaller image or contact support.');
-        }
+        // Get existing jobs from localStorage
+        let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+        
+        // Add new job
+        jobs.push(jobData);
+        
+        // Save back to localStorage
+        localStorage.setItem('jobs', JSON.stringify(jobs));
+        
+        // Show success popup
+        showSuccessPopup();
     }
 
     function showSuccessPopup() {
@@ -552,25 +492,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Make closeLoginPopup function available globally
     window.closeLoginPopup = closeLoginPopup;
-
-    // Function to validate image
-    function validateImage(input) {
-        const file = input.files[0];
-        if (file) {
-            if (!file.type.startsWith('image/')) {
-                showError(input, 'Please upload an image file');
-                return false;
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                showError(input, 'Image size should be less than 5MB');
-                return false;
-            }
-            removeError(input);
-            return true;
-        }
-        return false;
-    }
-
-    // Make validateImage function available globally
-    window.validateImage = validateImage;
 }); 
