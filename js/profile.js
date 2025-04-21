@@ -726,39 +726,85 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.body.appendChild(loadingIndicator);
                     
                     // Check file size and type
-                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                        throw new Error('File size too large. Please select an image under 5MB.');
+                    if (file.size > 10 * 1024 * 1024) { // 10MB limit for original file
+                        throw new Error('File size too large. Please select an image under 10MB.');
                     }
                     
                     if (!file.type.match('image.*')) {
                         throw new Error('Please select an image file.');
                     }
                     
-                    // Convert file to base64
+                    // Convert file to base64 with compression
                     const reader = new FileReader();
                     
                     reader.onload = async (e) => {
                         try {
-                            const base64Image = e.target.result;
+                            // Create an image element to get dimensions
+                            const img = new Image();
+                            img.src = e.target.result;
                             
-                            // Update profile image in UI
-                            profileImage.src = base64Image;
+                            img.onload = async () => {
+                                // Create a canvas to compress the image
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                
+                                // Calculate new dimensions while maintaining aspect ratio
+                                let width = img.width;
+                                let height = img.height;
+                                
+                                // Max dimensions for profile image
+                                const maxDimension = 800;
+                                
+                                if (width > height && width > maxDimension) {
+                                    height = Math.round((height * maxDimension) / width);
+                                    width = maxDimension;
+                                } else if (height > maxDimension) {
+                                    width = Math.round((width * maxDimension) / height);
+                                    height = maxDimension;
+                                }
+                                
+                                // Set canvas dimensions
+                                canvas.width = width;
+                                canvas.height = height;
+                                
+                                // Draw the image on the canvas
+                                ctx.drawImage(img, 0, 0, width, height);
+                                
+                                // Get the compressed image as base64
+                                // Use lower quality (0.7) to reduce file size
+                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                                
+                                // Check if the compressed image is still too large
+                                // Base64 string length is approximately 4/3 of the binary size
+                                const estimatedSize = Math.ceil(compressedBase64.length * 0.75);
+                                
+                                if (estimatedSize > 900000) { // Leave some buffer below the 1MB limit
+                                    throw new Error('Image is still too large after compression. Please try a smaller image.');
+                                }
+                                
+                                // Update profile image in UI
+                                profileImage.src = compressedBase64;
+                                
+                                // Update userData in localStorage
+                                userData.profileImage = compressedBase64;
+                                localStorage.setItem('userData', JSON.stringify(userData));
+                                
+                                // Update Firestore
+                                const userRef = doc(db, 'users', auth.currentUser.uid);
+                                await updateDoc(userRef, {
+                                    profileImage: compressedBase64
+                                });
+                                
+                                // Remove loading indicator
+                                loadingIndicator.remove();
+                                
+                                // Show success message
+                                alert('Profile picture updated successfully!');
+                            };
                             
-                            // Update userData in localStorage
-                            userData.profileImage = base64Image;
-                            localStorage.setItem('userData', JSON.stringify(userData));
-                            
-                            // Update Firestore
-                            const userRef = doc(db, 'users', auth.currentUser.uid);
-                            await updateDoc(userRef, {
-                                profileImage: base64Image
-                            });
-                            
-                            // Remove loading indicator
-                            loadingIndicator.remove();
-                            
-                            // Show success message
-                            alert('Profile picture updated successfully!');
+                            img.onerror = () => {
+                                throw new Error('Error loading image for compression.');
+                            };
                         } catch (error) {
                             console.error('Error processing image:', error);
                             loadingIndicator.remove();
