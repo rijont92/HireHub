@@ -686,15 +686,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Profile picture upload functionality
     editProfilePic.addEventListener('click', () => {
+        // Create a file input element
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
-        input.capture = 'environment'; // This helps with mobile camera access
+        
+        // For mobile devices, use the camera
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            input.capture = 'environment'; // Use back camera by default
+        }
+        
+        // Hide the input but keep it in the DOM
         input.style.display = 'none';
-        document.body.appendChild(input); // Add to DOM to ensure it works on all devices
+        input.style.position = 'absolute';
+        input.style.opacity = '0';
+        input.style.width = '100%';
+        input.style.height = '100%';
+        input.style.top = '0';
+        input.style.left = '0';
+        input.style.cursor = 'pointer';
+        
+        // Add the input to the document
+        document.body.appendChild(input);
         
         // Trigger the file input click
-        input.click();
+        setTimeout(() => {
+            input.click();
+        }, 100);
         
         // Handle file selection
         input.addEventListener('change', async (e) => {
@@ -707,8 +725,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     loadingIndicator.innerHTML = 'Uploading image...';
                     document.body.appendChild(loadingIndicator);
                     
+                    // Check file size and type
+                    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                        throw new Error('File size too large. Please select an image under 5MB.');
+                    }
+                    
+                    if (!file.type.match('image.*')) {
+                        throw new Error('Please select an image file.');
+                    }
+                    
                     // Convert file to base64
                     const reader = new FileReader();
+                    
                     reader.onload = async (e) => {
                         try {
                             const base64Image = e.target.result;
@@ -734,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         } catch (error) {
                             console.error('Error processing image:', error);
                             loadingIndicator.remove();
-                            alert('Error processing image. Please try again.');
+                            alert('Error processing image: ' + error.message);
                         }
                     };
                     
@@ -744,16 +772,43 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert('Error reading file. Please try again.');
                     };
                     
+                    // Read the file as data URL
                     reader.readAsDataURL(file);
                 } catch (error) {
                     console.error('Error handling file selection:', error);
-                    alert('Error handling file selection. Please try again.');
+                    alert(error.message || 'Error handling file selection. Please try again.');
                 }
             }
             
             // Clean up the input element
-            document.body.removeChild(input);
+            setTimeout(() => {
+                if (document.body.contains(input)) {
+                    document.body.removeChild(input);
+                }
+            }, 1000);
         });
+    });
+
+    // Add a fallback method for Safari on iOS
+    document.addEventListener('DOMContentLoaded', () => {
+        // Check if the device is iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        if (isIOS) {
+            // Add a direct click handler to the profile image container for iOS
+            const profileImageContainer = document.querySelector('.profile-image-container');
+            if (profileImageContainer) {
+                profileImageContainer.addEventListener('click', (e) => {
+                    // Only trigger if the click is not on the edit button
+                    if (!e.target.closest('.edit-profile-pic')) {
+                        const editProfilePic = document.querySelector('.edit-profile-pic');
+                        if (editProfilePic) {
+                            editProfilePic.click();
+                        }
+                    }
+                });
+            }
+        }
     });
 
     // Jobs tabs functionality
