@@ -286,9 +286,14 @@ document.addEventListener('DOMContentLoaded', function() {
             let allJobs = JSON.parse(localStorage.getItem('jobs') || '[]');
             let myJobs = JSON.parse(localStorage.getItem('myJobs') || '[]');
             
+            // Get current user
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            console.log('Current user when posting job:', currentUser);
+            
             // Optimize job data
             const optimizedJobData = {
                 id: jobData.id,
+                userId: currentUser.uid,
                 postedBy: jobData.postedBy,
                 postedDate: jobData.postedDate,
                 jobTitle: jobData.jobTitle,
@@ -302,17 +307,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 applicationDeadline: jobData.applicationDeadline
             };
 
-            // Handle company logo - only store if it's not the default logo
-            if (jobData.companyLogo && !jobData.companyLogo.includes('default-logo.png')) {
-                // Check if the logo is too large (more than 100KB)
-                if (jobData.companyLogo.length > 100 * 1024) {
-                    // If logo is too large, use default logo
-                    optimizedJobData.companyLogo = '../img/default-logo.png';
-                } else {
-                    optimizedJobData.companyLogo = jobData.companyLogo;
-                }
+            // Handle company logo
+            if (jobData.companyLogo && jobData.companyLogo.startsWith('data:image')) {
+                // If it's a base64 image, use it directly
+                optimizedJobData.companyLogo = jobData.companyLogo;
+                console.log('Using uploaded logo (base64)');
             } else {
-                optimizedJobData.companyLogo = '../img/default-logo.png';
+                // Use default logo if no logo was uploaded
+                optimizedJobData.companyLogo = '../img/logo.png';
+                console.log('Using default logo');
             }
 
             // Add to all jobs
@@ -321,17 +324,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add to my jobs
             myJobs.push(optimizedJobData);
             
-            // Check if we're approaching storage limit
-            const totalSize = JSON.stringify(allJobs).length + JSON.stringify(myJobs).length;
-            if (totalSize > 2 * 1024 * 1024) { // 2MB limit
-                // Remove oldest jobs if we're approaching the limit
-                allJobs = allJobs.slice(-20); // Keep only last 20 jobs
-                myJobs = myJobs.slice(-20);
-            }
-            
             // Save to localStorage
             localStorage.setItem('jobs', JSON.stringify(allJobs));
             localStorage.setItem('myJobs', JSON.stringify(myJobs));
+            
+            console.log('Saved job with user ID:', optimizedJobData.userId);
+            console.log('All jobs after saving:', JSON.parse(localStorage.getItem('jobs')));
             
             // Show success popup
             const successPopup = document.getElementById('successPopup');
@@ -557,15 +555,26 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateImage(input) {
         const file = input.files[0];
         if (file) {
-            if (!file.type.startsWith('image/')) {
-                showError(input, 'Please upload an image file');
+            // Check file type
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file (JPEG, PNG, or GIF)');
+                input.value = '';
                 return false;
             }
-            if (file.size > 5 * 1024 * 1024) {
-                showError(input, 'Image size should be less than 5MB');
+
+            // Check file size (2MB limit)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Image size should be less than 2MB');
+                input.value = '';
                 return false;
             }
-            removeError(input);
+
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
             return true;
         }
         return false;
