@@ -11,11 +11,7 @@ export async function signUp(email, password) {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("currentUser", JSON.stringify({
-            uid: user.uid,
-            email: user.email
-        }));
+        localStorage.setItem("isAuthenticated","true");
 
         return { success: true, user };
     } catch (error) {
@@ -28,11 +24,7 @@ export async function signIn(email, password) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("currentUser", JSON.stringify({
-            uid: user.uid,
-            email: user.email
-        }));
+        localStorage.setItem("isAuthenticated","true");
         return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };
@@ -43,8 +35,6 @@ export async function signIn(email, password) {
 export async function logOut() {
     try {
         await signOut(auth);
-        localStorage.removeItem("currentUser");
-        localStorage.setItem("isAuthenticated", "false");
         return { success: true };
     } catch (error) {
         return { success: false, error: error.message };

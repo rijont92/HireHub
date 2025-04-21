@@ -768,49 +768,4 @@ body {
     /* Keep only specific styles for very small devices if needed */
   }
 
-.nav-links li {
-    position: relative;
-}
-
-.nav-links li a {
-    color: #333;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    display: block;
-    transition: color 0.3s ease;
-}
-
-.nav-links li a:hover {
-    color: var(--primary-color);
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: white;
-    min-width: 200px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border-radius: 4px;
-    z-index: 1000;
-    top: 100%;
-    left: 0;
-}
-
-.dropdown-content a {
-    padding: 0.75rem 1rem;
-    display: block;
-    color: #333;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.dropdown-content a:hover {
-    background-color: rgba(117, 94, 163, 0.1);
-    color: var(--primary-color);
-}
-
-.nav-links li:hover .dropdown-content {
-    display: block;
-}
-
 
