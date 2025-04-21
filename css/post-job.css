@@ -502,54 +502,84 @@ textarea.error:focus {
 
 /* Success Popup Styles */
 .success-popup {
+    display: none;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.success-content {
     background: white;
     padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
     text-align: center;
-    z-index: 1000;
     max-width: 400px;
     width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     animation: popupAnimation 0.3s ease forwards;
 }
 
-.success-popup i {
+.success-icon {
     font-size: 4rem;
     color: #4CAF50;
     margin-bottom: 1rem;
     animation: checkmarkAnimation 0.5s ease forwards;
 }
 
-.success-popup h2 {
-    color: var(--secondary-color);
+.success-content h3 {
+    color: #333;
     margin-bottom: 1rem;
     font-size: 1.5rem;
 }
 
-.success-popup p {
+.success-content p {
     color: #666;
     margin-bottom: 1.5rem;
-    line-height: 1.5;
 }
 
-.success-popup button {
+.close-popup {
     background: var(--primary-color);
     color: white;
     border: none;
-    padding: 0.8rem 2rem;
-    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 1rem;
+    font-weight: 500;
     transition: all 0.3s ease;
 }
 
-.success-popup button:hover {
+.close-popup:hover {
     background: var(--hover);
     transform: translateY(-2px);
+}
+
+@keyframes popupAnimation {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes checkmarkAnimation {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Updated popup overlay styles */
@@ -691,30 +721,6 @@ textarea.error:focus {
 
     .login-btn, .signup-btn {
         width: 100%;
-    }
-}
-
-@keyframes popupAnimation {
-    0% {
-        transform: translate(-50%, -50%) scale(0);
-    }
-    70% {
-        transform: translate(-50%, -50%) scale(1.1);
-    }
-    100% {
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-@keyframes checkmarkAnimation {
-    0% {
-        transform: scale(0);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
     }
 }
 

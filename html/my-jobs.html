@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub | My Jobs</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/my-jobs.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth-state.js"></script>
+</head>
+<body>
+    <header class="header">
+      <nav class="nav container">
+         <div class="nav__data">
+            <a href="../index.html" class="nav__logo">
+               <img src="../img/logo.png" alt="logo">
+            </a>
+            
+            <div class="nav-rightt" >
+             <div class="nav-li-right">
+                <ul>
+                   <li>
+                      <a href="#" class="nav__link">
+                      <div class="bell  nonee">
+                         <i class="fa-regular fa-bell"></i>
+                         <div class="red-circle"></div>
+                      </div>
+                      </a>
+                     </li>
+                </ul>
+             </div>
+
+               <div class="nav__toggle" id="nav-toggle">
+                  <i class="ri-menu-line nav__burger"></i>
+                  <i class="ri-close-line nav__close"></i>
+                </div>
+          </div>
+         </div>
+
+         <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list">
+               <li><a href="../index.html" class="nav__link">Home</a></li>
+               <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+               <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+               <li class="dropdown__item">
+                  <div class="nav__link">
+                     Account <i class="ri-arrow-down-s-line dropdown__arrow "></i>
+                  </div>
+                  <ul class="dropdown__menu">
+                     <li>
+                        <a href="profile.html" class="dropdown__link">
+                           <i class="ri-user-line"></i>Profile
+                        </a>
+                     </li>
+                     <li>
+                        <a href="my-jobs.html" class="dropdown__link">
+                           <i class="ri-briefcase-line"></i>My Jobs
+                        </a>
+                     </li>
+                     <li>
+                        <a href="login.html" class="dropdown__link" onclick="logOut()" id="login">
+                           <i class="ri-logout-box-line"></i>Log in
+                        </a>
+                     </li>
+                     <li id="sign__up">
+                        <a href="sign_up.html" class="dropdown__link">
+                           <i class="ri-login-box-line"></i>Sign up
+                        </a>
+                     </li>
+                  </ul>
+               </li>
+               <li><a href="#" class="nav__link">About</a></li>
+               <li><a href="#" class="nav__link">Contact</a></li>
+
+               <li class="nonee none2">
+                <a href="#" class="nav__link">
+                <div class="bell">
+                   <i class="fa-regular fa-bell"></i>
+                   <div class="red-circle"></div>
+                </div>
+                </a>
+               </li>
+            </ul>
+         </div>
+      </nav>
+   </header>
+
+    <main class="my-jobs-section">
+        <div class="container">
+            <div class="my-jobs-header">
+                <h1>My Posted Jobs</h1>
+                <a href="post-job.html" class="post-new-job-btn">
+                    <i class="fas fa-plus"></i> Post New Job
+                </a>
+            </div>
+            <div class="my-jobs-container" id="myJobsContainer">
+                <!-- Jobs will be dynamically inserted here -->
+                <div class="job-card">
+                    <div class="job-actions">
+                        <button class="edit-btn" data-job-id="1">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-btn" data-job-id="1">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="job-card-content">
+                        <div class="company-logo-wrapper">
+                            <img src="../img/default-logo.png" alt="Company Logo">
+                        </div>
+                        <div class="job-title-section">
+                            <h3 class="job-title">Job Title</h3>
+                            <p class="company-name">Company Name</p>
+                            <div class="job-meta-info">
+                                <div class="meta-item job-type">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>Full Time</span>
+                                </div>
+                                <div class="meta-item location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Location</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="job-sections">
+                            <div class="section">
+                                <h4>Job Description</h4>
+                                <p>Job description goes here...</p>
+                            </div>
+                            <div class="section">
+                                <h4>Requirements</h4>
+                                <p>Requirements go here...</p>
+                            </div>
+                            <div class="section">
+                                <h4>Benefits</h4>
+                                <p>Benefits go here...</p>
+                            </div>
+                        </div>
+                        <div class="job-footer">
+                            <div class="job-info">
+                                <div class="salary">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span>Salary Range</span>
+                                </div>
+                                <div class="deadline">
+                                    <i class="far fa-clock"></i>
+                                    <span>Application Deadline</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="no-jobs-message" id="noJobsMessage" style="display: none;">
+                <i class="fas fa-briefcase"></i>
+                <h3>No jobs posted yet</h3>
+                <p>Start by posting your first job listing</p>
+                <a href="post-job.html" class="post-first-job-btn">Post Your First Job</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Edit Form Popup -->
+    <div class="edit-form-popup" id="editFormPopup">
+        <div class="edit-form-container">
+            <div class="edit-form-header">
+                <h2>Edit Job</h2>
+                <button class="close-edit-form" id="closeEditForm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="editJobForm">
+                <div class="form-group">
+                    <label for="editJobTitle">Job Title <span>*</span></label>
+                    <input type="text" id="editJobTitle" name="jobTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCompanyName">Company Name <span>*</span></label>
+                    <input type="text" id="editCompanyName" name="companyName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editJobType">Job Type <span>*</span></label>
+                    <select id="editJobType" name="jobType" required>
+                        <option value="full-time">Full Time</option>
+                        <option value="part-time">Part Time</option>
+                        <option value="contract">Contract</option>
+                        <option value="internship">Internship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editLocation">Location <span>*</span></label>
+                    <input type="text" id="editLocation" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSalary">Salary Range <span>*</span></label>
+                    <input type="text" id="editSalary" name="salary" required>
+                </div>
+                <div class="form-group">
+                    <label for="editJobDescription">Job Description <span>*</span></label>
+                    <textarea id="editJobDescription" name="jobDescription" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editRequirements">Requirements <span>*</span></label>
+                    <textarea id="editRequirements" name="requirements" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editBenefits">Benefits <span>*</span></label>
+                    <textarea id="editBenefits" name="benefits" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="editApplicationDeadline">Application Deadline <span>*</span></label>
+                    <input type="date" id="editApplicationDeadline" name="applicationDeadline" required>
+                </div>
+                <button type="submit" class="save-edit-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+      <div class="container">
+         <div class="wrapper">
+            <div class="footer-widget wrapper-center">
+               <a href="#">
+                  <img src="../img/logo.png" alt="" class="logo">
+               </a>
+               <p class="desc">
+                  Connecting skilled professionals with top employers for success and growth.
+               </p>
+               <ul class="socials">
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-facebook-f"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-twitter"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-instagram"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-linkedin-in"></i>
+                     </a>
+                  </li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Quick Links</h6>
+               <ul class="links">
+                  <li><a href="../index.html">Home</a></li>
+                  <li><a href="">Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="">About</a></li>
+                  <li><a href="">Contact</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Services</h6>
+               <ul class="links">
+                  <li><a href="#">Job Search</a></li>
+                  <li><a href="">Save Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="">Manage Applications</a></li>
+                  <li><a href="">Job Alerts</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Help &amp; Support</h6>
+               <ul class="links">
+                  <li><a href="#">FAQ</a></li>
+                  <li><a href="">Live Chat</a></li>
+                  <li><a href="">Privacy Policy</a></li>
+                  <li><a href="">Terms of Service</a></li>
+               </ul>
+            </div>
+         </div>
+         <div class="copyright-wrapper">
+            <p>&copy; 2025 HireHub. All rights reserved.</p>
+            <p>Designed and Developed by
+               <a href="https://www.linkedin.com/in/rijon-tahiri-156169275/" target="_blank">Rijon</a>
+            </p>
+         </div>
+      </div>
+   </footer>
+
+    <script src="../js/header.js"></script>
+    <script type="module" src="../js/my-jobs.js"></script>
+</body>
+</html>
