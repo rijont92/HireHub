@@ -230,11 +230,33 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get the current user data from localStorage
             let userData = JSON.parse(localStorage.getItem('userData') || '{}');
 
-            // Update the userData object with new values
-            userData.name = document.getElementById('name').value;
+            // Get the new values
+            const newName = document.getElementById('name').value;
             const newEmail = document.getElementById('email').value;
 
-            // Show password confirmation modal
+            // Check if email has changed
+            const emailChanged = newEmail !== user.email;
+
+            // Update the userData object with new values
+            userData.name = newName;
+
+            // If email hasn't changed, just update the name
+            if (!emailChanged) {
+                // Update Firestore
+                const userRef = doc(db, 'users', user.uid);
+                await updateDoc(userRef, {
+                    name: newName
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+
+                // Show success notification
+                showNotification('Profile updated successfully!', 'success');
+                return;
+            }
+
+            // If email has changed, show password confirmation modal
             const passwordModal = document.getElementById('passwordConfirmModal');
             const confirmPasswordInput = document.getElementById('confirm-password');
             const confirmPasswordBtn = document.getElementById('confirm-password-btn');
@@ -273,20 +295,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Send verification email
                     await sendEmailVerification(user);
 
+                    // Update Firestore
+                    const userRef = doc(db, 'users', user.uid);
+                    await updateDoc(userRef, {
+                        name: newName,
+                        email: newEmail
+                    });
+
+                    // Update localStorage
+                    userData.email = newEmail;
+                    localStorage.setItem('userData', JSON.stringify(userData));
+
                     // Close the modal
                     passwordModal.style.display = 'none';
 
-                    // Show success message
-                    const successMessage = document.createElement('div');
-                    successMessage.style.color = 'green';
-                    successMessage.style.marginTop = '10px';
-                    successMessage.textContent = `Please check ${newEmail} for a verification email. Click the link in the email to verify your new email address.`;
-                    document.getElementById('profile-form').appendChild(successMessage);
-
-                    // Remove the message after 5 seconds
-                    setTimeout(() => {
-                        successMessage.remove();
-                    }, 5000);
+                    // Show success notification
+                    showNotification(`Please check ${newEmail} for a verification email.`, 'success');
 
                 } catch (error) {
                     console.error('Error during password confirmation:', error);
@@ -317,24 +341,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
         } catch (error) {
-            console.error('Error sending verification email:', error);
-            console.error('Error details:', {
-                code: error.code,
-                message: error.message,
-                stack: error.stack
-            });
-
-            // Show error message
-            const errorMessage = document.createElement('div');
-            errorMessage.style.color = 'red';
-            errorMessage.style.marginTop = '10px';
-            errorMessage.textContent = `Error: ${error.message}. Please try again.`;
-            document.getElementById('profile-form').appendChild(errorMessage);
-
-            // Remove the error message after 5 seconds
-            setTimeout(() => {
-                errorMessage.remove();
-            }, 5000);
+            console.error('Error updating profile:', error);
+            showNotification(error.message, 'error');
         }
     });
 
@@ -376,10 +384,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
+
+    // For mobile devices, use the camera
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        fileInput.capture = 'environment'; // Use back camera by default
+    }
+
+    // Hide the input but keep it in the DOM
     fileInput.style.display = 'none';
+    fileInput.style.position = 'absolute';
+    fileInput.style.opacity = '0';
+    fileInput.style.width = '100%';
+    fileInput.style.height = '100%';
+    fileInput.style.top = '0';
+    fileInput.style.left = '0';
+    fileInput.style.cursor = 'pointer';
 
     changePicBtn.addEventListener('click', () => {
-        fileInput.click();
+        // Add the input to the document
+        document.body.appendChild(fileInput);
+        
+        // Trigger the file input click
+        setTimeout(() => {
+            fileInput.click();
+        }, 100);
     });
 
     fileInput.addEventListener('change', async (e) => {
@@ -391,32 +419,119 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('No user logged in');
                 }
 
-                // Convert file to base64
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                    const base64Image = e.target.result;
-                    
-                    // Update profile image in UI
-                    profileImage.src = base64Image;
+                // Show loading indicator
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.className = 'loading-indicator';
+                loadingIndicator.innerHTML = 'Uploading image...';
+                document.body.appendChild(loadingIndicator);
                 
-                // Update userData in localStorage
-                    userData.profileImage = base64Image;
-                localStorage.setItem('userData', JSON.stringify(userData));
-                
-                    // Update Firestore
-                        const userRef = doc(db, 'users', user.uid);
-                        await updateDoc(userRef, {
-                        profileImage: base64Image
-                        });
-
-                    alert('Profile picture updated successfully!');
-                };
-                reader.readAsDataURL(file);
-                } catch (error) {
-                    console.error('Error updating profile picture:', error);
-                alert('Error updating profile picture. Please try again.');
+                // Check file size and type
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit for original file
+                    throw new Error('File size too large. Please select an image under 10MB.');
                 }
+                
+                if (!file.type.match('image.*')) {
+                    throw new Error('Please select an image file.');
+                }
+                
+                // Convert file to base64 with compression
+                const reader = new FileReader();
+                
+                reader.onload = async (e) => {
+                    try {
+                        // Create an image element to get dimensions
+                        const img = new Image();
+                        img.src = e.target.result;
+                        
+                        img.onload = async () => {
+                            // Create a canvas to compress the image
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Calculate new dimensions while maintaining aspect ratio
+                            let width = img.width;
+                            let height = img.height;
+                            
+                            // Max dimensions for profile image
+                            const maxDimension = 800;
+                            
+                            if (width > height && width > maxDimension) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            } else if (height > maxDimension) {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                            
+                            // Set canvas dimensions
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            // Draw the image on the canvas
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Get the compressed image as base64
+                            // Use lower quality (0.7) to reduce file size
+                            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                            
+                            // Check if the compressed image is still too large
+                            // Base64 string length is approximately 4/3 of the binary size
+                            const estimatedSize = Math.ceil(compressedBase64.length * 0.75);
+                            
+                            if (estimatedSize > 900000) { // Leave some buffer below the 1MB limit
+                                throw new Error('Image is still too large after compression. Please try a smaller image.');
+                            }
+                            
+                            // Update profile image in UI
+                            profileImage.src = compressedBase64;
+                            
+                            // Update userData in localStorage
+                            userData.profileImage = compressedBase64;
+                            localStorage.setItem('userData', JSON.stringify(userData));
+                            
+                            // Update Firestore
+                            const userRef = doc(db, 'users', user.uid);
+                            await updateDoc(userRef, {
+                                profileImage: compressedBase64
+                            });
+                            
+                            // Remove loading indicator
+                            loadingIndicator.remove();
+                            
+                            // Show success message
+                            alert('Profile picture updated successfully!');
+                        };
+                        
+                        img.onerror = () => {
+                            throw new Error('Error loading image for compression.');
+                        };
+                    } catch (error) {
+                        console.error('Error processing image:', error);
+                        loadingIndicator.remove();
+                        alert('Error processing image: ' + error.message);
+                    }
+                };
+                
+                reader.onerror = () => {
+                    console.error('Error reading file');
+                    loadingIndicator.remove();
+                    alert('Error reading file. Please try again.');
+                };
+                
+                // Read the file as data URL
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error handling file selection:', error);
+                alert(error.message || 'Error handling file selection. Please try again.');
+            }
         }
+        
+        // Clean up the input element
+        setTimeout(() => {
+            if (document.body.contains(fileInput)) {
+                document.body.removeChild(fileInput);
+            }
+        }, 1000);
     });
 
     // Color scheme customization

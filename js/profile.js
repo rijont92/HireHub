@@ -684,6 +684,43 @@ document.addEventListener('DOMContentLoaded', () => {
         addEducationEntry();
     });
 
+    // Function to show popup notification
+    function showNotification(message, type = 'success') {
+        // Remove any existing notifications
+        const existingNotification = document.querySelector('.popup-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `popup-notification ${type}`;
+        
+        // Add icon based on type
+        const icon = type === 'success' ? '✓' : '✕';
+        
+        notification.innerHTML = `
+            <i>${icon}</i>
+            <span class="message">${message}</span>
+        `;
+
+        // Add to document
+        document.body.appendChild(notification);
+
+        // Trigger animation
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+
     // Profile picture upload functionality
     editProfilePic.addEventListener('click', () => {
         // Create a file input element
@@ -693,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // For mobile devices, use the camera
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            input.capture = 'environment'; // Use back camera by default
+            input.capture = 'environment';
         }
         
         // Hide the input but keep it in the DOM
@@ -726,7 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.body.appendChild(loadingIndicator);
                     
                     // Check file size and type
-                    if (file.size > 10 * 1024 * 1024) { // 10MB limit for original file
+                    if (file.size > 10 * 1024 * 1024) {
                         throw new Error('File size too large. Please select an image under 10MB.');
                     }
                     
@@ -771,14 +808,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ctx.drawImage(img, 0, 0, width, height);
                                 
                                 // Get the compressed image as base64
-                                // Use lower quality (0.7) to reduce file size
                                 const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                                 
                                 // Check if the compressed image is still too large
-                                // Base64 string length is approximately 4/3 of the binary size
                                 const estimatedSize = Math.ceil(compressedBase64.length * 0.75);
                                 
-                                if (estimatedSize > 900000) { // Leave some buffer below the 1MB limit
+                                if (estimatedSize > 900000) {
                                     throw new Error('Image is still too large after compression. Please try a smaller image.');
                                 }
                                 
@@ -798,8 +833,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 // Remove loading indicator
                                 loadingIndicator.remove();
                                 
-                                // Show success message
-                                alert('Profile picture updated successfully!');
+                                // Show success notification
+                                showNotification('Profile picture updated successfully!', 'success');
                             };
                             
                             img.onerror = () => {
@@ -808,21 +843,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         } catch (error) {
                             console.error('Error processing image:', error);
                             loadingIndicator.remove();
-                            alert('Error processing image: ' + error.message);
+                            showNotification(error.message, 'error');
                         }
                     };
                     
                     reader.onerror = () => {
                         console.error('Error reading file');
                         loadingIndicator.remove();
-                        alert('Error reading file. Please try again.');
+                        showNotification('Error reading file. Please try again.', 'error');
                     };
                     
                     // Read the file as data URL
                     reader.readAsDataURL(file);
                 } catch (error) {
                     console.error('Error handling file selection:', error);
-                    alert(error.message || 'Error handling file selection. Please try again.');
+                    showNotification(error.message || 'Error handling file selection. Please try again.', 'error');
                 }
             }
             

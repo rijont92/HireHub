@@ -82,7 +82,11 @@
 }
 
 .profile-picture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 30px;
+    position: relative;
 }
 
 .profile-picture img {
@@ -92,19 +96,18 @@
     object-fit: cover;
     margin-bottom: 15px;
     border: 3px solid var(--primary-color);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .change-picture-btn {
-    background: var(--primary-color);
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 8px 20px;
+    padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 14px;
+    transition: all 0.3s ease;
 }
 
 .change-picture-btn:hover {
@@ -814,5 +817,20 @@ input:focus + .toggle-slider {
 
 .close:hover {
     color: #333;
+}
+
+/* Loading indicator for profile image upload */
+.loading-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    font-size: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
