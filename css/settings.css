@@ -1,0 +1,818 @@
+:root {
+    --primary-color: #4A90E2;
+    --secondary-color: #2C3E50;
+    --accent-color: #E74C3C;
+    --text-color: #333;
+    --bg-color: #fff;
+    --border-color: #e0e0e0;
+    --hover:rgb(75, 41, 139);
+}
+
+
+.settings-container {
+    display: flex;
+
+    background: var(--bg-color);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 1300px;
+    width: 90%;
+    margin: 140px auto 40px;
+}
+
+.settings-sidebar {
+    width: 250px;
+    padding: 20px;
+    background: var(--secondary-color);
+    color: white;
+    border-radius: 10px 0 0 10px;
+}
+
+.settings-sidebar h2 {
+    margin-bottom: 30px;
+    font-size: 24px;
+    color: white;
+}
+
+.settings-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.settings-menu li {
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.settings-menu li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.settings-menu li.active {
+    background-color: var(--primary-color);
+}
+
+.settings-content {
+    flex: 1;
+    padding: 30px;
+    background: var(--bg-color);
+    border-radius: 0 10px 10px 0;
+}
+
+.settings-section {
+    display: none;
+}
+
+.settings-section.active {
+    display: block;
+}
+
+.settings-section h2 {
+    margin-bottom: 30px;
+    color: var(--text-color);
+}
+
+/* Profile Section Styles */
+.profile-form {
+    max-width: 600px;
+}
+
+.profile-picture {
+    margin-bottom: 30px;
+}
+
+.profile-picture img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.change-picture-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.change-picture-btn:hover {
+    background-color: var(--hover);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+/* Appearance Section Styles */
+.color-scheme,
+.theme-options {
+    margin-bottom: 30px;
+}
+
+.color-options {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.color-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.color-option input[type="color"] {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.color-option label {
+    margin-top: 8px;
+    color: var(--text-color);
+}
+
+.theme-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.theme-btn {
+    padding: 8px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.theme-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Notification Section Styles */
+.notification-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.notification-option input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.notification-option label {
+    color: var(--text-color);
+}
+
+/* Notification Toggle Styles */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: var(--background-color);
+    border-radius: 12px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 600px;
+}
+
+.toggle-container:hover {
+    background: var(--hover-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-label {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-right: 20px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    height: 34px;
+    min-width: 70px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #e0e0e0;
+    transition: .4s;
+    border-radius: 34px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary-color);
+    box-shadow: none;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(36px);
+}
+
+input:not(:checked) + .toggle-slider {
+    background-color: #e0e0e0;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+input:not(:checked) + .toggle-slider:before {
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:focus + .toggle-slider {
+    box-shadow: 0 0 3px var(--primary-color);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .toggle-container {
+    background: var(--dark-background-color);
+    border-color: var(--dark-border-color);
+}
+
+[data-theme="dark"] .toggle-container:hover {
+    background: var(--dark-hover-color);
+}
+
+[data-theme="dark"] .toggle-label {
+    color: var(--dark-text-color);
+}
+
+[data-theme="dark"] input:not(:checked) + .toggle-slider {
+    background-color: #444;
+}
+
+[data-theme="dark"] input:not(:checked) + .toggle-slider:before {
+    background-color: #666;
+}
+
+/* Security Section Styles */
+#security-section {
+    max-width: 100%;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#security-section h2 {
+    text-align: left;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    font-size: 24px;
+}
+
+#security-section .form {
+    max-width: 100%;
+    margin: 0;
+}
+
+#security-section .input-container {
+    margin-bottom: 20px;
+}
+
+#security-section .input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#security-section label {
+    font-size: 16px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+#security-section input[type="email"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 16px;
+    background: var(--background-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+#security-section input[type="email"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    outline: none;
+}
+
+#security-section input[type="submit"] {
+    width: auto;
+    padding: 12px 24px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+#security-section input[type="submit"]:hover {
+    background-color: var(--hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+#security-section input[type="submit"]:active {
+    transform: translateY(0);
+}
+
+#error-email {
+    color: #E74C3C;
+    font-size: 14px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: 6px;
+    display: none;
+    max-width: 400px;
+}
+
+#error-email.show {
+    display: block;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] #security-section {
+    background: transparent;
+    box-shadow: none;
+}
+
+[data-theme="dark"] #security-section input[type="email"] {
+    background: var(--dark-background-color);
+    border-color: var(--dark-border-color);
+    color: var(--dark-text-color);
+}
+
+[data-theme="dark"] #security-section input[type="email"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    text-align: center;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-content p {
+    font-size: 18px;
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.close {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color);
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: var(--primary-color);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .modal-content {
+    background-color: var(--dark-background-color);
+    color: var(--dark-text-color);
+}
+
+/* Common Button Styles */
+.save-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.save-btn:hover {
+    background-color: var(--hover);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .settings-container {
+        flex-direction: column;
+    }
+
+    .settings-sidebar {
+        width: 100%;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .settings-content {
+        border-radius: 0 0 10px 10px;
+    }
+
+    .color-options {
+        flex-wrap: wrap;
+    }
+
+    .profile-picture {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+    }
+
+}
+
+/* Delete Account Section */
+.delete-account-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.delete-account-section h3 {
+    color: #E74C3C;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.delete-account-section p {
+    color: var(--text-color);
+    margin-bottom: 20px;
+    max-width: 600px;
+}
+
+.delete-btn {
+    background-color: #E74C3C;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #C0392B;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.delete-btn:active {
+    transform: translateY(0);
+}
+
+.cancel-btn {
+    background-color: var(--border-color);
+    color: var(--text-color);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.cancel-btn:hover {
+    background-color: #BDC3C7;
+}
+
+/* Delete Account Modal */
+#deleteAccountModal .modal-content {
+    background-color: white;
+    color: #333;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+#deleteAccountModal h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+#deleteAccountModal p {
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .delete-account-section {
+    border-top-color: var(--dark-border-color);
+}
+
+[data-theme="dark"] .delete-account-section p {
+    color: var(--dark-text-color);
+}
+
+[data-theme="dark"] .cancel-btn {
+    background-color: var(--dark-border-color);
+    color: var(--dark-text-color);
+}
+
+[data-theme="dark"] .cancel-btn:hover {
+    background-color: #7F8C8D;
+}
+
+[data-theme="dark"] #deleteAccountModal .modal-content {
+    background-color: white;
+    color: #333;
+}
+
+[data-theme="dark"] #deleteAccountModal h3 {
+    color: #333;
+}
+
+[data-theme="dark"] #deleteAccountModal p {
+    color: #666;
+}
+
+#successModal .modal-content {
+    background-color: white;
+    color: #333;
+    border-radius: 10px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+#successModal h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+#successModal p {
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+[data-theme="dark"] #successModal .modal-content {
+    background-color: white;
+    color: #333;
+}
+
+[data-theme="dark"] #successModal h3 {
+    color: #333;
+}
+
+[data-theme="dark"] #successModal p {
+    color: #666;
+}
+
+/* Password Confirmation Modal Styles */
+#passwordConfirmModal .modal-content {
+    max-width: 400px;
+    padding: 2rem;
+}
+
+#passwordConfirmModal h2 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+#passwordConfirmModal p {
+    margin-bottom: 1.5rem;
+    color: #666;
+}
+
+#passwordConfirmModal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+#passwordConfirmModal .form-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+#passwordConfirmModal .form-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+#passwordConfirmModal .error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    min-height: 1.25rem;
+}
+
+#passwordConfirmModal .modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+#passwordConfirmModal .save-btn,
+#passwordConfirmModal .cancel-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#passwordConfirmModal .save-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#passwordConfirmModal .save-btn:hover {
+    background-color: var(--hover);
+}
+
+#passwordConfirmModal .cancel-btn {
+    background-color: #f8f9fa;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+#passwordConfirmModal .cancel-btn:hover {
+    background-color: #e9ecef;
+}
+
+/* Modal Overlay */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close {
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #333;
+}
+

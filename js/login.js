@@ -1,5 +1,7 @@
 import { signIn } from '../js/auth.js';
 import { setupLoginValidation, validateLoginForm } from '../js/validation.js';
+import { db } from './firebase-config.js';
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const loginForm = document.getElementById('loginForm');
 const errorEmail = document.getElementById('error-email');
@@ -56,8 +58,43 @@ loginForm.addEventListener('submit', async (e) => {
     const result = await signIn(email, password);
 
     if (result.success) {
-        // Login successful
-        window.location.href = '../index.html';
+        try {
+            // Get user data from Firestore
+            const userRef = doc(db, 'users', result.user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                // Get the user data
+                const userData = userDoc.data();
+                
+                // Store user data in localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+            } else {
+                // If no user document exists, create a default user data
+                const defaultUserData = {
+                    name: result.user.displayName || '',
+                    email: result.user.email,
+                    profileImage: '../img/useri.png',
+                    createdAt: new Date().toISOString(),
+                    bio: '',
+                    skills: [],
+                    experience: [],
+                    education: [],
+                    notifications: {
+                        email: true,
+                        push: true,
+                        jobAlerts: true
+                    }
+                };
+                localStorage.setItem('userData', JSON.stringify(defaultUserData));
+            }
+            
+            // Login successful
+            window.location.href = '../index.html';
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            generalError.textContent = 'Error loading user data. Please try again.';
+        }
     } else {
         // Handle error
         if (result.error.includes('user-not-found') || 

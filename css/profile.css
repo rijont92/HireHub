@@ -16,10 +16,11 @@ body {
 }
 
 .profile-container {
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 2rem auto;
-    padding: 0 1rem;
     margin-top: 130px;
+    width: 90%;
+    padding: 0 1rem;
 }
 
 .profile-header {
@@ -172,12 +173,23 @@ body {
     gap: 0.5rem;
 }
 
+#skillsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+}
+
 .skill-tag {
     background: #f0f2f5;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     color: #333;
     font-size: 0.9rem;
+    margin-right: 5px;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 100%;
 }
 
 .experience-item,
@@ -232,7 +244,6 @@ body {
     cursor: pointer;
     transition: background 0.3s;
 }
-
 
 .jobs-list {
     display: grid;
@@ -498,4 +509,12 @@ body {
 
 .add-skill:hover {
     background: var(--hover);
+}
+
+#userBio {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.6;
+    max-width: 100%;
 }
