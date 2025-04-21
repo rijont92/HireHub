@@ -118,8 +118,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
                 
             case 'salary':
-                if (value && !/^[\d\s,.-]+$/.test(value)) {
-                    showError(input, 'Please enter a valid salary range');
+                if (!value) {
+                    showError(input, 'Salary range is required');
+                    return false;
+                } else if (!/^[€$]?\d+(\s*-\s*[€$]?\d+)?$/.test(value)) {
+                    showError(input, 'Please enter a valid salary range (e.g., €1000 - €2000)');
                     return false;
                 }
                 break;
@@ -145,8 +148,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 break;
                 
+            case 'benefits':
+                if (!value) {
+                    showError(input, 'Benefits are required');
+                    return false;
+                } else if (value.length < 20) {
+                    showError(input, 'Benefits must be at least 20 characters long');
+                    return false;
+                }
+                break;
+                
             case 'applicationDeadline':
-                if (value && !isValidDate(value)) {
+                if (!value) {
+                    showError(input, 'Application deadline is required');
+                    return false;
+                } else if (!isValidDate(value)) {
                     showError(input, 'Application deadline must be a future date');
                     return false;
                 }

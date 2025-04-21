@@ -37,6 +37,10 @@
 }
 
 
+.edit-buttons {
+  margin-top: 10px;
+}
+
 ul {
   list-style: none;
   /* Color highlighting when pressed on mobile devices */
@@ -490,7 +494,7 @@ a,li {
     transition: background-color .3s;
 }
 
-.dropdown__link:hover {
+.dropdown__link:hover,.dropdown__link.active {
     background-color: rgb(75, 41, 139);
 }
 

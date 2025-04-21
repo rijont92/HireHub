@@ -63,7 +63,7 @@ footer {
     height: 44px;
     margin-right: 10px;
     color: #fff;
-    background-color: var(--primary-color);
+    background-color: #755ea3;
     border-radius: 50%;
     font-size: 20px;
     text-decoration: none;
@@ -79,7 +79,7 @@ footer {
   }
   
   .wrapper .footer-widget h6 {
-    color: var(--primary-color);
+    color: #755ea3;
     margin: 10px 0 35px;
     font-size: 20px;
     font-weight: 600;
@@ -116,7 +116,7 @@ footer {
   }
   
   .copyright-wrapper p a {
-    color: var(--primary-color);
+    color: #755ea3;
     font-weight: 600;
   }
 

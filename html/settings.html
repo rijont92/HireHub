@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub | Settings</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/settings.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth-state.js"></script>
+</head>
+<body>
+    <header class="header">
+      <nav class="nav container">
+         <div class="nav__data">
+            <a href="../index.html" class="nav__logo">
+               <img src="../img/logo.png" alt="logo">
+            </a>
+            
+            <div class="nav-rightt" >
+             <div class="nav-li-right">
+                <ul>
+                   <li>
+                      <a href="#" class="nav__link">
+                      <div class="bell  nonee">
+                         <i class="fa-regular fa-bell"></i>
+                         <div class="red-circle"></div>
+                      </div>
+                      </a>
+                     </li>
+      
+                       <li><a href="#" class="nav__link">
+                        <img src="../img/happy-client.png" alt="User" class="user nonee" id="img-profile2">
+                       </a></li>
+                </ul>
+             </div>
+
+               <div class="nav__toggle" id="nav-toggle">
+                  <i class="ri-menu-line nav__burger"></i>
+                  <i class="ri-close-line nav__close"></i>
+                </div>
+          </div>
+         </div>
+
+         <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list">
+               <li><a href="../index.html" class="nav__link">Home</a></li>
+               <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+               <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+               <li class="dropdown__item">
+                  <div class="nav__link">
+                     Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                  </div>
+
+                  <ul class="dropdown__menu">
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                           <i class="ri-user-line"></i> Profile
+                        </a>                          
+                     </li>
+
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                          <i class="ri-settings-3-line"></i>Settings
+                        </a>
+                     </li>
+
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                          <i class="ri-file-text-line"></i> My Jobs
+                        </a>
+                     </li>
+
+                     <li class="remove">
+                      <a href="#" class="dropdown__link">
+                          <i class="ri-bookmark-line"></i>Saved Jobs
+                      </a>
+                   </li>
+
+                   <li class="remove">
+                      <a href="#" class="dropdown__link">
+                          <i class="ri-history-line"></i>History
+                      </a>
+                   </li>
+
+                   <li>
+                      <a href="/html/login.html" class="dropdown__link" onclick="logOut()" id="login">
+                         <i class="ri-logout-box-line"></i>Log in
+                      </a>
+                   </li>
+
+                   <li id="sign__up">
+                      <a href="/html/sign_up.html" class="dropdown__link">
+                         <i class="ri-login-box-line"></i>Sign up
+                      </a>
+                   </li>
+                  </ul>
+               </li>
+               <li><a href="#" class="nav__link">About</a></li>
+               <li><a href="#" class="nav__link">Contact</a></li>
+
+               <li class="nonee none2">
+                <a href="#" class="nav__link">
+                <div class="bell">
+                   <i class="fa-regular fa-bell"></i>
+                   <div class="red-circle"></div>
+                </div>
+                </a>
+               </li>
+            </ul>
+         </div>
+      </nav>
+   </header>
+
+    <main class="settings-container">
+        <div class="settings-sidebar">
+            <h2>Settings</h2>
+            <ul class="settings-menu">
+                <li class="active" data-tab="profile">Profile</li>
+                <li data-tab="notifications">Notifications</li>
+                <li data-tab="security">Security</li>
+            </ul>
+        </div>
+
+        <div class="settings-content">
+            <!-- Profile Section -->
+            <div class="settings-section active" id="profile-section">
+                <h2>Profile Settings</h2>
+                <div class="profile-form">
+                    <div class="profile-picture">
+                        <img src="../img/useri.png" alt="Profile Picture" id="profile-pic">
+                        <button class="change-picture-btn">Change Picture</button>
+                    </div>
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <button type="submit" class="save-btn">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div class="settings-section" id="notifications-section">
+                <h2>Notification Settings</h2>
+                <div class="notification-form">
+                    <div class="notification-option">
+                        <div class="toggle-container">
+                            <span class="toggle-label">Email Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="email-notifications" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="notification-option">
+                        <div class="toggle-container">
+                            <span class="toggle-label">Push Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="push-notifications" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="notification-option">
+                        <div class="toggle-container">
+                            <span class="toggle-label">Job Alerts</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="job-alerts" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <button class="save-btn" id="save-notifications">Save Notification Settings</button>
+                </div>
+            </div>
+
+            <!-- Security Section -->
+            <div id="security-section" class="settings-section">
+                <h2>Security</h2>
+                
+                <!-- Password Reset Form -->
+                <div class="form">
+                    <form id="security-form">
+                        <div class="input-container">
+                            <div class="input-row">
+                                <label for="reset-email">Enter email id</label>
+                                <input type="email" id="reset-email" required>
+                                <p id="error-email"></p>
+                            </div>
+                        </div>
+                        <input type="submit" id="save-password" value="Reset Password">
+                    </form>
+                </div>
+
+                <!-- Delete Account Section -->
+                <div class="delete-account-section">
+                    <h3>Delete Account</h3>
+                    <p>Once you delete your account, there is no going back. Please be certain.</p>
+                    <button id="delete-account-btn" class="delete-btn">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Account Modal -->
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeDeleteModal">&times;</span>
+            <h3>Delete Account</h3>
+            <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button id="confirm-delete" class="delete-btn">Yes, Delete Account</button>
+                <button id="cancel-delete" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Reset Success Modal -->
+    <div id="passwordResetModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closePasswordModal">&times;</span>
+            <h3>Password Reset Email Sent</h3>
+            <p>We have sent a password reset link to your email. Please check your inbox.</p>
+        </div>
+    </div>
+
+    <!-- Account Deletion Success Modal -->
+    <div id="accountDeletedModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeAccountDeletedModal">&times;</span>
+            <h2>Account Deleted</h2>
+            <p>Your account has been successfully deleted.</p>
+        </div>
+    </div>
+
+    <!-- Password Confirmation Modal -->
+    <div id="passwordConfirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closePasswordConfirmModal">&times;</span>
+            <h2>Confirm Password</h2>
+            <p>Please enter your current password to confirm the email change:</p>
+            <div class="form-group">
+                <input type="password" id="confirm-password" class="form-input" placeholder="Enter your current password">
+                <div id="password-error" class="error-message"></div>
+            </div>
+            <div class="modal-buttons">
+                <button id="confirm-password-btn" class="save-btn">Confirm</button>
+                <button id="cancel-password-btn" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+      <div class="container">
+         <div class="wrapper">
+            <div class="footer-widget wrapper-center">
+               <a href="#">
+                  <img src="../img/logo.png" alt="" class="logo">
+               </a>
+               <p class="desc">
+                  Connecting skilled professionals with top employers for success and growth.
+               </p>
+               <ul class="socials">
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-facebook-f"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-twitter"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-instagram"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-linkedin-in"></i>
+                     </a>
+                  </li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Quick Links</h6>
+               <ul class="links">
+                  <li><a href="../index.html">Home</a></li>
+                  <li><a href="">Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="">About</a></li>
+                  <li><a href="">Contact</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Services</h6>
+               <ul class="links">
+                  <li><a href="#">Job Search</a></li>
+                  <li><a href="">Save Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="">Manage Applications</a></li>
+                  <li><a href="">Job Alerts</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Help &amp; Support</h6>
+               <ul class="links">
+                  <li><a href="#">FAQ</a></li>
+                  <li><a href="">Live Chat</a></li>
+                  <li><a href="">Privacy Policy</a></li>
+                  <li><a href="">Terms of Service</a></li>
+               </ul>
+            </div>
+         </div>
+         <div class="copyright-wrapper">
+            <p>&copy; 2025 HireHub. All rights reserved.</p>
+            <p>Designed and Developed by
+               <a href="https://www.linkedin.com/in/rijon-tahiri-156169275/" target="_blank">Rijon</a>
+            </p>
+         </div>
+      </div>
+   </footer>
+
+    <script src="../js/header.js"></script>
+    <script type="module" src="../js/settings.js"></script>
+</body>
+</html> 

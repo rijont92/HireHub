@@ -1,5 +1,8 @@
 import { signUp } from '../js/auth.js';
 import { setupSignupValidation, validateSignupForm } from '../js/validation.js';
+import { isAuthenticated } from '../js/auth.js';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from './firebase-config.js';
 
 document.addEventListener("DOMContentLoaded", function () {
     const signupForm = document.getElementById('signupForm');
@@ -12,7 +15,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const icon2 = document.getElementById('icon2');
     const useriImg = document.querySelector('.useri-img');
     const fileInput = document.getElementById('file-input');
+    let profileImageBase64 = '../img/useri.png';
 
+    if (isAuthenticated()) {
+        window.location.replace("../index.html"); 
+    }
+    
     // Password visibility toggle for first password
     window.changeIcon = function () {
         if (passwordInput.type === 'password') {
@@ -42,12 +50,36 @@ document.addEventListener("DOMContentLoaded", function () {
     // Setup real-time validation
     setupSignupValidation();
 
+    // Handle file selection
+    fileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // Store the base64 image data
+                    profileImageBase64 = e.target.result;
+                    
+                    // Update the preview image
+                    const previewImg = document.getElementById('preview-img');
+                    previewImg.src = profileImageBase64;
+                    previewImg.alt = "Uploaded Image";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please upload a valid image file (e.g., .jpg, .png).');
+                fileInput.value = '';
+            }
+        }
+    });
+
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
+        const name = document.getElementById('name').value;
 
         // Validate form before submission
         const validation = validateSignupForm(email, password, password2);
@@ -67,39 +99,66 @@ document.addEventListener("DOMContentLoaded", function () {
         errorPassword.textContent = '';
         errorPassword2.textContent = '';
 
-        const result = await signUp(email, password);
+        try {
+            const result = await signUp(email, password);
 
-        if (result.success) {
-            // Signup successful
-            window.location.href = '../index.html';
-        } else {
-            // Handle error
-            if (result.error.includes('email-already-in-use')) {
-                errorEmail.textContent = 'An account with this email already exists';
-                errorEmail.style.color = 'red';
-            } else if (result.error.includes('invalid-email')) {
-                errorEmail.textContent = 'Please enter a valid email address';
-                errorEmail.style.color = 'red';
-            } else if (result.error.includes('weak-password')) {
-                errorPassword.textContent = 'Password is too weak. Please follow the requirements.';
-                errorPassword.style.color = 'red';
-            } else if (result.error.includes('too-many-requests')) {
-                errorEmail.textContent = 'Too many attempts. Please try again later.';
-                errorEmail.style.color = 'red';
+            if (result.success) {
+                // Create user document in Firestore
+                const userData = {
+                    name: name,
+                    email: email,
+                    profileImage: profileImageBase64,
+                    createdAt: new Date().toISOString(),
+                    bio: '',
+                    skills: [],
+                    experience: [],
+                    education: [],
+                    notifications: {
+                        email: true,
+                        push: true,
+                        jobAlerts: true
+                    }
+                };
+                
+                // Save to Firestore
+                await setDoc(doc(db, 'users', result.user.uid), userData);
+                
+                // Save to localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('isAuthenticated', 'true');
+                
+                // Signup successful
+                window.location.href = '../index.html';
             } else {
-                errorEmail.textContent = 'An error occurred. Please try again.';
-                errorEmail.style.color = 'red';
+                // Handle error
+                if (result.error.includes('email-already-in-use')) {
+                    errorEmail.textContent = 'An account with this email already exists';
+                    errorEmail.style.color = 'red';
+                } else if (result.error.includes('invalid-email')) {
+                    errorEmail.textContent = 'Please enter a valid email address';
+                    errorEmail.style.color = 'red';
+                } else if (result.error.includes('weak-password')) {
+                    errorPassword.textContent = 'Password is too weak. Please follow the requirements.';
+                    errorPassword.style.color = 'red';
+                } else if (result.error.includes('too-many-requests')) {
+                    errorEmail.textContent = 'Too many attempts. Please try again later.';
+                    errorEmail.style.color = 'red';
+                } else {
+                    errorEmail.textContent = 'An error occurred. Please try again.';
+                    errorEmail.style.color = 'red';
+                }
             }
+        } catch (error) {
+            console.error('Error during signup:', error);
+            errorEmail.textContent = 'Error creating account. Please try again.';
+            errorEmail.style.color = 'red';
         }
     });
 
     // Attach the click event listener to trigger the file input
-    useriImg.addEventListener('click', function () {
+    useriImg.addEventListener('click', () => {
         fileInput.click();
     });
-
-    // Attach the change event listener to handle image upload
-    fileInput.addEventListener('change', handleImageUpload);
 });
 
 // Function to trigger file input click
@@ -132,7 +191,6 @@ function handleImageUpload(event) {
         alert('No file selected. Please choose an image to upload.');
     }
 }
-
 
 
 
