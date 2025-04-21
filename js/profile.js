@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileImage = document.getElementById('profileImage');
@@ -41,6 +41,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get user data from localStorage
     let userData = JSON.parse(localStorage.getItem('userData') || '{}');
+
+    // Set up real-time listener for Firestore changes
+    if (auth.currentUser) {
+        const userRef = doc(db, 'users', auth.currentUser.uid);
+        
+        // Set up real-time listener
+        const unsubscribe = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+                const firestoreData = doc.data();
+                
+                // Update userData with Firestore data
+                userData = { ...userData, ...firestoreData };
+                
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+            }
+        }, (error) => {
+            console.error("Error listening to Firestore changes:", error);
+        });
+    }
 
     // Function to update theme color
     function updateThemeColor(color) {
@@ -474,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .map(edu => `
                     <div class="education-item">
                         <h3>${edu.degree}</h3>
-                        <p class="institution">${edu.institution}</p>
+                        <p class="institution">${edu.school}</p>
                         <p class="duration">${edu.startDate} - ${edu.endDate || 'Present'}</p>
                     </div>
                 `)
