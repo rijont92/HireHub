@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub | Profile</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/profile.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth-state.js"></script>
+    <script type="module" src="../js/profile.js"></script>
+</head>
+<body>
+    <header class="header">
+      <nav class="nav container">
+         <div class="nav__data">
+            <a href="../index.html" class="nav__logo">
+               <img src="../img/logo.png" alt="logo">
+            </a>
+            
+            <div class="nav-rightt" >
+             <div class="nav-li-right">
+                <ul>
+                   <li>
+                      <a href="#" class="nav__link">
+                      <div class="bell  nonee">
+                         <i class="fa-regular fa-bell"></i>
+                         <div class="red-circle"></div>
+                      </div>
+                      </a>
+                     </li>
+                </ul>
+             </div>
+
+               <div class="nav__toggle" id="nav-toggle">
+                  <i class="ri-menu-line nav__burger"></i>
+                  <i class="ri-close-line nav__close"></i>
+                </div>
+          </div>
+         </div>
+
+         <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list">
+               <li><a href="../index.html" class="nav__link">Home</a></li>
+               <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+               <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+               <li class="dropdown__item">
+                  <div class="nav__link">
+                     Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                  </div>
+
+                  <ul class="dropdown__menu">
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                           <i class="ri-user-line"></i> Profile
+                        </a>                          
+                     </li>
+
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                          <i class="ri-settings-3-line"></i>Settings
+                        </a>
+                     </li>
+
+                     <li class="remove">
+                        <a href="#" class="dropdown__link">
+                          <i class="ri-file-text-line"></i> My Jobs
+                        </a>
+                     </li>
+
+                     <li class="remove">
+                      <a href="#" class="dropdown__link">
+                          <i class="ri-bookmark-line"></i>Saved Jobs
+                      </a>
+                   </li>
+
+                   <li class="remove">
+                      <a href="#" class="dropdown__link">
+                          <i class="ri-history-line"></i>History
+                      </a>
+                   </li>
+
+                   <li>
+                      <a href="/html/login.html" class="dropdown__link" onclick="logOut()" id="login">
+                         <i class="ri-logout-box-line"></i>Log in
+                      </a>
+                   </li>
+
+                   <li id="sign__up">
+                      <a href="/html/sign_up.html" class="dropdown__link">
+                         <i class="ri-login-box-line"></i>Sign up
+                      </a>
+                   </li>
+                  </ul>
+               </li>
+               <li><a href="#" class="nav__link">About</a></li>
+               <li><a href="#" class="nav__link">Contact</a></li>
+
+               <li class="nonee none2">
+                <a href="#" class="nav__link">
+                <div class="bell">
+                   <i class="fa-regular fa-bell"></i>
+                   <div class="red-circle"></div>
+                </div>
+                </a>
+               </li>
+            </ul>
+         </div>
+      </nav>
+   </header>
+
+   <main class="profile-container">
+      <div class="profile-header">
+         <div class="profile-banner">
+            <div class="profile-picture">
+               <img src="../img/default-profile.png" alt="Profile Picture" id="profileImage">
+               <button class="edit-profile-pic"><i class="ri-camera-line"></i></button>
+            </div>
+         </div>
+         <div class="profile-info">
+            <h1 id="userName">User Name</h1>
+            <p class="title" id="userTitle">Professional Title</p>
+            <p class="location" id="userLocation">Location</p>
+            <p class="email" id="userEmail">Email</p>
+            <div class="edit-buttons">
+                <button class="edit-profile-btn">Edit Profile</button>
+            </div>
+         </div>
+      </div>
+
+      <div class="profile-content">
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>About Me</h2>
+                <button class="edit-about-btn">Edit</button>
+            </div>
+            <p id="userBio">No bio available</p>
+         </div>
+
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>Skills</h2>
+                <button class="edit-skills-btn">Edit</button>
+            </div>
+            <div id="skillsList">
+                <p>No skills added yet</p>
+            </div>
+         </div>
+
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>Experience</h2>
+                <button class="edit-experience-btn">Edit</button>
+            </div>
+            <div id="experienceList">
+                <p>No experience added yet</p>
+            </div>
+         </div>
+
+         <div class="profile-section">
+            <div class="section-header">
+                <h2>Education</h2>
+                <button class="edit-education-btn">Edit</button>
+            </div>
+            <div id="educationList">
+                <p>No education added yet</p>
+            </div>
+         </div>
+
+         <div class="profile-section">
+            <h2>My Jobs</h2>
+            <div class="jobs-tabs">
+               <button class="tab-btn active" data-tab="applied">Applied Jobs</button>
+               <button class="tab-btn" data-tab="saved">Saved Jobs</button>
+            </div>
+            <div class="jobs-list" id="appliedJobs">
+               <!-- Applied jobs will be populated here -->
+            </div>
+            <div class="jobs-list hidden" id="savedJobs">
+               <!-- Saved jobs will be populated here -->
+            </div>
+         </div>
+      </div>
+   </main>
+
+   <footer>
+      <div class="container">
+         <div class="wrapper">
+            <div class="footer-widget wrapper-center">
+               <a href="#">
+                  <img src="../img/logo.png" alt="" class="logo">
+               </a>
+               <p class="desc">
+                  Connecting skilled professionals with top employers for success and growth.
+               </p>
+               <ul class="socials">
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-facebook-f"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-twitter"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-instagram"></i>
+                     </a>
+                  </li>
+                  <li>
+                     <a href="#">
+                        <i class="fab fa-linkedin-in"></i>
+                     </a>
+                  </li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Quick Links</h6>
+               <ul class="links">
+                  <li><a href="../index.html">Home</a></li>
+                  <li><a href="">Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="">About</a></li>
+                  <li><a href="">Contact</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Services</h6>
+               <ul class="links">
+                  <li><a href="#">Job Search</a></li>
+                  <li><a href="">Save Jobs</a></li>
+                  <li><a href="post-job.html">Post a Job</a></li>
+                  <li><a href="">Manage Applications</a></li>
+                  <li><a href="">Job Alerts</a></li>
+               </ul>
+            </div>
+            <div class="footer-widget">
+               <h6>Help &amp; Support</h6>
+               <ul class="links">
+                  <li><a href="#">FAQ</a></li>
+                  <li><a href="">Live Chat</a></li>
+                  <li><a href="">Privacy Policy</a></li>
+                  <li><a href="">Terms of Service</a></li>
+               </ul>
+            </div>
+         </div>
+         <div class="copyright-wrapper">
+            <p>&copy; 2025 HireHub. All rights reserved.</p>
+            <p>Designed and Developed by
+               <a href="https://www.linkedin.com/in/rijon-tahiri-156169275/" target="_blank">Rijon</a>
+            </p>
+         </div>
+      </div>
+   </footer>
+
+    <script src="../js/header.js"></script>
+    <script type="module" src="../js/profile.js"></script>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Profile</h2>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label for="editName">Full Name</label>
+                    <input type="text" id="editName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editTitle">Title</label>
+                    <input type="text" id="editTitle" name="title">
+                </div>
+                <div class="form-group">
+                    <label for="editLocation">Location</label>
+                    <input type="text" id="editLocation" name="location">
+                </div>
+                <div class="form-group">
+                    <label for="themeColor">Theme Color</label>
+                    <input type="color" id="themeColor" name="themeColor" value="#755ea3">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit About Me Modal -->
+    <div id="editAboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit About Me</h2>
+            <form id="editAboutForm">
+                <div class="form-group">
+                    <label for="editBio">About Me</label>
+                    <textarea id="editBio" name="bio" rows="4" placeholder="Describe yourself"></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Skills Modal -->
+    <div id="editSkillsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Skills</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="editSkillsForm">
+                <div id="skillsContainer">
+                    <!-- Skill entries will be added here -->
+                </div>
+                <button type="button" class="add-skill">Add Skill</button>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Experience Modal -->
+    <div id="editExperienceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Experience</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <span class="close-modal">&times;</span>
+            <form id="editExperienceForm">
+                <div id="experienceContainer">
+                    <!-- Experience entries will be added here -->
+                </div>
+                <button type="button" class="add-experience">Add Experience</button>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Education Modal -->
+    <div id="editEducationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Education</h2>
+            <form id="editEducationForm">
+                <div id="educationContainer">
+                    <!-- Education entries will be added here -->
+                </div>
+                <button type="button" class="add-education">Add Education</button>
+                <div class="button-group">
+                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

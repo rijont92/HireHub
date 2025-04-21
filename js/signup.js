@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const errorEmail = document.getElementById('error-email');
     const errorPassword = document.getElementById('error-password');
     const errorPassword2 = document.getElementById('error-password2');
+    const errorName = document.getElementById('error-name');
     const passwordInput = document.getElementById('password');
     const password2Input = document.getElementById('password2');
     const icon = document.getElementById('icon');
@@ -76,15 +77,18 @@ document.addEventListener("DOMContentLoaded", function () {
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
-        const name = document.getElementById('name').value;
+        const profileImage = localStorage.getItem('profileImage') || '../img/useri.png';
 
         // Validate form before submission
-        const validation = validateSignupForm(email, password, password2);
+        const validation = validateSignupForm(name, email, password, password2);
         if (!validation.isValid) {
             // Display validation errors
+            errorName.textContent = validation.errors.name;
+            errorName.style.color = 'red';
             errorEmail.textContent = validation.errors.email;
             errorEmail.style.color = 'red';
             errorPassword.textContent = validation.errors.password;
@@ -94,10 +98,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        // Remove the separate name validation since it's now handled in validateSignupForm
         // Clear previous errors
         errorEmail.textContent = '';
         errorPassword.textContent = '';
         errorPassword2.textContent = '';
+        errorName.textContent = '';
 
         try {
             const result = await signUp(email, password);
@@ -126,6 +132,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Save to localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 localStorage.setItem('isAuthenticated', 'true');
+                
+                // Clear the profile image from localStorage
+                localStorage.removeItem('profileImage');
                 
                 // Signup successful
                 window.location.href = '../index.html';
@@ -180,7 +189,7 @@ function handleImageUpload(event) {
                 const previewImg = document.getElementById('preview-img');
                 previewImg.src = base64Image;
                 previewImg.alt = "Uploaded Image"; // Update alt text for accessibility
-                // Optionally, save the image to localStorage (if needed for future use)
+                // Save the image to localStorage
                 localStorage.setItem('profileImage', base64Image);
             };
             reader.readAsDataURL(file); // Convert the image file to base64
