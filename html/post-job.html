@@ -100,7 +100,7 @@
                   </ul>
                </li>
                <li><a href="#" class="nav__link">About</a></li>
-               <li><a href="#" class="nav__link">Contact</a></li>
+               <li><a href="contact.html" class="nav__link">Contact</a></li>
 
                <li class="nonee none2">
                 <a href="#" class="nav__link">
@@ -282,17 +282,15 @@
    </footer>
 
      <script src="../js/header.js"></script>
-     <script type="module" src="../js/post-job.js"></script>
+     <script src="../js/post-job.js"></script>
 
      <!-- Success Popup -->
-     <div class="success-popup" id="successPopup">
-        <div class="success-content">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h3>Job Posted Successfully!</h3>
-            <p>Your job listing has been created and is now live.</p>
-            <button class="close-popup" id="closeSuccessPopup">Close</button>
+     <div class="popup-overlay" id="popupOverlay" style="display: none;">
+        <div class="success-popup">
+            <i class="fas fa-check-circle"></i>
+            <h2>Job Posted Successfully!</h2>
+            <p>Your job listing has been posted and is now visible to potential candidates.</p>
+            <button onclick="closePopup()">Continue</button>
         </div>
      </div>
 

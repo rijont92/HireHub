@@ -8,12 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const postJobContainer = document.querySelector('.blured');
 
     // Check authentication on page load
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true" && currentUser && currentUser.uid;
-    
-    if (isAuthenticated) {
+    if(localStorage.getItem("isAuthenticated") === "true") {
         btn.innerHTML = "Post Job";
         postJobContainer.classList.remove('blurred');
+       
     } else {
         btn.innerHTML = "Sign Up to post";
         showLoginPopup();
@@ -218,9 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsDataURL(file);
                 removeError(logoInput);
             } else {
-                logoPreview.src = '../img/default-logo.png';
-                logoPreview.style.display = 'block';
-                previewPlaceholder.style.display = 'none';
+                logoPreview.src = '#';
+                logoPreview.style.display = 'none';
+                previewPlaceholder.style.display = 'flex';
             }
         });
     }
@@ -231,8 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             // Check if user is authenticated
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            if (!currentUser || !currentUser.uid) {
+            if (localStorage.getItem("isAuthenticated") === "false") {
                 showLoginPopup();
                 return;
             }
@@ -254,14 +251,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         jobData[key] = value;
                     }
 
-                    // Add user ID and metadata
-                    jobData.postedBy = currentUser.uid;
+                    // Add timestamp and ID
                     jobData.id = Date.now().toString();
                     jobData.postedDate = new Date().toISOString();
 
                     // Handle company logo
                     const logoFile = formData.get('companyLogo');
-                    if (logoFile && logoFile.size > 0) {
+                    if (logoFile) {
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             jobData.companyLogo = e.target.result;
@@ -272,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         jobData.companyLogo = '../img/default-logo.png';
                         saveAndRedirect(jobData);
                     }
+                    
                 } catch (error) {
                     console.error('Error posting job:', error);
                     alert('Error posting job. Please try again.');
@@ -281,6 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveAndRedirect(jobData) {
+
         try {
             // Get existing jobs
             let allJobs = JSON.parse(localStorage.getItem('jobs') || '[]');
@@ -347,6 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error saving job:', error);
             alert('Error saving job. Please try again with a smaller image or contact support.');
         }
+
     }
 
     function showSuccessPopup() {
@@ -551,6 +550,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make closeLoginPopup function available globally
     window.closeLoginPopup = closeLoginPopup;
 
+
     // Function to validate image
     function validateImage(input) {
         const file = input.files[0];
@@ -582,4 +582,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Make validateImage function available globally
     window.validateImage = validateImage;
-}); 

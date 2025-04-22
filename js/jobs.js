@@ -557,6 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
     }
 
+
     // Get all job cards
     const jobCards = document.querySelectorAll('.job-card');
     
@@ -836,3 +837,4 @@ window.saveJob = function(jobId) {
 
     localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
 };
+
