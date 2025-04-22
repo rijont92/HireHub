@@ -81,11 +81,6 @@ function updateHeader(user) {
                 </a>
             </li>
             <li>
-                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/admin.html' : 'admin.html'}" class="dropdown__link">
-                    <i class="ri-dashboard-line"></i> Admin Dashboard
-                </a>
-            </li>
-            <li>
                 <a href="#" class="dropdown__link" id="logout-btn">
                     <i class="ri-logout-box-line"></i> Log Out
                 </a>
