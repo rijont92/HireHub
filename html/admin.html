@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Job Applications - HireHub</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth-state.js"></script>
+    <script type="module" src="../js/admin.js" defer></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav container">
+            <div class="nav__data">
+                <a href="../index.html" class="nav__logo">
+                    <img src="../img/logo.png" alt="logo">
+                </a>
+                
+                <div class="nav-rightt">
+                    <div class="nav-li-right">
+                        <ul>
+                            <li>
+                                <a href="#" class="nav__link">
+                                    <div class="bell nonee">
+                                        <i class="fa-regular fa-bell"></i>
+                                        <div class="red-circle"></div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="nav__toggle" id="nav-toggle">
+                        <i class="ri-menu-line nav__burger"></i>
+                        <i class="ri-close-line nav__close"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!--=============== NAV MENU ===============-->
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li><a href="../index.html" class="nav__link">Home</a></li>
+                    <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+                    <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                    <li class="dropdown__item">
+                        <div class="nav__link">
+                            Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <ul class="dropdown__menu">
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-user-line"></i> Profile
+                                </a>                          
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-settings-3-line"></i>Settings
+                                </a>
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-file-text-line"></i> My Jobs
+                                </a>
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-bookmark-line"></i>Saved Jobs
+                                </a>
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-history-line"></i>History
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="login.html" class="dropdown__link" onclick="logOut()" id="login">
+                                    <i class="ri-logout-box-line"></i>Log in
+                                </a>
+                            </li>
+
+                            <li id="sign__up">
+                                <a href="sign_up.html" class="dropdown__link">
+                                    <i class="ri-login-box-line"></i>Sign up
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="#" class="nav__link">About</a></li>
+                    <li><a href="#" class="nav__link">Contact</a></li>
+
+                    <li class="nonee none2">
+                        <a href="#" class="nav__link">
+                            <div class="bell">
+                                <i class="fa-regular fa-bell"></i>
+                                <div class="red-circle"></div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="admin-dashboard">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>My Job Applications</h1>
+                <p class="dashboard-description">Manage applications for jobs you've posted. You'll only see applications for jobs that you created.</p>
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-file-alt"></i>
+                        <div class="stat-info">
+                            <h3>Total Applications</h3>
+                            <p id="totalApplications">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-info">
+                            <h3>Pending</h3>
+                            <p id="pendingApplications">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-info">
+                            <h3>Approved</h3>
+                            <p id="approvedApplications">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-times-circle"></i>
+                        <div class="stat-info">
+                            <h3>Rejected</h3>
+                            <p id="rejectedApplications">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="applications-section">
+                <div class="section-header">
+                    <h2>Job Applications</h2>
+                    <div class="filters">
+                        <select id="statusFilter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                        <select id="jobFilter">
+                            <option value="all">All Jobs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="noJobsMessage" class="no-jobs-message" style="display: none;">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>No Job Postings Found</h3>
+                    <p>You haven't posted any jobs yet. To manage applications, you need to post a job first.</p>
+                    <a href="post-job.html" class="btn-post-job">Post a Job</a>
+                </div>
+
+                <div class="applications-list" id="applicationsList">
+                    <!-- Applications will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Application Details Modal -->
+    <div class="modal" id="applicationModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Application Details</h2>
+            <div id="applicationDetails">
+                <!-- Application details will be dynamically inserted here -->
+            </div>
+            <div class="status-update-section">
+                <h3>Update Status</h3>
+                <select id="statusUpdate">
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <textarea id="adminMessage" placeholder="Add a message to the applicant..."></textarea>
+                <button id="updateStatus">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="wrapper">
+                <div class="footer-widget wrapper-center">
+                    <a href="../index.html">
+                        <img src="../img/logo.png" alt="" class="logo">
+                    </a>
+
+                    <p class="desc">
+                        Connecting skilled professionals with top employers for success and growth.
+                    </p>
+
+                    <ul class="socials">
+                        <li>
+                            <a href="#">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer-widget">
+                    <h6>Quick Links</h6>
+                    <ul class="links">
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="jobs.html">Jobs</a></li>
+                        <li><a href="post-job.html">Post a Job</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-widget">
+                    <h6>Services</h6>
+                    <ul class="links">
+                        <li><a href="#">Job Search</a></li>
+                        <li><a href="#">Save Jobs</a></li>
+                        <li><a href="post-job.html">Post a Job</a></li>
+                        <li><a href="#">Manage Applications</a></li>
+                        <li><a href="#">Job Alerts</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-widget">
+                    <h6>Help &amp; Support</h6>
+                    <ul class="links">
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Live Chat</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright-wrapper">
+                <p>&copy; 2025 HireHub. All rights reserved.</p>
+                <p>Designed and Developed by
+                    <a href="https://www.linkedin.com/in/rijon-tahiri-156169275/" target="_blank">Rijon</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+            s1.async=true;
+            s1.src='https://embed.tawk.to/6780777649e2fd8dfe056513/1ih6t59ql';
+            s1.charset='UTF-8';
+            s1.setAttribute('crossorigin','*');
+            s0.parentNode.insertBefore(s1,s0);
+        })();
+    </script>
+</body>
+</html> 

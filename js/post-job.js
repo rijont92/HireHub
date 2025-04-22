@@ -278,17 +278,74 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveAndRedirect(jobData) {
-        // Get existing jobs from localStorage
-        let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-        
-        // Add new job
-        jobs.push(jobData);
-        
-        // Save back to localStorage
-        localStorage.setItem('jobs', JSON.stringify(jobs));
-        
-        // Show success popup
-        showSuccessPopup();
+
+        try {
+            // Get existing jobs
+            let allJobs = JSON.parse(localStorage.getItem('jobs') || '[]');
+            let myJobs = JSON.parse(localStorage.getItem('myJobs') || '[]');
+            
+            // Get current user
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            console.log('Current user when posting job:', currentUser);
+            
+            // Optimize job data
+            const optimizedJobData = {
+                id: jobData.id,
+                userId: currentUser.uid,
+                postedBy: jobData.postedBy,
+                postedDate: jobData.postedDate,
+                jobTitle: jobData.jobTitle,
+                companyName: jobData.companyName,
+                jobType: jobData.jobType,
+                location: jobData.location,
+                salary: jobData.salary,
+                jobDescription: jobData.jobDescription,
+                requirements: jobData.requirements,
+                benefits: jobData.benefits,
+                applicationDeadline: jobData.applicationDeadline
+            };
+
+            // Handle company logo
+            if (jobData.companyLogo && jobData.companyLogo.startsWith('data:image')) {
+                // If it's a base64 image, use it directly
+                optimizedJobData.companyLogo = jobData.companyLogo;
+                console.log('Using uploaded logo (base64)');
+            } else {
+                // Use default logo if no logo was uploaded
+                optimizedJobData.companyLogo = '../img/logo.png';
+                console.log('Using default logo');
+            }
+
+            // Add to all jobs
+            allJobs.push(optimizedJobData);
+            
+            // Add to my jobs
+            myJobs.push(optimizedJobData);
+            
+            // Save to localStorage
+            localStorage.setItem('jobs', JSON.stringify(allJobs));
+            localStorage.setItem('myJobs', JSON.stringify(myJobs));
+            
+            console.log('Saved job with user ID:', optimizedJobData.userId);
+            console.log('All jobs after saving:', JSON.parse(localStorage.getItem('jobs')));
+            
+            // Show success popup
+            const successPopup = document.getElementById('successPopup');
+            successPopup.style.display = 'flex';
+            
+            // Add event listener for close button
+            const closePopup = document.getElementById('closeSuccessPopup');
+            closePopup.addEventListener('click', function() {
+                successPopup.style.display = 'none';
+                // Redirect to my jobs page after closing popup
+                window.location.href = 'my-jobs.html';
+            });
+            
+        } catch (error) {
+            console.error('Error saving job:', error);
+            alert('Error saving job. Please try again with a smaller image or contact support.');
+        }
+
     }
 
     function showSuccessPopup() {
@@ -492,4 +549,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Make closeLoginPopup function available globally
     window.closeLoginPopup = closeLoginPopup;
-}); 
+
+
+    // Function to validate image
+    function validateImage(input) {
+        const file = input.files[0];
+        if (file) {
+            // Check file type
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file (JPEG, PNG, or GIF)');
+                input.value = '';
+                return false;
+            }
+
+            // Check file size (2MB limit)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Image size should be less than 2MB');
+                input.value = '';
+                return false;
+            }
+
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            return true;
+        }
+        return false;
+    }
+
+    // Make validateImage function available globally
+    window.validateImage = validateImage;
