@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const noJobsMessage = document.getElementById('noJobsMessage');
     const editFormPopup = document.getElementById('editFormPopup');
     const closeEditForm = document.getElementById('closeEditForm');
+    const h1 = document.querySelector('h1');
     const editJobForm = document.getElementById('editJobForm');
     let currentJobId = null;
 

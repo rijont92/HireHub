@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewPlaceholder = document.querySelector('.preview-placeholder');
     const applicationDeadline = document.getElementById('applicationDeadline');
     const btn = document.getElementById("btn");
+    const h1 = document.querySelector('h1');
     const postJobContainer = document.querySelector('.blured');
 
     // Check authentication on page load

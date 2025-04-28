@@ -8,7 +8,7 @@ const updateStatusBtn = document.getElementById('updateStatus');
 const statusFilter = document.getElementById('statusFilter');
 const jobFilter = document.getElementById('jobFilter');
 const notificationBell = document.querySelector('.bell');
-
+const h1 = document.querySelector('h1');
 // Import Firebase auth
 import { auth } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";

@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let allJobs = [];
     let locations = new Set();
+    const h1 = document.querySelector('h1');
 
     // Job Application Modal Functionality
     const applicationModal = document.getElementById('applicationModal');
