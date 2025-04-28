@@ -9,9 +9,17 @@ function setActiveDropdownLink() {
         // Remove 'active' class from all links
         link.classList.remove('active');
 
-        // Check if the link's href matches the current path and exclude "Sign Out"
-        if (link.href.includes(currentPath) && !link.id.includes('logout-btn')) {
-            link.classList.add('active'); // Add 'active' class to the matching link
+        // Get the href attribute and normalize it
+        const linkHref = link.getAttribute('href');
+        if (!linkHref) return;
+
+        // Get the filename from both paths
+        const currentPage = currentPath.split('/').pop();
+        const linkPage = linkHref.split('/').pop();
+
+        // Check if the link's page matches the current page
+        if (linkPage === currentPage && !link.id.includes('logout-btn')) {
+            link.classList.add('active');
         }
     });
 }

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HireHub | Jobs</title>
+    <title>HireHub | Settings</title>
     <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/settings.css">
     <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="../css/jobs.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,6 +35,10 @@
                       </div>
                       </a>
                      </li>
+      
+                       <li><a href="#" class="nav__link">
+                        <img src="../img/happy-client.png" alt="User" class="user nonee" id="img-profile2">
+                       </a></li>
                 </ul>
              </div>
 
@@ -48,7 +52,7 @@
          <div class="nav__menu" id="nav-menu">
             <ul class="nav__list">
                <li><a href="../index.html" class="nav__link">Home</a></li>
-               <li><a href="jobs.html" class="nav__link active">Jobs</a></li>
+               <li><a href="jobs.html" class="nav__link">Jobs</a></li>
                <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
                <li class="dropdown__item">
                   <div class="nav__link">
@@ -99,7 +103,6 @@
                    </li>
                   </ul>
                </li>
-
                <li><a href="#" class="nav__link">About</a></li>
                <li><a href="contact.html" class="nav__link">Contact</a></li>
 
@@ -116,51 +119,149 @@
       </nav>
    </header>
 
-    <main class="jobs-section">
-        <div class="container">
-            <div class="jobs-header">
-                <h1>Available Jobs</h1>
-                <div class="search-filters">
-                    <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Search jobs...">
-                        <i class="fas fa-search"></i>
+    <main class="settings-container">
+        <div class="settings-sidebar">
+            <h2>Settings</h2>
+            <ul class="settings-menu">
+                <li class="active" data-tab="profile">Profile</li>
+                <li data-tab="notifications">Notifications</li>
+                <li data-tab="security">Security</li>
+            </ul>
+        </div>
+
+        <div class="settings-content">
+            <!-- Profile Section -->
+            <div class="settings-section active" id="profile-section">
+                <h2>Profile Settings</h2>
+                <div class="profile-form">
+                    <div class="profile-picture">
+                        <img src="../img/useri.png" alt="Profile Picture" id="profile-pic">
+                        <button class="change-picture-btn">Change Picture</button>
                     </div>
-                    <div class="filters">
-                        <div class="select-wrapper">
-                            <select id="jobTypeFilter">
-                                <option value="">All Job Types</option>
-                                <option value="full-time">Full Time</option>
-                                <option value="part-time">Part Time</option>
-                                <option value="contract">Contract</option>
-                                <option value="internship">Internship</option>
-                            </select>
-                            <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
                         </div>
-                        <div class="select-wrapper">
-                            <select id="locationFilter">
-                                <option value="">All Locations</option>
-                            </select>
-                            <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
                         </div>
-                    </div>
+                        <button type="submit" class="save-btn">Save Changes</button>
+                    </form>
                 </div>
             </div>
 
-            <div class="jobs-grid" id="jobsContainer">
-                <!-- Jobs will be dynamically inserted here -->
+            <!-- Notifications Section -->
+            <div class="settings-section" id="notifications-section">
+                <h2>Notification Settings</h2>
+                <div class="notification-form">
+                    <div class="notification-option">
+                        <div class="toggle-container">
+                            <span class="toggle-label">Email Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="email-notifications" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="notification-option">
+                        <div class="toggle-container">
+                            <span class="toggle-label">Push Notifications</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="push-notifications" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="notification-option">
+                        <div class="toggle-container">
+                            <span class="toggle-label">Job Alerts</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="job-alerts" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <button class="save-btn" id="save-notifications">Save Notification Settings</button>
+                </div>
             </div>
 
-            <div class="no-jobs-message" id="noJobsMessage" style="display: none;">
-                <i class="fas fa-briefcase"></i>
-                <h3>No jobs found</h3>
-                <p>Try adjusting your search criteria</p>
-            </div>
+            <!-- Security Section -->
+            <div id="security-section" class="settings-section">
+                <h2>Security</h2>
+                
+                <!-- Password Reset Form -->
+                <div class="form">
+                    <form id="security-form">
+                        <div class="input-container">
+                            <div class="input-row">
+                                <label for="reset-email">Enter email id</label>
+                                <input type="email" id="reset-email" required>
+                                <p id="error-email"></p>
+                            </div>
+                        </div>
+                        <input type="submit" id="save-password" value="Reset Password">
+                    </form>
+                </div>
 
-            <div class="loading-spinner" id="loadingSpinner">
-                <div class="spinner"></div>
+                <!-- Delete Account Section -->
+                <div class="delete-account-section">
+                    <h3>Delete Account</h3>
+                    <p>Once you delete your account, there is no going back. Please be certain.</p>
+                    <button id="delete-account-btn" class="delete-btn">Delete Account</button>
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- Delete Account Modal -->
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeDeleteModal">&times;</span>
+            <h3>Delete Account</h3>
+            <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button id="confirm-delete" class="delete-btn">Yes, Delete Account</button>
+                <button id="cancel-delete" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Reset Success Modal -->
+    <div id="passwordResetModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closePasswordModal">&times;</span>
+            <h3>Password Reset Email Sent</h3>
+            <p>We have sent a password reset link to your email. Please check your inbox.</p>
+        </div>
+    </div>
+
+    <!-- Account Deletion Success Modal -->
+    <div id="accountDeletedModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeAccountDeletedModal">&times;</span>
+            <h2>Account Deleted</h2>
+            <p>Your account has been successfully deleted.</p>
+        </div>
+    </div>
+
+    <!-- Password Confirmation Modal -->
+    <div id="passwordConfirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closePasswordConfirmModal">&times;</span>
+            <h2>Confirm Password</h2>
+            <p>Please enter your current password to confirm the email change:</p>
+            <div class="form-group">
+                <input type="password" id="confirm-password" class="form-input" placeholder="Enter your current password">
+                <div id="password-error" class="error-message"></div>
+            </div>
+            <div class="modal-buttons">
+                <button id="confirm-password-btn" class="save-btn">Confirm</button>
+                <button id="cancel-password-btn" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <footer>
       <div class="container">
@@ -235,6 +336,6 @@
    </footer>
 
     <script src="../js/header.js"></script>
-    <script src="../js/jobs.js"></script>
+    <script type="module" src="../js/settings.js"></script>
 </body>
 </html> 

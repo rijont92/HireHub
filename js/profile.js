@@ -1,4 +1,6 @@
-import { auth } from './firebase-config.js';
+import { auth, db } from './firebase-config.js';
+import { doc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileImage = document.getElementById('profileImage');
@@ -40,6 +42,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Get user data from localStorage
     let userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    
+    // Set up auth state listener and Firestore real-time listener
+    let unsubscribeFirestore;
+    
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("User is authenticated:", user.uid);
+            
+            // Set up real-time listener for Firestore changes
+            const userRef = doc(db, 'users', user.uid);
+            
+            // First, get the latest data from Firestore
+            getDoc(userRef).then((docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const firestoreData = docSnapshot.data();
+                    console.log("Initial Firestore data:", firestoreData);
+                    
+                    // Update userData with Firestore data
+                    userData = { ...userData, ...firestoreData };
+                    
+                    // Update localStorage
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    
+                    // Update UI
+                    updateProfileDisplay();
+                }
+            }).catch(error => {
+                console.error("Error fetching initial user data:", error);
+            });
+            
+            // Set up real-time listener
+            unsubscribeFirestore = onSnapshot(userRef, (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const firestoreData = docSnapshot.data();
+                    console.log("Firestore update received:", firestoreData);
+                    
+                    // Update userData with Firestore data
+                    userData = { ...userData, ...firestoreData };
+                    
+                    // Update localStorage
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    
+                    // Update UI
+                    updateProfileDisplay();
+                }
+            }, (error) => {
+                console.error("Error listening to Firestore changes:", error);
+            });
+        } else {
+            console.log("User is not authenticated");
+            window.location.href = '/html/login.html';
+        }
+    });
 
     // Function to update theme color
     function updateThemeColor(color) {
@@ -68,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
             heading.style.color = `var(--primary-color)`;
         });
 
-      
         // Update other profile-specific elements with specific colors
         const profileElements = document.querySelectorAll(`
             .profile-info .title,
@@ -245,110 +299,180 @@ document.addEventListener('DOMContentLoaded', () => {
     const editEducationForm = document.getElementById('editEducationForm');
 
     if (editProfileForm) {
-        editProfileForm.addEventListener('submit', (e) => {
+        editProfileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nameInput = document.getElementById('editName');
-            const titleInput = document.getElementById('editTitle');
-            const locationInput = document.getElementById('editLocation');
-            const themeColorInput = document.getElementById('themeColor');
+            
+            const name = document.getElementById('editName').value;
+            const title = document.getElementById('editTitle').value;
+            const location = document.getElementById('editLocation').value;
+            const themeColor = document.getElementById('themeColor').value;
 
-            if (!nameInput || !titleInput || !locationInput || !themeColorInput) {
-                console.error('Required form elements not found');
-                return;
+            // Update userData object
+            userData.name = name;
+            userData.title = title;
+            userData.location = location;
+            userData.themeColor = themeColor;
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    name: name,
+                    title: title,
+                    location: location,
+                    themeColor: themeColor
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('profile');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile. Please try again.');
             }
-
-            const newData = {
-                name: nameInput.value,
-                title: titleInput.value,
-                location: locationInput.value,
-                themeColor: themeColorInput.value
-            };
-            updateUserData(newData);
-            modals.profile.style.display = 'none';
         });
     }
 
     if (editAboutForm) {
-        editAboutForm.addEventListener('submit', (e) => {
+        editAboutForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const bioInput = document.getElementById('editBio');
-            if (!bioInput) {
-                console.error('Bio input not found');
-                return;
-            }
+            
+            const bio = document.getElementById('editBio').value;
 
-            const newData = { bio: bioInput.value };
-            updateUserData(newData);
-            modals.about.style.display = 'none';
+            // Update userData object
+            userData.bio = bio;
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    bio: bio
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('about');
+            } catch (error) {
+                console.error('Error updating bio:', error);
+                alert('Error updating bio. Please try again.');
+            }
         });
     }
 
     if (editSkillsForm) {
-        editSkillsForm.addEventListener('submit', (e) => {
+        editSkillsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const skills = Array.from(document.querySelectorAll('.skill-entry [name="skill"]'))
-                .map(input => input.value.trim())
-                .filter(skill => skill); // Remove empty skills
             
-            const newData = { skills };
-            updateUserData(newData);
-            modals.skills.style.display = 'none';
+            const skills = Array.from(document.querySelectorAll('[name="skill"]'))
+                .map(input => input.value)
+                .filter(skill => skill.trim() !== '');
+
+            // Update userData object
+            userData.skills = skills;
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    skills: skills
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('skills');
+            } catch (error) {
+                console.error('Error updating skills:', error);
+                alert('Error updating skills. Please try again.');
+            }
         });
     }
 
     if (editExperienceForm) {
-        editExperienceForm.addEventListener('submit', (e) => {
+        editExperienceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const experiences = Array.from(document.querySelectorAll('.experience-entry')).map(entry => {
-                const titleInput = entry.querySelector('[name="title"]');
-                const companyInput = entry.querySelector('[name="company"]');
-                const startDateInput = entry.querySelector('[name="startDate"]');
-                const endDateInput = entry.querySelector('[name="endDate"]');
-                const descriptionInput = entry.querySelector('[name="description"]');
-                const currentJobCheckbox = entry.querySelector('.current-job');
-
-                if (!titleInput || !companyInput || !startDateInput) return null;
-
-                return {
-                    title: titleInput.value,
-                    company: companyInput.value,
-                    startDate: startDateInput.value,
-                    endDate: currentJobCheckbox?.checked ? null : (endDateInput?.value || null),
-                    description: descriptionInput?.value || ''
-                };
-            }).filter(exp => exp !== null); // Remove null entries
             
-            const newData = { experience: experiences };
-            updateUserData(newData);
-            modals.experience.style.display = 'none';
+            const experienceEntries = Array.from(document.querySelectorAll('.experience-entry'));
+            const experience = experienceEntries.map(entry => {
+                const currentJob = entry.querySelector('.current-job').checked;
+                return {
+                    title: entry.querySelector('[name="jobTitle"]').value,
+                    company: entry.querySelector('[name="company"]').value,
+                    location: entry.querySelector('[name="jobLocation"]').value,
+                    startDate: entry.querySelector('[name="startDate"]').value,
+                    endDate: currentJob ? null : entry.querySelector('[name="endDate"]').value,
+                    description: entry.querySelector('[name="jobDescription"]').value
+                };
+            }).filter(exp => exp.title && exp.company); // Only include entries with at least title and company
+
+            // Update userData object
+            userData.experience = experience;
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    experience: experience
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('experience');
+            } catch (error) {
+                console.error('Error updating experience:', error);
+                alert('Error updating experience. Please try again.');
+            }
         });
     }
 
     if (editEducationForm) {
-        editEducationForm.addEventListener('submit', (e) => {
+        editEducationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const education = Array.from(document.querySelectorAll('.education-entry')).map(entry => {
-                const degreeInput = entry.querySelector('[name="degree"]');
-                const institutionInput = entry.querySelector('[name="institution"]');
-                const startDateInput = entry.querySelector('[name="startDate"]');
-                const endDateInput = entry.querySelector('[name="endDate"]');
-                const descriptionInput = entry.querySelector('[name="description"]');
-                const currentStudyCheckbox = entry.querySelector('.current-study');
-
-                if (!degreeInput || !institutionInput || !startDateInput) return null;
-
-                return {
-                    degree: degreeInput.value,
-                    institution: institutionInput.value,
-                    startDate: startDateInput.value,
-                    endDate: currentStudyCheckbox?.checked ? null : (endDateInput?.value || null),
-                    description: descriptionInput?.value || ''
-                };
-            }).filter(edu => edu !== null); // Remove null entries
             
-            const newData = { education };
-            updateUserData(newData);
-            modals.education.style.display = 'none';
+            const educationEntries = Array.from(document.querySelectorAll('.education-entry'));
+            const education = educationEntries.map(entry => {
+                const currentlyStudying = entry.querySelector('.current-study').checked;
+                return {
+                    school: entry.querySelector('[name="school"]').value,
+                    degree: entry.querySelector('[name="degree"]').value,
+                    field: entry.querySelector('[name="field"]').value,
+                    startDate: entry.querySelector('[name="eduStartDate"]').value,
+                    endDate: currentlyStudying ? null : entry.querySelector('[name="eduEndDate"]').value,
+                    description: entry.querySelector('[name="eduDescription"]').value
+                };
+            }).filter(edu => edu.school && edu.degree); // Only include entries with at least school and degree
+
+            // Update userData object
+            userData.education = education;
+
+            try {
+                // Update Firestore
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    education: education
+                });
+
+                // Update localStorage
+                localStorage.setItem('userData', JSON.stringify(userData));
+                
+                // Update UI
+                updateProfileDisplay();
+                closeModal('education');
+            } catch (error) {
+                console.error('Error updating education:', error);
+                alert('Error updating education. Please try again.');
+            }
         });
     }
 
@@ -386,10 +510,10 @@ document.addEventListener('DOMContentLoaded', () => {
             experienceList.innerHTML = userData.experience
                 .map(exp => `
                     <div class="experience-item">
-                <h3>${exp.title}</h3>
-                <p class="company">${exp.company}</p>
+                        <h3>${exp.title}</h3>
+                        <p class="company">${exp.company}</p>
                         <p class="duration">${exp.startDate} - ${exp.endDate || 'Present'}</p>
-                <p class="description">${exp.description}</p>
+                        <p class="description">${exp.description}</p>
                     </div>
                 `)
                 .join('');
@@ -404,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .map(edu => `
                     <div class="education-item">
                         <h3>${edu.degree}</h3>
-                        <p class="institution">${edu.institution}</p>
+                        <p class="institution">${edu.school}</p>
                         <p class="duration">${edu.startDate} - ${edu.endDate || 'Present'}</p>
                     </div>
                 `)
@@ -432,58 +556,340 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeThemeColor();
 
     // Update theme color when user changes it
-    document.getElementById('themeColor')?.addEventListener('input', (e) => {
-        updateThemeColor(e.target.value);
+    document.getElementById('themeColor')?.addEventListener('input', async (e) => {
+        const color = e.target.value;
+        updateThemeColor(color);
+
+        try {
+            // Update Firestore
+            const userRef = doc(db, 'users', auth.currentUser.uid);
+            await updateDoc(userRef, {
+                themeColor: color
+            });
+
+            // Update localStorage
+            userData.themeColor = color;
+            localStorage.setItem('userData', JSON.stringify(userData));
+        } catch (error) {
+            console.error('Error saving theme color:', error);
+        }
     });
 
     // Add experience entry
     function addExperienceEntry(data = {}) {
+        const container = document.getElementById('experienceContainer');
         const entry = document.createElement('div');
         entry.className = 'experience-entry';
         entry.innerHTML = `
-            <input type="text" name="expTitle" placeholder="Job Title" value="${data.title || ''}">
-            <input type="text" name="expCompany" placeholder="Company" value="${data.company || ''}">
-            <input type="text" name="expStartDate" placeholder="Start Date" value="${data.startDate || ''}">
-            <input type="text" name="expEndDate" placeholder="End Date" value="${data.endDate || ''}">
-            <textarea name="expDescription" placeholder="Description">${data.description || ''}</textarea>
+            <div class="form-group">
+                <input type="text" name="jobTitle" placeholder="Job Title" value="${data.title || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="company" placeholder="Company" value="${data.company || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="jobLocation" placeholder="Location" value="${data.location || ''}">
+            </div>
+            <div class="form-group">
+                <input type="date" name="startDate" placeholder="Start Date" value="${data.startDate || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="date" name="endDate" placeholder="End Date" value="${data.endDate || ''}">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="currentJob" class="current-job">
+                    <label>I currently work here</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <textarea name="jobDescription" placeholder="Description">${data.description || ''}</textarea>
+            </div>
             <button type="button" class="remove-experience">Remove</button>
         `;
-        experienceContainer.appendChild(entry);
+
+        // Add event listener for current job checkbox
+        const currentJobCheckbox = entry.querySelector('.current-job');
+        const endDateInput = entry.querySelector('[name="endDate"]');
+        
+        currentJobCheckbox.addEventListener('change', () => {
+            endDateInput.disabled = currentJobCheckbox.checked;
+            if (currentJobCheckbox.checked) {
+                endDateInput.value = '';
+            }
+        });
+
+        // Add event listener for remove button
+        entry.querySelector('.remove-experience').addEventListener('click', () => {
+            entry.remove();
+        });
+
+        container.appendChild(entry);
     }
 
     // Add education entry
     function addEducationEntry(data = {}) {
+        const container = document.getElementById('educationContainer');
         const entry = document.createElement('div');
         entry.className = 'education-entry';
         entry.innerHTML = `
-            <input type="text" name="eduDegree" placeholder="Degree" value="${data.degree || ''}">
-            <input type="text" name="eduInstitution" placeholder="Institution" value="${data.institution || ''}">
-            <input type="text" name="eduStartDate" placeholder="Start Date" value="${data.startDate || ''}">
-            <input type="text" name="eduEndDate" placeholder="End Date" value="${data.endDate || ''}">
+            <div class="form-group">
+                <input type="text" name="school" placeholder="School/University" value="${data.school || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="degree" placeholder="Degree" value="${data.degree || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="field" placeholder="Field of Study" value="${data.field || ''}">
+            </div>
+            <div class="form-group">
+                <input type="date" name="eduStartDate" placeholder="Start Date" value="${data.startDate || ''}" required>
+            </div>
+            <div class="form-group">
+                <input type="date" name="eduEndDate" placeholder="End Date" value="${data.endDate || ''}">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="currentlyStudying" class="current-study">
+                    <label>I am currently studying here</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <textarea name="eduDescription" placeholder="Description">${data.description || ''}</textarea>
+            </div>
             <button type="button" class="remove-education">Remove</button>
         `;
-        educationContainer.appendChild(entry);
+
+        // Add event listener for currently studying checkbox
+        const currentStudyCheckbox = entry.querySelector('.current-study');
+        const endDateInput = entry.querySelector('[name="eduEndDate"]');
+        
+        currentStudyCheckbox.addEventListener('change', () => {
+            endDateInput.disabled = currentStudyCheckbox.checked;
+            if (currentStudyCheckbox.checked) {
+                endDateInput.value = '';
+            }
+        });
+
+        // Add event listener for remove button
+        entry.querySelector('.remove-education').addEventListener('click', () => {
+            entry.remove();
+        });
+
+        container.appendChild(entry);
+    }
+
+    // Add event listeners for add buttons
+    document.querySelector('.add-experience')?.addEventListener('click', () => {
+        addExperienceEntry();
+    });
+
+    document.querySelector('.add-education')?.addEventListener('click', () => {
+        addEducationEntry();
+    });
+
+    // Function to show popup notification
+    function showNotification(message, type = 'success') {
+        // Remove any existing notifications
+        const existingNotification = document.querySelector('.popup-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `popup-notification ${type}`;
+        
+        // Add icon based on type
+        const icon = type === 'success' ? '✓' : '✕';
+        
+        notification.innerHTML = `
+            <i>${icon}</i>
+            <span class="message">${message}</span>
+        `;
+
+        // Add to document
+        document.body.appendChild(notification);
+
+        // Trigger animation
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
     }
 
     // Profile picture upload functionality
     editProfilePic.addEventListener('click', () => {
+        // Create a file input element
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
-        input.click();
-
-        input.addEventListener('change', (e) => {
+        
+        // For mobile devices, use the camera
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            input.capture = 'environment';
+        }
+        
+        // Hide the input but keep it in the DOM
+        input.style.display = 'none';
+        input.style.position = 'absolute';
+        input.style.opacity = '0';
+        input.style.width = '100%';
+        input.style.height = '100%';
+        input.style.top = '0';
+        input.style.left = '0';
+        input.style.cursor = 'pointer';
+        
+        // Add the input to the document
+        document.body.appendChild(input);
+        
+        // Trigger the file input click
+        setTimeout(() => {
+            input.click();
+        }, 100);
+        
+        // Handle file selection
+        input.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    profileImage.src = e.target.result;
-                    userData.profileImage = e.target.result;
-                    localStorage.setItem('userData', JSON.stringify(userData));
-                };
-                reader.readAsDataURL(file);
+                try {
+                    // Show loading indicator
+                    const loadingIndicator = document.createElement('div');
+                    loadingIndicator.className = 'loading-indicator';
+                    loadingIndicator.innerHTML = 'Uploading image...';
+                    document.body.appendChild(loadingIndicator);
+                    
+                    // Check file size and type
+                    if (file.size > 10 * 1024 * 1024) {
+                        throw new Error('File size too large. Please select an image under 10MB.');
+                    }
+                    
+                    if (!file.type.match('image.*')) {
+                        throw new Error('Please select an image file.');
+                    }
+                    
+                    // Convert file to base64 with compression
+                    const reader = new FileReader();
+                    
+                    reader.onload = async (e) => {
+                        try {
+                            // Create an image element to get dimensions
+                            const img = new Image();
+                            img.src = e.target.result;
+                            
+                            img.onload = async () => {
+                                // Create a canvas to compress the image
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                
+                                // Calculate new dimensions while maintaining aspect ratio
+                                let width = img.width;
+                                let height = img.height;
+                                
+                                // Max dimensions for profile image
+                                const maxDimension = 800;
+                                
+                                if (width > height && width > maxDimension) {
+                                    height = Math.round((height * maxDimension) / width);
+                                    width = maxDimension;
+                                } else if (height > maxDimension) {
+                                    width = Math.round((width * maxDimension) / height);
+                                    height = maxDimension;
+                                }
+                                
+                                // Set canvas dimensions
+                                canvas.width = width;
+                                canvas.height = height;
+                                
+                                // Draw the image on the canvas
+                                ctx.drawImage(img, 0, 0, width, height);
+                                
+                                // Get the compressed image as base64
+                                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                                
+                                // Check if the compressed image is still too large
+                                const estimatedSize = Math.ceil(compressedBase64.length * 0.75);
+                                
+                                if (estimatedSize > 900000) {
+                                    throw new Error('Image is still too large after compression. Please try a smaller image.');
+                                }
+                                
+                                // Update profile image in UI
+                                profileImage.src = compressedBase64;
+                                
+                                // Update userData in localStorage
+                                userData.profileImage = compressedBase64;
+                                localStorage.setItem('userData', JSON.stringify(userData));
+                                
+                                // Update Firestore
+                                const userRef = doc(db, 'users', auth.currentUser.uid);
+                                await updateDoc(userRef, {
+                                    profileImage: compressedBase64
+                                });
+                                
+                                // Remove loading indicator
+                                loadingIndicator.remove();
+                                
+                                // Show success notification
+                                showNotification('Profile picture updated successfully!', 'success');
+                            };
+                            
+                            img.onerror = () => {
+                                throw new Error('Error loading image for compression.');
+                            };
+                        } catch (error) {
+                            console.error('Error processing image:', error);
+                            loadingIndicator.remove();
+                            showNotification(error.message, 'error');
+                        }
+                    };
+                    
+                    reader.onerror = () => {
+                        console.error('Error reading file');
+                        loadingIndicator.remove();
+                        showNotification('Error reading file. Please try again.', 'error');
+                    };
+                    
+                    // Read the file as data URL
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('Error handling file selection:', error);
+                    showNotification(error.message || 'Error handling file selection. Please try again.', 'error');
+                }
             }
+            
+            // Clean up the input element
+            setTimeout(() => {
+                if (document.body.contains(input)) {
+                    document.body.removeChild(input);
+                }
+            }, 1000);
         });
+    });
+
+    // Add a fallback method for Safari on iOS
+    document.addEventListener('DOMContentLoaded', () => {
+        // Check if the device is iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        if (isIOS) {
+            // Add a direct click handler to the profile image container for iOS
+            const profileImageContainer = document.querySelector('.profile-image-container');
+            if (profileImageContainer) {
+                profileImageContainer.addEventListener('click', (e) => {
+                    // Only trigger if the click is not on the edit button
+                    if (!e.target.closest('.edit-profile-pic')) {
+                        const editProfilePic = document.querySelector('.edit-profile-pic');
+                        if (editProfilePic) {
+                            editProfilePic.click();
+                        }
+                    }
+                });
+            }
+        }
     });
 
     // Jobs tabs functionality
@@ -578,157 +984,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <button type="button" class="remove-education">Remove</button>
         </div>
     `;
-
-    // Add Experience button functionality
-    document.querySelector('.add-experience')?.addEventListener('click', () => {
-        const container = document.getElementById('experienceContainer');
-        const entry = document.createElement('div');
-        entry.innerHTML = experienceTemplate;
-        container.appendChild(entry);
-        
-        // Add remove functionality to the new entry
-        entry.querySelector('.remove-experience').addEventListener('click', () => {
-            entry.remove();
-        });
-
-        // Add current job checkbox functionality
-        const currentJobCheckbox = entry.querySelector('.current-job');
-        const endDateInput = entry.querySelector('[name="endDate"]');
-        
-        currentJobCheckbox.addEventListener('change', () => {
-            endDateInput.disabled = currentJobCheckbox.checked;
-            if (currentJobCheckbox.checked) {
-                endDateInput.value = '';
-            }
-        });
-    });
-
-    // Add Education button functionality
-    document.querySelector('.add-education')?.addEventListener('click', () => {
-        const container = document.getElementById('educationContainer');
-        const entry = document.createElement('div');
-        entry.innerHTML = educationTemplate;
-        container.appendChild(entry);
-        
-        // Add remove functionality to the new entry
-        entry.querySelector('.remove-education').addEventListener('click', () => {
-            entry.remove();
-        });
-
-        // Add currently studying checkbox functionality
-        const currentStudyCheckbox = entry.querySelector('.current-study');
-        const endDateInput = entry.querySelector('[name="endDate"]');
-        
-        currentStudyCheckbox.addEventListener('change', () => {
-            endDateInput.disabled = currentStudyCheckbox.checked;
-            if (currentStudyCheckbox.checked) {
-                endDateInput.value = '';
-            }
-        });
-    });
-
-    // Load existing experience and education data when opening modals
-    document.querySelector('.edit-experience-btn')?.addEventListener('click', () => {
-        const container = document.getElementById('experienceContainer');
-        container.innerHTML = ''; // Clear existing entries
-        
-        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-        const experiences = userData.experience || [];
-        
-        if (experiences.length === 0) {
-            // Add one empty entry if no experiences exist
-            const entry = document.createElement('div');
-            entry.innerHTML = experienceTemplate;
-            container.appendChild(entry);
-        } else {
-            // Add existing experiences
-            experiences.forEach(exp => {
-                const entry = document.createElement('div');
-                entry.innerHTML = experienceTemplate;
-                container.appendChild(entry);
-                
-                // Fill in the values
-                entry.querySelector('[name="title"]').value = exp.title || '';
-                entry.querySelector('[name="company"]').value = exp.company || '';
-                entry.querySelector('[name="startDate"]').value = exp.startDate || '';
-                entry.querySelector('[name="endDate"]').value = exp.endDate || '';
-                entry.querySelector('[name="description"]').value = exp.description || '';
-                
-                // Handle current job checkbox
-                const currentJobCheckbox = entry.querySelector('.current-job');
-                const endDateInput = entry.querySelector('[name="endDate"]');
-                if (!exp.endDate) {
-                    currentJobCheckbox.checked = true;
-                    endDateInput.disabled = true;
-                }
-                
-                currentJobCheckbox.addEventListener('change', () => {
-                    endDateInput.disabled = currentJobCheckbox.checked;
-                    if (currentJobCheckbox.checked) {
-                        endDateInput.value = '';
-                    }
-                });
-            });
-        }
-        
-        // Add remove functionality to all entries
-        container.querySelectorAll('.remove-experience').forEach(button => {
-            button.addEventListener('click', () => {
-                button.closest('.experience-entry').remove();
-            });
-        });
-    });
-
-    document.querySelector('.edit-education-btn')?.addEventListener('click', () => {
-        const container = document.getElementById('educationContainer');
-        container.innerHTML = ''; // Clear existing entries
-        
-        const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-        const education = userData.education || [];
-        
-        if (education.length === 0) {
-            // Add one empty entry if no education exists
-            const entry = document.createElement('div');
-            entry.innerHTML = educationTemplate;
-            container.appendChild(entry);
-        } else {
-            // Add existing education entries
-            education.forEach(edu => {
-                const entry = document.createElement('div');
-                entry.innerHTML = educationTemplate;
-                container.appendChild(entry);
-                
-                // Fill in the values
-                entry.querySelector('[name="degree"]').value = edu.degree || '';
-                entry.querySelector('[name="institution"]').value = edu.institution || '';
-                entry.querySelector('[name="startDate"]').value = edu.startDate || '';
-                entry.querySelector('[name="endDate"]').value = edu.endDate || '';
-                entry.querySelector('[name="description"]').value = edu.description || '';
-                
-                // Handle currently studying checkbox
-                const currentStudyCheckbox = entry.querySelector('.current-study');
-                const endDateInput = entry.querySelector('[name="endDate"]');
-                if (!edu.endDate) {
-                    currentStudyCheckbox.checked = true;
-                    endDateInput.disabled = true;
-                }
-                
-                currentStudyCheckbox.addEventListener('change', () => {
-                    endDateInput.disabled = currentStudyCheckbox.checked;
-                    if (currentStudyCheckbox.checked) {
-                        endDateInput.value = '';
-                    }
-                });
-            });
-        }
-        
-        // Add remove functionality to all entries
-        container.querySelectorAll('.remove-education').forEach(button => {
-            button.addEventListener('click', () => {
-                button.closest('.education-entry').remove();
-            });
-        });
-    });
 
     // Skills entry template
     const skillTemplate = `
