@@ -684,3 +684,126 @@ body {
         transform: translateY(0);
     }
 }
+
+/* Applied Jobs Section */
+.job-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.job-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.job-header h3 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status.accepted {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status.rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.job-details {
+    margin-bottom: 15px;
+}
+
+.job-details p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.job-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.view-job-btn {
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.view-job-btn:hover {
+    background: var(--hover);
+}
+
+.no-jobs-message {
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-jobs-message i {
+    font-size: 3rem;
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.no-jobs-message h3 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.no-jobs-message p {
+    color: #999;
+}
+
+.error-message {
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-message i {
+    font-size: 3rem;
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.error-message h3 {
+    color: #721c24;
+    margin-bottom: 10px;
+}
+
+.error-message p {
+    color: #666;
+}

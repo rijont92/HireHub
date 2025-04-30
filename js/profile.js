@@ -1,6 +1,7 @@
 import { auth, db } from './firebase-config.js';
 import { doc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileImage = document.getElementById('profileImage');
@@ -476,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Update profile information
+    // Function to update profile information
     function updateProfileDisplay() {
         document.getElementById('userName').textContent = userData.name || 'User';
         document.getElementById('userTitle').textContent = userData.title || 'Professional';
@@ -540,6 +541,88 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update theme color
         const themeColor = userData.themeColor || defaultThemeColor;
         updateThemeColor(themeColor);
+
+        // Fetch and display applied jobs
+        fetchAppliedJobs();
+    }
+
+    // Function to fetch and display applied jobs
+    async function fetchAppliedJobs() {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const applicationsRef = collection(db, 'applications');
+            const q = query(applicationsRef, where('userId', '==', user.uid));
+            const querySnapshot = await getDocs(q);
+            
+            const applications = [];
+            querySnapshot.forEach((doc) => {
+                applications.push({ id: doc.id, ...doc.data() });
+            });
+
+            // Get the jobs list container
+            const appliedJobsContainer = document.getElementById('appliedJobs');
+            if (!appliedJobsContainer) return;
+
+            if (applications.length === 0) {
+                appliedJobsContainer.innerHTML = `
+                    <div class="no-jobs-message">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>No Applications Yet</h3>
+                        <p>You haven't applied to any jobs yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Fetch job details for each application
+            const jobsPromises = applications.map(async (application) => {
+                const jobRef = doc(db, 'jobs', application.jobId);
+                const jobDoc = await getDoc(jobRef);
+                if (jobDoc.exists()) {
+                    return {
+                        ...jobDoc.data(),
+                        applicationId: application.id,
+                        status: application.status,
+                        appliedAt: application.appliedAt
+                    };
+                }
+                return null;
+            });
+
+            const jobs = (await Promise.all(jobsPromises)).filter(job => job !== null);
+
+            // Display the jobs
+            appliedJobsContainer.innerHTML = jobs.map(job => `
+                <div class="job-card">
+                    <div class="job-header">
+                        <h3>${job.jobTitle}</h3>
+                        <span class="status ${job.status}">${job.status}</span>
+                    </div>
+                    <div class="job-details">
+                        <p><strong>Company:</strong> ${job.companyName}</p>
+                        <p><strong>Location:</strong> ${job.location}</p>
+                        <p><strong>Applied on:</strong> ${new Date(job.appliedAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="job-actions">
+                        <a href="single-job.html?id=${job.id}" class="view-job-btn">View Job</a>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error fetching applied jobs:', error);
+            const appliedJobsContainer = document.getElementById('appliedJobs');
+            if (appliedJobsContainer) {
+                appliedJobsContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Error Loading Applications</h3>
+                        <p>There was an error loading your job applications. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
     }
 
     // Initialize profile display

@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, arrayRemove, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -164,8 +164,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const similarJobs = [];
 
             querySnapshot.forEach((doc) => {
-                if (doc.id !== jobId) { // Exclude current job
-                    similarJobs.push({ id: doc.id, ...doc.data() });
+                const jobData = { id: doc.id, ...doc.data() };
+                // Exclude current job by checking both Firestore ID and custom ID
+                if (doc.id !== jobId && jobData.id !== currentJob.id) {
+                    similarJobs.push(jobData);
                 }
             });
 
@@ -272,65 +274,72 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle save button click
-    saveBtn.addEventListener('click', function() {
-        // Check if user is logged in
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Toggle save status
-                toggleSaveStatus(user.uid);
-            } else {
-                // Redirect to login page
-                window.location.href = 'login.html';
+    // Function to toggle save job
+    async function toggleSaveJob(jobId) {
+        const user = auth.currentUser;
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const savedJobs = userData.savedJobs || [];
+                
+                if (savedJobs.includes(jobId)) {
+                    await updateDoc(userRef, {
+                        savedJobs: arrayRemove(jobId)
+                    });
+                    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Job';
+                    saveBtn.classList.remove('saved');
+                } else {
+                    await updateDoc(userRef, {
+                        savedJobs: arrayUnion(jobId)
+                    });
+                    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                    saveBtn.classList.add('saved');
+                }
             }
-        });
+        } catch (error) {
+            console.error('Error toggling save job:', error);
+        }
+    }
+
+    // Function to check if job is saved
+    async function checkSavedStatus(jobId) {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const savedJobs = userData.savedJobs || [];
+                
+                if (savedJobs.includes(jobId)) {
+                    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                    saveBtn.classList.add('saved');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking saved status:', error);
+        }
+    }
+
+    // Add event listener to save button
+    saveBtn.addEventListener('click', async () => {
+        await toggleSaveJob(jobId);
     });
 
-    // Toggle save status
-    async function toggleSaveStatus(userId) {
-        try {
-            const userDoc = await getDoc(doc(db, 'users', userId));
-            const userData = userDoc.data();
-            const savedJobs = userData.savedJobs || [];
-
-            if (savedJobs.includes(jobId)) {
-                // Remove from saved jobs
-                await updateDoc(doc(db, 'users', userId), {
-                    savedJobs: savedJobs.filter(id => id !== jobId)
-                });
-                saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Job';
-            } else {
-                // Add to saved jobs
-                await updateDoc(doc(db, 'users', userId), {
-                    savedJobs: [...savedJobs, jobId]
-                });
-                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-            }
-        } catch (error) {
-            console.error('Error toggling save status:', error);
-            alert('Error saving job. Please try again.');
-        }
-    }
-
-    // Check if job is saved
-    async function checkSavedStatus() {
-        try {
-            const user = auth.currentUser;
-            if (!user) return;
-
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const userData = userDoc.data();
-            const savedJobs = userData.savedJobs || [];
-
-            if (savedJobs.includes(jobId)) {
-                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-            }
-        } catch (error) {
-            console.error('Error checking save status:', error);
-        }
-    }
+    // Check if job is saved when page loads
+    checkSavedStatus(jobId);
 
     // Initialize the page
     loadJobData();
-    checkSavedStatus();
 });

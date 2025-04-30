@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc, onSnapshot, arrayRemove, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { storage } from './firebase-config.js';
@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
         const isClosed = job.status === 'closed';
+        const isSaved = job.isSaved || false;
         
         return `
             <div class="job-card ${isClosed ? 'closed' : ''}" data-job-id="${job.id}">
@@ -82,8 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <i class="fas fa-paper-plane"></i> Apply Now
                                 </button>
                             `}
-                            <button class="save-btn" data-job-id="${job.id}">
-                                <i class="far fa-bookmark"></i> Save Job
+                            <button class="save-btn ${isSaved ? 'saved' : ''}" data-job-id="${job.id}">
+                                <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i> ${isSaved ? 'Saved' : 'Save Job'}
                             </button>
                         </div>
                     </div>
@@ -156,9 +157,24 @@ document.addEventListener('DOMContentLoaded', function() {
             allJobs = [];
             locations.clear();
             
+            // Get user's saved jobs if logged in
+            let savedJobs = [];
+            if (auth.currentUser) {
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    savedJobs = userDoc.data().savedJobs || [];
+                    console.log('User saved jobs:', savedJobs);
+                }
+            }
+            
             querySnapshot.forEach((doc) => {
                 const jobData = doc.data();
-                jobData.id = doc.id; // Add the Firestore document ID
+                jobData.id = doc.id;
+                // Add isSaved flag based on user's saved jobs
+                jobData.isSaved = savedJobs.includes(doc.id);
+                console.log('Job document data:', jobData);
+                console.log('Created job object with ID:', jobData.id);
                 allJobs.push(jobData);
                 locations.add(jobData.location);
             });
@@ -308,29 +324,97 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Function to handle saving a job
+    // Function to save/unsave a job
     async function saveJob(jobId) {
+        console.log('Save button clicked with jobId:', jobId);
+        const user = auth.currentUser;
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
         try {
-            if (!auth.currentUser) {
-                showLoginPopup();
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            const saveBtn = document.querySelector(`.save-btn[data-job-id="${jobId}"]`);
+            const job = allJobs.find(j => j.id === jobId);
+            
+            if (!userDoc.exists()) {
+                // Create new user document with saved jobs array
+                await setDoc(userRef, {
+                    email: user.email,
+                    savedJobs: [jobId],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+                job.isSaved = true;
+                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                saveBtn.classList.add('saved');
                 return;
             }
 
-            // Add job to user's saved jobs
-            await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-                savedJobs: arrayUnion(jobId)
-            });
-
-            alert('Job saved successfully!');
+            const userData = userDoc.data();
+            const savedJobs = userData.savedJobs || [];
+            console.log('Current saved jobs array:', savedJobs);
+            
+            if (savedJobs.includes(jobId)) {
+                // Remove job from saved jobs array
+                await updateDoc(userRef, {
+                    savedJobs: arrayRemove(jobId),
+                    updatedAt: new Date().toISOString()
+                });
+                console.log('Removed job from saved jobs:', jobId);
+                job.isSaved = false;
+                saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Job';
+                saveBtn.classList.remove('saved');
+            } else {
+                // Add job to saved jobs array
+                await updateDoc(userRef, {
+                    savedJobs: arrayUnion(jobId),
+                    updatedAt: new Date().toISOString()
+                });
+                console.log('Added job to saved jobs:', jobId);
+                job.isSaved = true;
+                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                saveBtn.classList.add('saved');
+            }
         } catch (error) {
             console.error('Error saving job:', error);
-            alert('Error saving job. Please try again.');
+            alert('Failed to save job. Please try again.');
         }
     }
 
-    // Listen for auth state changes
+    // Function to check and update saved job status
+    async function checkSavedJobs() {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const savedJobs = userData.savedJobs || [];
+                
+                savedJobs.forEach(jobId => {
+                    const saveBtn = document.querySelector(`.save-btn[data-job-id="${jobId}"]`);
+                    if (saveBtn) {
+                        saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                        saveBtn.classList.add('saved');
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error checking saved jobs:', error);
+        }
+    }
+
+    // Check saved jobs when auth state changes
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            checkSavedJobs();
+            
             // User is signed in, fetch jobs
             fetchJobs();
             
