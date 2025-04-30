@@ -1,7 +1,16 @@
+import { auth, db } from './firebase-config.js';
+import { doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Get job ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const jobId = urlParams.get('id');
+
+    if (!jobId) {
+        showError('No job ID provided');
+        return;
+    }
 
     // Get DOM elements
     const jobTitle = document.getElementById('jobTitle');
@@ -17,61 +26,167 @@ document.addEventListener('DOMContentLoaded', function() {
     const similarJobsContainer = document.getElementById('similarJobs');
     const applyBtn = document.querySelector('.apply-btn');
     const saveBtn = document.querySelector('.save-btn');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+
+    // Show loading state
+    function showLoading() {
+        if (loadingSpinner) {
+            loadingSpinner.style.display = 'flex';
+        }
+        if (jobTitle) jobTitle.textContent = 'Loading...';
+        if (companyName) companyName.textContent = '';
+        if (jobType) jobType.textContent = '';
+        if (location) location.textContent = '';
+        if (salary) salary.textContent = '';
+        if (deadline) deadline.textContent = '';
+        if (jobDescription) jobDescription.textContent = '';
+        if (requirements) requirements.textContent = '';
+        if (benefits) benefits.textContent = '';
+        if (similarJobsContainer) similarJobsContainer.innerHTML = '';
+    }
+
+    // Show error state
+    function showError(message) {
+        if (loadingSpinner) {
+            loadingSpinner.style.display = 'none';
+        }
+        if (jobTitle) jobTitle.textContent = 'Error';
+        if (companyName) companyName.textContent = message;
+        if (jobType) jobType.textContent = '';
+        if (location) location.textContent = '';
+        if (salary) salary.textContent = '';
+        if (deadline) deadline.textContent = '';
+        if (jobDescription) jobDescription.textContent = '';
+        if (requirements) requirements.textContent = '';
+        if (benefits) benefits.textContent = '';
+        if (similarJobsContainer) similarJobsContainer.innerHTML = '';
+    }
 
     // Load job data
-    function loadJobData() {
-        // Get jobs from localStorage
-        const jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-        
-        // Find the job with matching ID
-        const job = jobs.find(job => job.id === jobId);
-        
-        if (job) {
+    async function loadJobData() {
+        try {
+            showLoading();
+
+            let jobData = null;
+
+            // First try to get the job directly by Firestore document ID
+            const jobDoc = await getDoc(doc(db, 'jobs', jobId));
+            
+            if (!jobDoc.exists()) {
+                // If not found, try to find it by searching for the custom job ID
+                const jobsQuery = query(
+                    collection(db, 'jobs'),
+                    where('id', '==', jobId)
+                );
+                
+                const querySnapshot = await getDocs(jobsQuery);
+                if (querySnapshot.empty) {
+                    showError('Job not found');
+                    return;
+                }
+                
+                // Get the first matching job
+                const doc = querySnapshot.docs[0];
+                jobData = { id: doc.id, ...doc.data() };
+            } else {
+                // Job found directly by Firestore document ID
+                jobData = { id: jobDoc.id, ...jobDoc.data() };
+            }
+
             // Update job details
-            jobTitle.textContent = job.jobTitle;
-            companyName.textContent = job.companyName;
-            companyLogo.src = job.companyLogo;
-            jobType.textContent = job.jobType;
-            location.textContent = job.location;
-            salary.textContent = job.salary;
-            deadline.textContent = formatDate(job.applicationDeadline);
-            jobDescription.textContent = job.jobDescription;
-            requirements.textContent = job.requirements;
-            benefits.textContent = job.benefits;
+            updateJobDetails(jobData);
 
             // Load similar jobs
-            loadSimilarJobs(job);
-        } else {
-            // Job not found
-            jobTitle.textContent = 'Job Not Found';
-            companyName.textContent = 'The job you are looking for does not exist';
+            await loadSimilarJobs(jobData);
+        } catch (error) {
+            console.error('Error loading job:', error);
+            showError('There was an error loading the job details');
+        }
+    }
+
+    // Update job details in the UI
+    function updateJobDetails(job) {
+        if (jobTitle) jobTitle.textContent = job.jobTitle;
+        if (companyName) companyName.textContent = job.companyName;
+        if (companyLogo) companyLogo.src = job.companyLogo || '../img/logo.png';
+        if (jobType) jobType.textContent = job.jobType;
+        if (location) location.textContent = job.location;
+        if (salary) salary.textContent = job.salary;
+        if (deadline) deadline.textContent = formatDate(job.applicationDeadline);
+        if (jobDescription) jobDescription.textContent = job.jobDescription;
+        if (requirements) requirements.textContent = job.requirements;
+        if (benefits) benefits.textContent = job.benefits;
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+
+        // Handle closed job status
+        const jobCard = document.querySelector('.job-card');
+        const applyBtn = document.querySelector('.apply-btn');
+        
+        if (job.status === 'closed') {
+            jobCard.classList.add('closed');
+            applyBtn.disabled = true;
+            applyBtn.innerHTML = '<i class="fas fa-lock"></i> Job Closed';
+            applyBtn.style.backgroundColor = '#999';
+            applyBtn.style.cursor = 'not-allowed';
+            
+            // Add closed status indicator
+            const jobTitleSection = document.querySelector('.job-title-section');
+            const statusIndicator = document.createElement('span');
+            statusIndicator.className = 'job-status closed';
+            statusIndicator.textContent = 'Closed';
+            jobTitleSection.appendChild(statusIndicator);
         }
     }
 
     // Format date
     function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString(undefined, options);
+        try {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        } catch (error) {
+            return dateString; // Return original string if date parsing fails
+        }
     }
 
     // Load similar jobs
-    function loadSimilarJobs(currentJob) {
-        // Get jobs from localStorage
-        const jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-        
-        // Filter similar jobs (same job type or location)
-        const similarJobs = jobs.filter(job => 
-            job.id !== currentJob.id && 
-            (job.jobType === currentJob.jobType || job.location === currentJob.location)
-        ).slice(0, 3); // Show max 3 similar jobs
+    async function loadSimilarJobs(currentJob) {
+        try {
+            if (!similarJobsContainer) return;
 
-        if (similarJobs.length > 0) {
-            similarJobs.forEach(job => {
-                const jobCard = createJobCard(job);
-                similarJobsContainer.appendChild(jobCard);
+            // Query similar jobs from Firestore
+            const jobsQuery = query(
+                collection(db, 'jobs'),
+                where('jobType', '==', currentJob.jobType),
+                where('status', '==', 'active')
+            );
+
+            const querySnapshot = await getDocs(jobsQuery);
+            const similarJobs = [];
+
+            querySnapshot.forEach((doc) => {
+                if (doc.id !== jobId) { // Exclude current job
+                    similarJobs.push({ id: doc.id, ...doc.data() });
+                }
             });
-        } else {
-            similarJobsContainer.innerHTML = '<p>No similar jobs found</p>';
+
+            // Sort by location match first, then take top 3
+            similarJobs.sort((a, b) => {
+                if (a.location === currentJob.location && b.location !== currentJob.location) return -1;
+                if (a.location !== currentJob.location && b.location === currentJob.location) return 1;
+                return 0;
+            }).slice(0, 3);
+
+            if (similarJobs.length > 0) {
+                similarJobs.forEach(job => {
+                    const jobCard = createJobCard(job);
+                    similarJobsContainer.appendChild(jobCard);
+                });
+            } else {
+                similarJobsContainer.innerHTML = '<p>No similar jobs found</p>';
+            }
+        } catch (error) {
+            console.error('Error loading similar jobs:', error);
+            similarJobsContainer.innerHTML = '<p>Error loading similar jobs</p>';
         }
     }
 
@@ -87,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="job-card-content">
                     <div class="job-header">
                         <div class="company-logo-wrapper">
-                            <img src="${job.companyLogo}" alt="${job.companyName} logo" class="company-logo">
+                            <img src="${job.companyLogo || '../img/logo.png'}" alt="${job.companyName} logo" class="company-logo">
                         </div>
                     </div>
                     <div class="job-title-section">
@@ -114,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                             <div class="deadline">
                                 <i class="far fa-clock"></i>
-                                <span>Apply before: ${new Date(job.applicationDeadline).toLocaleDateString()}</span>
+                                <span>Apply before: ${formatDate(job.applicationDeadline)}</span>
                             </div>
                         </div>
                         
@@ -131,25 +246,13 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // Add click event to navigate to the single job page
-        card.addEventListener('click', function () {
+        // Add click event to the entire card
+        card.addEventListener('click', (e) => {
+            // Don't navigate if clicking on buttons
+            if (e.target.closest('.job-actions')) {
+                return;
+            }
             window.location.href = `single-job.html?id=${job.id}`;
-        });
-
-        // Prevent card click event when buttons are clicked
-        const applyBtn = card.querySelector('.apply-btn');
-        const saveBtn = card.querySelector('.save-btn');
-
-        applyBtn.addEventListener('click', function (event) {
-            event.stopPropagation(); // Prevent card click event
-            // Add your logic for the apply button here
-            console.log(`Apply button clicked for job ID: ${job.id}`);
-        });
-
-        saveBtn.addEventListener('click', function (event) {
-            event.stopPropagation(); // Prevent card click event
-            // Add your logic for the save button here
-            console.log(`Save button clicked for job ID: ${job.id}`);
         });
 
         return card;
@@ -158,62 +261,76 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle apply button click
     applyBtn.addEventListener('click', function() {
         // Check if user is logged in
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        
-        if (isLoggedIn) {
-            // Redirect to application page
-            window.location.href = `apply.html?id=${jobId}`;
-        } else {
-            // Redirect to login page
-            window.location.href = 'login.html';
-        }
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Redirect to application page
+                window.location.href = `apply.html?id=${jobId}`;
+            } else {
+                // Redirect to login page
+                window.location.href = 'login.html';
+            }
+        });
     });
 
     // Handle save button click
     saveBtn.addEventListener('click', function() {
         // Check if user is logged in
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        
-        if (isLoggedIn) {
-            // Toggle save state
-            const isSaved = saveBtn.classList.toggle('saved');
-            
-            // Update icon
-            saveBtn.innerHTML = isSaved ? 
-                '<i class="fas fa-bookmark"></i>' : 
-                '<i class="far fa-bookmark"></i>';
-            
-            // Save to localStorage
-            const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]');
-            
-            if (isSaved) {
-                savedJobs.push(jobId);
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Toggle save status
+                toggleSaveStatus(user.uid);
             } else {
-                const index = savedJobs.indexOf(jobId);
-                if (index > -1) {
-                    savedJobs.splice(index, 1);
-                }
+                // Redirect to login page
+                window.location.href = 'login.html';
             }
-            
-            localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
-        } else {
-            // Redirect to login page
-            window.location.href = 'login.html';
-        }
+        });
     });
 
-    // Check if job is saved
-    function checkSavedStatus() {
-        const savedJobs = JSON.parse(localStorage.getItem('savedJobs') || '[]');
-        const isSaved = savedJobs.includes(jobId);
-        
-        if (isSaved) {
-            saveBtn.classList.add('saved');
-            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i>';
+    // Toggle save status
+    async function toggleSaveStatus(userId) {
+        try {
+            const userDoc = await getDoc(doc(db, 'users', userId));
+            const userData = userDoc.data();
+            const savedJobs = userData.savedJobs || [];
+
+            if (savedJobs.includes(jobId)) {
+                // Remove from saved jobs
+                await updateDoc(doc(db, 'users', userId), {
+                    savedJobs: savedJobs.filter(id => id !== jobId)
+                });
+                saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Job';
+            } else {
+                // Add to saved jobs
+                await updateDoc(doc(db, 'users', userId), {
+                    savedJobs: [...savedJobs, jobId]
+                });
+                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+            }
+        } catch (error) {
+            console.error('Error toggling save status:', error);
+            alert('Error saving job. Please try again.');
         }
     }
 
-    // Initialize page
+    // Check if job is saved
+    async function checkSavedStatus() {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userData = userDoc.data();
+            const savedJobs = userData.savedJobs || [];
+
+            if (savedJobs.includes(jobId)) {
+                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+            }
+        } catch (error) {
+            console.error('Error checking save status:', error);
+        }
+    }
+
+    // Initialize the page
     loadJobData();
     checkSavedStatus();
 });

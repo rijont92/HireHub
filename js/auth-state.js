@@ -37,8 +37,13 @@ function setDropdownLinks() {
     dropdownLinks.forEach(link => {
         const element = document.querySelector(link.selector);
         if (element) {
-            // If on index.html, prepend "html/" to the path
-            if (currentPath.endsWith('index.html') || currentPath === '/') {
+            // Check if we're in the html directory or root
+            const isInHtmlDir = currentPath.includes('/html/');
+            const isRoot = currentPath === '/' || currentPath.endsWith('index.html');
+            
+            if (isRoot) {
+                element.href = `html/${link.path}`;
+            } else if (!isInHtmlDir) {
                 element.href = `html/${link.path}`;
             } else {
                 element.href = link.path;

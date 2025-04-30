@@ -118,11 +118,17 @@
     <main class="single-job-section">
         <div class="container">
             <div class="single-job-container">
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Loading job details...</p>
+                </div>
+
                 <!-- Main Job Card -->
                 <div class="job-card">
                   <div class="card-flex">
                     <div class="company-logo-wrapper">
-                        <img src="../img/default-logo.png" alt="Company Logo" id="companyLogo">
+                        <img src="../img/logo.png" alt="Company Logo" id="companyLogo">
                     </div>
                     <div class="job-card-content">
                         <div class="job-title-section">
@@ -265,6 +271,6 @@
    </footer>
 
     <script src="../js/header.js"></script>
-    <script src="../js/single-job.js"></script>
+    <script type="module" src="../js/single-job.js"></script>
 </body>
 </html> 

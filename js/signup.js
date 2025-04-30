@@ -1,7 +1,7 @@
 import { signUp } from '../js/auth.js';
 import { setupSignupValidation, validateSignupForm } from '../js/validation.js';
 import { isAuthenticated } from '../js/auth.js';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { db } from './firebase-config.js';
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -23,7 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     // Password visibility toggle for first password
-    window.changeIcon = function () {
+    if (icon) {
+        icon.addEventListener('click', function() {
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
             icon.classList.remove('fa-eye-slash');
@@ -33,10 +34,12 @@ document.addEventListener("DOMContentLoaded", function () {
             icon.classList.remove('fa-eye');
             icon.classList.add('fa-eye-slash');
         }
-    };
+        });
+    }
 
     // Password visibility toggle for second password
-    window.changeIcon2 = function () {
+    if (icon2) {
+        icon2.addEventListener('click', function() {
         if (password2Input.type === 'password') {
             password2Input.type = 'text';
             icon2.classList.remove('fa-eye-slash');
@@ -46,12 +49,14 @@ document.addEventListener("DOMContentLoaded", function () {
             icon2.classList.remove('fa-eye');
             icon2.classList.add('fa-eye-slash');
         }
-    };
+        });
+    }
 
     // Setup real-time validation
     setupSignupValidation();
 
     // Handle file selection
+    if (fileInput) {
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -63,8 +68,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     
                     // Update the preview image
                     const previewImg = document.getElementById('preview-img');
+                        if (previewImg) {
                     previewImg.src = profileImageBase64;
                     previewImg.alt = "Uploaded Image";
+                        }
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -73,7 +80,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+    }
 
+    // Handle form submission
+    if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -81,7 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
-        const profileImage = localStorage.getItem('profileImage') || '../img/useri.png';
 
         // Validate form before submission
         const validation = validateSignupForm(name, email, password, password2);
@@ -98,7 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Remove the separate name validation since it's now handled in validateSignupForm
         // Clear previous errors
         errorEmail.textContent = '';
         errorPassword.textContent = '';
@@ -133,9 +141,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem('userData', JSON.stringify(userData));
                 localStorage.setItem('isAuthenticated', 'true');
                 
-                // Clear the profile image from localStorage
-                localStorage.removeItem('profileImage');
-                
                 // Signup successful
                 window.location.href = '../index.html';
             } else {
@@ -163,11 +168,14 @@ document.addEventListener("DOMContentLoaded", function () {
             errorEmail.style.color = 'red';
         }
     });
+    }
 
-    // Attach the click event listener to trigger the file input
+    // Handle profile image click
+    if (useriImg) {
     useriImg.addEventListener('click', () => {
         fileInput.click();
     });
+    }
 });
 
 // Function to trigger file input click

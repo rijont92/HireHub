@@ -1,3 +1,7 @@
+import { auth, db } from './firebase-config.js';
+import { collection, addDoc, doc, updateDoc, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     const postJobForm = document.getElementById('postJobForm');
     const logoInput = document.getElementById('companyLogo');
@@ -277,18 +281,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function saveAndRedirect(jobData) {
-        // Get existing jobs from localStorage
-        let jobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-        
-        // Add new job
-        jobs.push(jobData);
-        
-        // Save back to localStorage
-        localStorage.setItem('jobs', JSON.stringify(jobs));
-        
-        // Show success popup
-        showSuccessPopup();
+    async function saveAndRedirect(jobData) {
+        try {
+            // Get current user
+            const user = auth.currentUser;
+            if (!user) {
+                throw new Error('User not authenticated');
+            }
+
+            // Add job to Firestore
+            const jobRef = await addDoc(collection(db, 'jobs'), {
+                ...jobData,
+                postedBy: user.uid,
+                status: 'active',
+                createdAt: new Date().toISOString()
+            });
+
+            // Update user's postedJobs array
+            const userRef = doc(db, 'users', user.uid);
+            await updateDoc(userRef, {
+                postedJobs: arrayUnion(jobRef.id)
+            });
+
+            // Show success popup
+            showSuccessPopup();
+        } catch (error) {
+            console.error('Error saving job:', error);
+            alert('Error saving job. Please try again.');
+        }
     }
 
     function showSuccessPopup() {

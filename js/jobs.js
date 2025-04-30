@@ -1,3 +1,9 @@
+import { auth, db } from './firebase-config.js';
+import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+import { storage } from './firebase-config.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     const jobsContainer = document.getElementById('jobsContainer');
     const searchInput = document.getElementById('searchInput');
@@ -6,15 +12,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const noJobsMessage = document.getElementById('noJobsMessage');
     const loadingSpinner = document.getElementById('loadingSpinner');
 
+    // Apply modal elements
+    const applyModalOverlay = document.getElementById('applyModalOverlay');
+    const closeApplyModal = document.getElementById('closeApplyModal');
+    const cancelApply = document.getElementById('cancelApply');
+    const applyForm = document.getElementById('applyForm');
+    const applyJobTitle = document.getElementById('applyJobTitle');
+
+    // Store current job ID when applying
+    let currentJobId = null;
+
     let allJobs = [];
     let locations = new Set();
 
     // Function to create a job card
     function createJobCard(job) {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
+        const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
+        const isClosed = job.status === 'closed';
         
         return `
-            <div class="job-card" data-job-id="${job.id}">
+            <div class="job-card ${isClosed ? 'closed' : ''}" data-job-id="${job.id}">
                 <div class="job-card-content">
                     <div class="job-header">
                         <div class="company-logo-wrapper">
@@ -24,16 +42,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="job-title-section">
                         <h3 class="job-title">${job.jobTitle}</h3>
                         <p class="company-name">${job.companyName}</p>
-                        
-                        <div class="job-meta-info">
-                            <div class="meta-item job-type ${jobTypeClass}">
-                                <i class="fas fa-briefcase"></i>
-                                <span>${job.jobType}</span>
-                            </div>
-                            <div class="meta-item location">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>${job.location}</span>
-                            </div>
+                        ${isClosed ? '<span class="job-status closed">Closed</span>' : ''}
+                    </div>
+                    <div class="job-meta-info">
+                        <div class="meta-item job-type ${jobTypeClass}">
+                            <i class="fas fa-briefcase"></i>
+                            <span>${job.jobType}</span>
+                        </div>
+                        <div class="meta-item location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${job.location}</span>
                         </div>
                     </div>
 
@@ -50,9 +68,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <div class="job-actions">
-                            <button class="apply-btn" data-job-id="${job.id}">
-                                <i class="fas fa-paper-plane"></i> Apply Now
-                            </button>
+                            ${isApplied ? `
+                                <div class="application-status pending">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Pending</span>
+                                </div>
+                            ` : isClosed ? `
+                                <button class="apply-btn disabled" disabled>
+                                    <i class="fas fa-lock"></i> Job Closed
+                                </button>
+                            ` : `
+                                <button class="apply-btn" data-job-id="${job.id}">
+                                    <i class="fas fa-paper-plane"></i> Apply Now
+                                </button>
+                            `}
                             <button class="save-btn" data-job-id="${job.id}">
                                 <i class="far fa-bookmark"></i> Save Job
                             </button>
@@ -114,68 +143,25 @@ document.addEventListener('DOMContentLoaded', function() {
     jobTypeFilter.addEventListener('change', filterJobs);
     locationFilter.addEventListener('change', filterJobs);
 
-    // Function to fetch jobs from your backend/database
+    // Function to fetch jobs from Firestore
     async function fetchJobs() {
         try {
             loadingSpinner.style.display = 'flex';
             
-            // Get jobs from localStorage
-            let storedJobs = localStorage.getItem('jobs');
+            // Get jobs from Firestore
+            const jobsCollection = collection(db, 'jobs');
+            const jobsQuery = query(jobsCollection, orderBy('postedDate', 'desc'));
+            const querySnapshot = await getDocs(jobsQuery);
             
-            if (!storedJobs) {
-                // Sample job data if no jobs exist in localStorage
-                const sampleJobs = [
-                    {
-                        id: '1',
-                        jobTitle: 'Programming Teacher',
-                        companyName: 'Innovation Academy',
-                        companyLogo: '../img/innovation-academy-job.jpg',
-                        jobType: 'part-time',
-                        location: 'Vushtrri',
-                        salary: '1000-1200',
-                        applicationDeadline: '2025-06-30',
-                        jobDescription: 'We are looking for a skilled Programming Teacher to join our team and inspire the next generation of developers. Responsibilities include creating lesson plans, teaching programming languages, and mentoring students.',
-                        requirements: ['3+ years of teaching experience', 'Proficiency in Python and JavaScript', 'Strong communication skills'],
-                        benefits: ['Flexible hours', 'Health insurance', 'Professional development opportunities']
-                    },
-                    {
-                        id: '2',
-                        jobTitle: 'Sales Consultant',
-                        companyName: 'Peugeot Kosova',
-                        companyLogo: '../img/peugout-kosova-job.png',
-                        jobType: 'part-time',
-                        location: 'Ferizaj',
-                        salary: '700-850',
-                        applicationDeadline: '2025-07-20',
-                        jobDescription: 'Peugeot Kosova is looking for Sales Consultants to assist customers in selecting vehicles and providing excellent customer service. Responsibilities include product knowledge, customer interaction, and sales support.',
-                        requirements: ['Experience in sales', 'Strong communication skills', 'Customer-oriented attitude'],
-                        benefits: ['Flexible hours', 'Employee discounts', 'Training opportunities'],
-                        vacancies: { total: 10, applied: 4 }
-                    },
-                    {
-                        id: '3',
-                        jobTitle: 'Manager',
-                        companyName: 'Viva Fresh',
-                        companyLogo: '../img/viva-fresh-job.png',
-                        jobType: 'full-time',
-                        location: 'Vushtrri',
-                        salary: "850-950",
-                        applicationDeadline: '2025-07-25',
-                        jobDescription: 'Viva Fresh is seeking a Manager to oversee operations at our supermarket. Responsibilities include managing staff, ensuring customer satisfaction, and maintaining inventory.',
-                        requirements: ['Experience in retail management', 'Strong leadership skills', 'Excellent communication abilities'],
-                        benefits: ['Health insurance', 'Paid time off', 'Employee discounts'],
-                        vacancies: { total: 3, applied: 1 }
-                    }
-                ];
-                
-                localStorage.setItem('jobs', JSON.stringify(sampleJobs));
-                allJobs = sampleJobs;
-            } else {
-                allJobs = JSON.parse(storedJobs);
-            }
+            allJobs = [];
+            locations.clear();
             
-            // Extract unique locations
-            allJobs.forEach(job => locations.add(job.location));
+            querySnapshot.forEach((doc) => {
+                const jobData = doc.data();
+                jobData.id = doc.id; // Add the Firestore document ID
+                allJobs.push(jobData);
+                locations.add(jobData.location);
+            });
             
             // Populate location filter
             populateLocationFilter();
@@ -208,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (applyBtn) {
             e.stopPropagation(); // Prevent card click
             const jobId = applyBtn.dataset.jobId;
-            applyForJob(jobId);
+            showApplyModal(jobId, allJobs.find(job => job.id === jobId).jobTitle);
             return; // Stop further execution
         }
 
@@ -226,15 +212,272 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Function to handle job application
-    function applyForJob(jobId) {
-        // Add your job application logic here
-        console.log('Applying for job:', jobId);
+    // Show apply modal
+    function showApplyModal(jobId, jobTitle) {
+        currentJobId = jobId;
+        applyJobTitle.textContent = jobTitle;
+        applyModalOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
 
+    // Hide apply modal
+    function hideApplyModal() {
+        applyModalOverlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        applyForm.reset();
+        currentJobId = null;
+    }
+
+    // Close modal when clicking outside
+    applyModalOverlay.addEventListener('click', (e) => {
+        if (e.target === applyModalOverlay) {
+            hideApplyModal();
+        }
+    });
+
+    // Close modal when clicking close button
+    closeApplyModal.addEventListener('click', hideApplyModal);
+    cancelApply.addEventListener('click', hideApplyModal);
+
+    // Handle form submission
+    applyForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Check if user is logged in
+        const user = auth.currentUser;
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            // Get form data
+            const formData = new FormData(applyForm);
+            const resumeFile = formData.get('resume');
+            
+            // Validate file
+            if (!resumeFile || resumeFile.size === 0) {
+                alert('Please upload your resume');
+                return;
+            }
+
+            // Check file size (max 5MB)
+            if (resumeFile.size > 5 * 1024 * 1024) {
+                alert('Resume file size should be less than 5MB');
+                return;
+            }
+
+            // Check file type
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedTypes.includes(resumeFile.type)) {
+                alert('Please upload a PDF or Word document');
+                return;
+            }
+
+            // Create application data without the CV
+            const applicationData = {
+                fullName: formData.get('fullName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                coverLetter: formData.get('coverLetter'),
+                jobId: currentJobId,
+                userId: user.uid,
+                status: 'pending',
+                appliedAt: new Date().toISOString()
+            };
+
+            // Add application to Firestore
+            const applicationsRef = collection(db, 'applications');
+            await addDoc(applicationsRef, applicationData);
+
+            // Update job's applications count
+            const jobRef = doc(db, 'jobs', currentJobId);
+            await updateDoc(jobRef, {
+                applications: arrayUnion(user.uid)
+            });
+
+            // Show success message
+            alert('Application submitted successfully!');
+            hideApplyModal();
+            
+            // Refresh the page to update the UI
+            window.location.reload();
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            alert('Error submitting application. Please try again.');
+        }
+    });
+
     // Function to handle saving a job
-    function saveJob(jobId) {
-        // Add your save job logic here
-        console.log('Saving job:', jobId);
+    async function saveJob(jobId) {
+        try {
+            if (!auth.currentUser) {
+                showLoginPopup();
+                return;
+            }
+
+            // Add job to user's saved jobs
+            await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+                savedJobs: arrayUnion(jobId)
+            });
+
+            alert('Job saved successfully!');
+        } catch (error) {
+            console.error('Error saving job:', error);
+            alert('Error saving job. Please try again.');
+        }
+    }
+
+    // Listen for auth state changes
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in, fetch jobs
+            fetchJobs();
+        } else {
+            // User is not signed in, still fetch jobs but show login prompt for apply
+            fetchJobs();
+        }
+    });
+
+    // Function to fetch user's applications
+    async function fetchUserApplications() {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const applicationsRef = collection(db, 'applications');
+            const q = query(applicationsRef, where('userId', '==', user.uid));
+            const querySnapshot = await getDocs(q);
+            
+            const applications = [];
+            querySnapshot.forEach((doc) => {
+                applications.push({ id: doc.id, ...doc.data() });
+            });
+
+            return applications;
+        } catch (error) {
+            console.error('Error fetching applications:', error);
+            return [];
+        }
+    }
+
+    // Function to update application status
+    async function updateApplicationStatus(applicationId, status, message = '') {
+        try {
+            const applicationRef = doc(db, 'applications', applicationId);
+            await updateDoc(applicationRef, {
+                status: status,
+                message: message,
+                updatedAt: new Date().toISOString()
+            });
+            return true;
+        } catch (error) {
+            console.error('Error updating application status:', error);
+            return false;
+        }
+    }
+
+    // Function to show application management modal
+    function showApplicationManagementModal(application) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Manage Application</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="application-details">
+                        <p><strong>Applicant:</strong> ${application.fullName}</p>
+                        <p><strong>Email:</strong> ${application.email}</p>
+                        <p><strong>Phone:</strong> ${application.phone}</p>
+                        <p><strong>Cover Letter:</strong></p>
+                        <div class="cover-letter">${application.coverLetter}</div>
+                    </div>
+                    <div class="application-actions">
+                        <button class="accept-btn" data-application-id="${application.id}">
+                            <i class="fas fa-check"></i> Accept
+                        </button>
+                        <button class="reject-btn" data-application-id="${application.id}">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                    <div class="message-section">
+                        <textarea placeholder="Add a message for the applicant..." class="message-input"></textarea>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Handle close button
+        modal.querySelector('.close-modal').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        // Handle accept button
+        modal.querySelector('.accept-btn').addEventListener('click', async () => {
+            const message = modal.querySelector('.message-input').value;
+            const success = await updateApplicationStatus(application.id, 'accepted', message);
+            if (success) {
+                alert('Application accepted successfully!');
+                modal.remove();
+                window.location.reload();
+            }
+        });
+
+        // Handle reject button
+        modal.querySelector('.reject-btn').addEventListener('click', async () => {
+            const message = modal.querySelector('.message-input').value;
+            const success = await updateApplicationStatus(application.id, 'rejected', message);
+            if (success) {
+                alert('Application rejected successfully!');
+                modal.remove();
+                window.location.reload();
+            }
+        });
+    }
+
+    // Add event listener for my-jobs page
+    if (window.location.pathname.includes('my-jobs.html')) {
+        document.addEventListener('DOMContentLoaded', async () => {
+            const applications = await fetchUserApplications();
+            const applicationsContainer = document.getElementById('applicationsContainer');
+            
+            if (applications.length === 0) {
+                applicationsContainer.innerHTML = '<p>No applications found.</p>';
+                return;
+            }
+
+            applications.forEach(application => {
+                const applicationCard = document.createElement('div');
+                applicationCard.className = 'application-card';
+                applicationCard.innerHTML = `
+                    <div class="application-header">
+                        <h3>${application.jobTitle}</h3>
+                        <span class="status ${application.status}">${application.status}</span>
+                    </div>
+                    <div class="application-details">
+                        <p><strong>Applied on:</strong> ${new Date(application.appliedAt).toLocaleDateString()}</p>
+                        ${application.message ? `<p><strong>Message:</strong> ${application.message}</p>` : ''}
+                    </div>
+                    ${application.status === 'pending' ? `
+                        <button class="manage-btn" data-application-id="${application.id}">
+                            Manage Application
+                        </button>
+                    ` : ''}
+                `;
+
+                if (application.status === 'pending') {
+                    applicationCard.querySelector('.manage-btn').addEventListener('click', () => {
+                        showApplicationManagementModal(application);
+                    });
+                }
+
+                applicationsContainer.appendChild(applicationCard);
+            });
+        });
     }
 });
