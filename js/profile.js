@@ -2,6 +2,7 @@ import { auth, db } from './firebase-config.js';
 import { doc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileImage = document.getElementById('profileImage');
@@ -625,6 +626,152 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Function to fetch and display saved jobs
+    async function fetchSavedJobs() {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (!userDoc.exists()) return;
+
+            const savedJobs = userDoc.data().savedJobs || [];
+            const savedJobsContainer = document.getElementById('savedJobs');
+            if (!savedJobsContainer) return;
+
+            if (savedJobs.length === 0) {
+                savedJobsContainer.innerHTML = `
+                    <div class="no-jobs-message">
+                        <i class="fas fa-bookmark"></i>
+                        <h3>No Saved Jobs</h3>
+                        <p>You haven't saved any jobs yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Fetch job details for each saved job
+            const jobsPromises = savedJobs.map(async (jobId) => {
+                const jobRef = doc(db, 'jobs', jobId);
+                const jobDoc = await getDoc(jobRef);
+                if (jobDoc.exists()) {
+                    return {
+                        ...jobDoc.data(),
+                        id: jobId
+                    };
+                }
+                return null;
+            });
+
+            const jobs = (await Promise.all(jobsPromises)).filter(job => job !== null);
+
+            // Display the jobs
+            savedJobsContainer.innerHTML = jobs.map(job => `
+                <div class="job-card">
+                    <div class="job-header">
+                        <h3>${job.jobTitle}</h3>
+                        ${job.status === 'closed' ? '<span class="status closed">Closed</span>' : ''}
+                    </div>
+                    <div class="job-details">
+                        <p><strong>Company:</strong> ${job.companyName}</p>
+                        <p><strong>Location:</strong> ${job.location}</p>
+                        <p><strong>Type:</strong> ${job.jobType}</p>
+                        <p><strong>Salary:</strong> ${job.salary}</p>
+                    </div>
+                    <div class="job-actions">
+                        <a href="single-job.html?id=${job.id}" class="view-job-btn">View Job</a>
+                        <button class="unsave-btn" data-job-id="${job.id}">
+                            <i class="fas fa-bookmark"></i> Unsave
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add event listeners to unsave buttons
+            const unsaveButtons = savedJobsContainer.querySelectorAll('.unsave-btn');
+            unsaveButtons.forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const jobId = button.dataset.jobId;
+                    await toggleSaveJob(jobId);
+                    // Refresh the saved jobs list
+                    fetchSavedJobs();
+                });
+            });
+        } catch (error) {
+            console.error('Error fetching saved jobs:', error);
+            const savedJobsContainer = document.getElementById('savedJobs');
+            if (savedJobsContainer) {
+                savedJobsContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Error Loading Saved Jobs</h3>
+                        <p>There was an error loading your saved jobs. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // Function to toggle save job
+    async function toggleSaveJob(jobId) {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const savedJobs = userData.savedJobs || [];
+                
+                if (savedJobs.includes(jobId)) {
+                    await updateDoc(userRef, {
+                        savedJobs: arrayRemove(jobId)
+                    });
+                } else {
+                    await updateDoc(userRef, {
+                        savedJobs: arrayUnion(jobId)
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error toggling save job:', error);
+        }
+    }
+
+    // Add tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const jobLists = document.querySelectorAll('.jobs-list');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update active tab
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Show/hide job lists
+            const tab = button.dataset.tab;
+            jobLists.forEach(list => {
+                if (list.id === `${tab}Jobs`) {
+                    list.classList.remove('hidden');
+                } else {
+                    list.classList.add('hidden');
+                }
+            });
+
+            // Load appropriate jobs
+            if (tab === 'applied') {
+                fetchAppliedJobs();
+            } else if (tab === 'saved') {
+                fetchSavedJobs();
+            }
+        });
+    });
+
     // Initialize profile display
     updateProfileDisplay();
 
@@ -973,21 +1120,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         }
-    });
-
-    // Jobs tabs functionality
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const jobsLists = document.querySelectorAll('.jobs-list');
-
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            jobsLists.forEach(list => list.classList.add('hidden'));
-            const tabName = button.getAttribute('data-tab');
-            document.getElementById(`${tabName}Jobs`).classList.remove('hidden');
-        });
     });
 
     // Handle responsive design

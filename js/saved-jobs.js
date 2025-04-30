@@ -134,7 +134,19 @@ document.addEventListener('DOMContentLoaded', function() {
             jobsContainer.innerHTML = '';
 
             if (savedJobs.length === 0) {
-                jobsContainer.innerHTML = '<p class="no-jobs">No saved jobs found.</p>';
+                savedJobsContainer.innerHTML = `
+                    <div class="no-saved-jobs-container">
+                        <i class="fas fa-bookmark no-saved-jobs-icon"></i>
+                        <h2 class="no-saved-jobs-title">No Saved Jobs Yet</h2>
+                        <p class="no-saved-jobs-description">
+                            You haven't saved any jobs yet. Start exploring and save jobs that interest you to keep track of them here.
+                        </p>
+                        <a href="jobs.html" class="explore-jobs-btn">
+                            <i class="fas fa-search"></i>
+                            Explore Jobs
+                        </a>
+                    </div>
+                `;
                 return;
             }
 
@@ -190,7 +202,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 const savedJobsContainer = document.getElementById('savedJobsContainer');
                 const remainingJobs = document.querySelectorAll('.job-item');
                 if (remainingJobs.length === 0) {
-                    savedJobsContainer.innerHTML = '<p class="no-jobs">No saved jobs found.</p>';
+                    savedJobsContainer.innerHTML = `
+                        <div class="no-saved-jobs-container">
+                            <i class="fas fa-bookmark no-saved-jobs-icon"></i>
+                            <h2 class="no-saved-jobs-title">No Saved Jobs Yet</h2>
+                            <p class="no-saved-jobs-description">
+                                You haven't saved any jobs yet. Start exploring and save jobs that interest you to keep track of them here.
+                            </p>
+                            <a href="jobs.html" class="explore-jobs-btn">
+                                <i class="fas fa-search"></i>
+                                Explore Jobs
+                            </a>
+                        </div>
+                    `;
                 }
             }
         } catch (error) {

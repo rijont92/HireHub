@@ -747,6 +747,7 @@ body {
 .job-actions {
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
 }
 
 .view-job-btn {
@@ -806,4 +807,28 @@ body {
 
 .error-message p {
     color: #666;
+}
+
+.unsave-btn {
+    background-color: white;
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.unsave-btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.unsave-btn i {
+    font-size: 16px;
 }
