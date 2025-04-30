@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let allJobs = [];
     let locations = new Set();
+    let isFetching = false; // Add loading state flag
 
     // Function to create a job card
     function createJobCard(job) {
@@ -146,6 +147,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch jobs from Firestore
     async function fetchJobs() {
+        if (isFetching) return; // Prevent multiple simultaneous fetches
+        isFetching = true;
+        
         try {
             loadingSpinner.style.display = 'flex';
             
@@ -164,17 +168,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const userDoc = await getDoc(userRef);
                 if (userDoc.exists()) {
                     savedJobs = userDoc.data().savedJobs || [];
-                    console.log('User saved jobs:', savedJobs);
                 }
             }
             
             querySnapshot.forEach((doc) => {
                 const jobData = doc.data();
                 jobData.id = doc.id;
-                // Add isSaved flag based on user's saved jobs
                 jobData.isSaved = savedJobs.includes(doc.id);
-                console.log('Job document data:', jobData);
-                console.log('Created job object with ID:', jobData.id);
                 allJobs.push(jobData);
                 locations.add(jobData.location);
             });
@@ -194,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             noJobsMessage.style.display = 'block';
         } finally {
             loadingSpinner.style.display = 'none';
+            isFetching = false;
         }
     }
 
@@ -413,10 +414,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check saved jobs when auth state changes
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            checkSavedJobs();
-            
-            // User is signed in, fetch jobs
-            fetchJobs();
+            // Only fetch jobs if we haven't already loaded them
+            if (allJobs.length === 0) {
+                fetchJobs();
+            } else {
+                // Just update the saved status of existing jobs
+                checkSavedJobs();
+            }
             
             // Set up real-time listener for new jobs
             const jobsRef = collection(db, 'jobs');
@@ -431,8 +435,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         } else {
-            // User is not signed in, still fetch jobs but show login prompt for apply
-            fetchJobs();
+            // If user logs out, just refresh the display to update saved status
+            displayJobs(allJobs);
         }
     });
 
