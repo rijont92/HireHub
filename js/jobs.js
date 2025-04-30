@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { storage } from './firebase-config.js';
@@ -333,6 +333,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (user) {
             // User is signed in, fetch jobs
             fetchJobs();
+            
+            // Set up real-time listener for new jobs
+            const jobsRef = collection(db, 'jobs');
+            const q = query(jobsRef, where('status', '==', 'active'));
+            
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        // New job added, fetch all jobs again to update the display
+                        fetchJobs();
+                    }
+                });
+            });
         } else {
             // User is not signed in, still fetch jobs but show login prompt for apply
             fetchJobs();
