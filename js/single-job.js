@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { doc, getDoc, collection, query, where, getDocs, updateDoc, arrayRemove, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, arrayRemove, arrayUnion, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -98,6 +98,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Load similar jobs
             await loadSimilarJobs(jobData);
+
+            // Save job to history
+            await saveToHistory(jobData);
         } catch (error) {
             console.error('Error loading job:', error);
             showError('There was an error loading the job details');
@@ -339,6 +342,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Check if job is saved when page loads
     checkSavedStatus(jobId);
+
+    // Function to save job to history
+    async function saveToHistory(job) {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            // Check if job already exists in history
+            const historyQuery = query(
+                collection(db, 'jobHistory'),
+                where('userId', '==', user.uid),
+                where('jobId', '==', job.id)
+            );
+            
+            const querySnapshot = await getDocs(historyQuery);
+            
+            if (!querySnapshot.empty) {
+                // Job exists, update the viewedAt timestamp
+                const docRef = doc(db, 'jobHistory', querySnapshot.docs[0].id);
+                await updateDoc(docRef, {
+                    viewedAt: new Date()
+                });
+            } else {
+                // Job doesn't exist, create new entry
+                await addDoc(collection(db, 'jobHistory'), {
+                    userId: user.uid,
+                    jobId: job.id,
+                    jobTitle: job.jobTitle,
+                    companyName: job.companyName,
+                    location: job.location,
+                    salary: job.salary,
+                    viewedAt: new Date()
+                });
+            }
+        } catch (error) {
+            console.error('Error saving to history:', error);
+        }
+    }
 
     // Initialize the page
     loadJobData();

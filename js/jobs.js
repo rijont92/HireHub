@@ -33,6 +33,39 @@ document.addEventListener('DOMContentLoaded', function() {
         const isClosed = job.status === 'closed';
         const isSaved = job.isSaved || false;
         
+        // Get application status if applied
+        let applicationStatus = 'pending';
+        let statusClass = 'status-pending';
+        let applicationMessage = '';
+        
+        if (isApplied) {
+            // Query the applications collection to get the status
+            const applicationsRef = collection(db, 'applications');
+            const q = query(
+                applicationsRef,
+                where('jobId', '==', job.id),
+                where('userId', '==', auth.currentUser?.uid)
+            );
+            
+            getDocs(q).then(snapshot => {
+                if (!snapshot.empty) {
+                    const application = snapshot.docs[0].data();
+                    const statusElement = document.querySelector(`[data-job-id="${job.id}"] .application-status`);
+                    if (statusElement) {
+                        applicationStatus = application.status || 'pending';
+                        statusClass = applicationStatus === 'approved' ? 'status-approved' : 
+                                     applicationStatus === 'rejected' ? 'status-rejected' : 'status-pending';
+                        applicationMessage = application.message || '';
+                        statusElement.textContent = applicationStatus.charAt(0).toUpperCase() + applicationStatus.slice(1);
+                        statusElement.className = `application-status ${statusClass}`;
+                        if (applicationMessage) {
+                            statusElement.title = applicationMessage;
+                        }
+                    }
+                }
+            });
+        }
+        
         return `
             <div class="job-card ${isClosed ? 'closed' : ''}" data-job-id="${job.id}">
                 <div class="job-card-content">
@@ -71,9 +104,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         <div class="job-actions">
                             ${isApplied ? `
-                                <div class="application-status pending">
+                                <div class="application-status ${statusClass}" title="${applicationMessage}">
                                     <i class="fas fa-clock"></i>
-                                    <span>Pending</span>
+                                    <span>${applicationStatus.charAt(0).toUpperCase() + applicationStatus.slice(1)}</span>
                                 </div>
                             ` : isClosed ? `
                                 <button class="apply-btn disabled" disabled>

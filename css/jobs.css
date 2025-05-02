@@ -1,3 +1,15 @@
+:root {
+    --primary-color: #755ea3;
+    --secondary-color: #002e54;
+    --text-color: #1f2937;
+    --light-text: #6b7280;
+    --background-light: #f9fafb;
+    --white: #ffffff;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --transition: all 0.3s ease;
+}
+
 .jobs-section {
     padding: 2rem 0;
     min-height: calc(100vh - 200px);
@@ -458,13 +470,13 @@
 }
 
 .save-btn {
-    background: #2196f3;
+    background: var(--secondary-color);
     color: white;
     border: none;
 }
 
 .save-btn:hover {
-    background: #1976d2;
+    background: #00213c;
 }
 
 @media (max-width: 1200px) {
@@ -638,38 +650,78 @@
 
 /* Application Status in Job Cards */
 .job-card .application-status {
+    position: relative;
     display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-        background-color: #fff3cd;
-        color: #856404;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    background-color: #fff3cd;
+    color: #856404;
 }
 
-.job-card .application-status i {
-    font-size: 1.1em;
-    color: #ffc107;
+.job-card .application-status[title]:not([title=""]) {
+    position: relative;
 }
 
-.job-card .application-status:hover {
-    background-color: #ffeeba;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.job-card .application-status[title]:not([title=""]):hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: normal;
+    min-width: 200px;
+    max-width: 90vw;
+    width: fit-content;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Responsive Adjustments */
+.job-card .application-status[title]:not([title=""]):hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.job-card .application-status[title]:not([title=""]):hover::after,
+.job-card .application-status[title]:not([title=""]):hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
 @media (max-width: 768px) {
-    .job-card .application-status {
-        padding: 6px 12px;
-        font-size: 0.9em;
+    .job-card .application-status[title]:not([title=""]):hover::after {
+        min-width: 150px;
+        max-width: 85vw;
+        padding: 10px;
     }
 }
 
@@ -705,4 +757,22 @@
 .job-card.closed .apply-btn.disabled:hover {
     transform: none;
     background-color: #999;
+}
+
+.application-status.status-rejected {
+    background-color: red;
+    color: white;
+}
+
+.application-status.status-rejected:hover{
+    background-color: rgb(204, 4, 4);
+}
+
+.application-status.status-approved {
+    background-color: green;
+    color: white;
+}
+
+.application-status.status-approved:hover {
+    background-color: rgb(4, 98, 4);
 }

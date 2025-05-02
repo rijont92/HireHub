@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { collection, query, where, getDocs, doc, getDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { collection, query, where, getDocs, doc, getDoc, updateDoc, deleteDoc, arrayRemove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -318,18 +318,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     window.deleteJob = async function(jobId) {
-        if (confirm('Are you sure you want to delete this job posting?')) {
+        if (confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
             try {
-                // Update job status to 'deleted' instead of actually deleting
-                await updateDoc(doc(db, 'jobs', jobId), {
-                    status: 'deleted'
+                // Delete the job from the jobs collection
+                await deleteDoc(doc(db, 'jobs', jobId));
+
+                // Remove the job ID from user's postedJobs array
+                const userRef = doc(db, 'users', auth.currentUser.uid);
+                await updateDoc(userRef, {
+                    postedJobs: arrayRemove(jobId)
                 });
+
+                // Show success notification
+                showNotification('Job deleted successfully!');
 
                 // Refresh the jobs list
                 fetchUserJobs(auth.currentUser.uid);
             } catch (error) {
                 console.error('Error deleting job:', error);
-                alert('Error deleting job. Please try again.');
+                showNotification('Error deleting job. Please try again.', 'error');
             }
         }
     };

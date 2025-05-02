@@ -1,3 +1,14 @@
+:root {
+    --primary-color: #755ea3;
+    --secondary-color: #002e54;
+    --text-color: #1f2937;
+    --light-text: #6b7280;
+    --background-light: #f9fafb;
+    --white: #ffffff;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --transition: all 0.3s ease;
+}
 .my-jobs-section {
     padding: 2rem 0;
     min-height: calc(100vh - 200px);
@@ -289,12 +300,12 @@
 }
 
 .edit-btn {
-    background-color: #2196f3;
+    background-color: var(--primary-color);
     color: white;
 }
 
 .edit-btn:hover {
-    background-color: #1976d2;
+    background-color: var(--hover);
     transform: translateY(-2px);
 }
 

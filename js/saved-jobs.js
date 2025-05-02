@@ -134,19 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             jobsContainer.innerHTML = '';
 
             if (savedJobs.length === 0) {
-                savedJobsContainer.innerHTML = `
-                    <div class="no-saved-jobs-container">
-                        <i class="fas fa-bookmark no-saved-jobs-icon"></i>
-                        <h2 class="no-saved-jobs-title">No Saved Jobs Yet</h2>
-                        <p class="no-saved-jobs-description">
-                            You haven't saved any jobs yet. Start exploring and save jobs that interest you to keep track of them here.
-                        </p>
-                        <a href="jobs.html" class="explore-jobs-btn">
-                            <i class="fas fa-search"></i>
-                            Explore Jobs
-                        </a>
-                    </div>
-                `;
+                showEmptyState();
                 return;
             }
 
@@ -164,11 +152,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     jobsContainer.appendChild(jobCard);
                 }
             }
+
+            // Check if any jobs were actually displayed
+            if (jobsContainer.children.length === 0) {
+                showEmptyState();
+            }
         } catch (error) {
             console.error('Error loading saved jobs:', error);
-            const jobsContainer = document.getElementById('savedJobsContainer');
-            jobsContainer.innerHTML = '<p class="error">Error loading saved jobs. Please try again later.</p>';
+            showEmptyState();
         }
+    }
+
+    // Function to show empty state UI
+    function showEmptyState() {
+        const jobsContainer = document.getElementById('savedJobsContainer');
+        jobsContainer.innerHTML = `
+            <div class="no-saved-jobs-container">
+                <i class="fas fa-bookmark no-saved-jobs-icon"></i>
+                <h2 class="no-saved-jobs-title">No Saved Jobs Yet</h2>
+                <p class="no-saved-jobs-description">
+                    You haven't saved any jobs yet. Start exploring and save jobs that interest you to keep track of them here.
+                </p>
+                <a href="jobs.html" class="explore-jobs-btn">
+                    <i class="fas fa-search"></i>
+                    Explore Jobs
+                </a>
+            </div>
+        `;
     }
 
     // Function to toggle save job
