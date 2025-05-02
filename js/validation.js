@@ -49,23 +49,20 @@ function validateSignupPassword(password) {
     if (password.length < minLength) {
         errors.push('at least 8 characters');
     }
-    if (!hasUpperCase) {
-        errors.push('one uppercase letter');
-    }
-    if (!hasLowerCase) {
-        errors.push('one lowercase letter');
+    if (!hasUpperCase || !hasLowerCase) {
+        errors.push('both uppercase and lowercase letters');
     }
     if (!hasNumbers) {
-        errors.push('one number');
+        errors.push('at least one number');
     }
     if (!hasSpecialChar) {
-        errors.push('one special character');
+        errors.push('at least one special character (!@#$%^&*(),.?":{}|<>)');
     }
 
     if (errors.length > 0) {
         return {
             isValid: false,
-            message: 'Password must contain ' + errors.join(', ')
+            message: 'Password must contain: ' + errors.join(', ')
         };
     }
 

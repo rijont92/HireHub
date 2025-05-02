@@ -92,6 +92,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
 
+        // Clear previous errors
+        errorEmail.textContent = '';
+        errorPassword.textContent = '';
+        errorPassword2.textContent = '';
+        errorName.textContent = '';
+
         // Validate form before submission
         const validation = validateSignupForm(name, email, password, password2);
         if (!validation.isValid) {
@@ -106,12 +112,6 @@ document.addEventListener("DOMContentLoaded", function () {
             errorPassword2.style.color = 'red';
             return;
         }
-
-        // Clear previous errors
-        errorEmail.textContent = '';
-        errorPassword.textContent = '';
-        errorPassword2.textContent = '';
-        errorName.textContent = '';
 
         try {
             const result = await signUp(email, password);

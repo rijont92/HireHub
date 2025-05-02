@@ -400,6 +400,39 @@
     display: inline-block;
 }
 
+/* No Jobs Message */
+.no-jobs {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-jobs i {
+    font-size: 3rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.no-jobs h3 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.no-jobs p {
+    color: var(--light-text);
+    margin-bottom: 1.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.no-jobs .btn {
+    display: inline-block;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .dashboard-wrapper {
