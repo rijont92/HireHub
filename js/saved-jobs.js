@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelApply = document.getElementById('cancelApply');
     const applyForm = document.getElementById('applyForm');
     const applyJobTitle = document.getElementById('applyJobTitle');
-
+    
     // Store current job ID when applying
     let currentJobId = null;
 

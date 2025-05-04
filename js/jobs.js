@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc, onSnapshot, arrayRemove, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc, onSnapshot, arrayRemove, setDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { storage } from './firebase-config.js';
@@ -180,13 +180,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch jobs from Firestore
     async function fetchJobs() {
-        if (isFetching) return; // Prevent multiple simultaneous fetches
+        if (isFetching) return;
         isFetching = true;
         
         try {
             loadingSpinner.style.display = 'flex';
             
-            // Get jobs from Firestore
             const jobsCollection = collection(db, 'jobs');
             const jobsQuery = query(jobsCollection, orderBy('postedDate', 'desc'));
             const querySnapshot = await getDocs(jobsQuery);
@@ -204,18 +203,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            querySnapshot.forEach((doc) => {
+            // Process each job
+            for (const doc of querySnapshot.docs) {
                 const jobData = doc.data();
                 jobData.id = doc.id;
                 jobData.isSaved = savedJobs.includes(doc.id);
+                
+                // Check application status for each job
+                if (auth.currentUser && jobData.applications && jobData.applications.includes(auth.currentUser.uid)) {
+                    const applicationsRef = collection(db, 'applications');
+                    const q = query(
+                        applicationsRef,
+                        where('jobId', '==', doc.id),
+                        where('userId', '==', auth.currentUser.uid)
+                    );
+                    const snapshot = await getDocs(q);
+                    if (!snapshot.empty) {
+                        const application = snapshot.docs[0].data();
+                        jobData.applicationStatus = application.status || 'pending';
+                        jobData.applicationMessage = application.message || '';
+                    }
+                }
+                
                 allJobs.push(jobData);
                 locations.add(jobData.location);
-            });
+            }
             
-            // Populate location filter
             populateLocationFilter();
-            
-            // Display all jobs initially
             displayJobs(allJobs);
         } catch (error) {
             console.error('Error fetching jobs:', error);
@@ -346,12 +360,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 applications: arrayUnion(user.uid)
             });
 
-            // Show success message
-            alert('Application submitted successfully!');
+            // Show success notification
+            const successNotification = document.getElementById('successNotification');
+            successNotification.classList.add('show');
+
+            // Hide notification after 5 seconds
+            setTimeout(() => {
+                successNotification.classList.remove('show');
+            }, 5000);
+
+            // Close notification when clicking close button
+            document.getElementById('closeNotification').addEventListener('click', () => {
+                successNotification.classList.remove('show');
+            });
+
             hideApplyModal();
             
-            // Refresh the page to update the UI
-            window.location.reload();
+            // Wait for 2 seconds before reloading to show the notification
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (error) {
             console.error('Error submitting application:', error);
             alert('Error submitting application. Please try again.');
@@ -498,15 +526,66 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to update application status
     async function updateApplicationStatus(applicationId, status, message = '') {
         try {
+            // Get the application document
             const applicationRef = doc(db, 'applications', applicationId);
-            await updateDoc(applicationRef, {
+            const applicationDoc = await getDoc(applicationRef);
+            const application = applicationDoc.data();
+            
+            if (!application) {
+                throw new Error('Application not found');
+            }
+
+            // Get the job document
+            const jobRef = doc(db, 'jobs', application.jobId);
+            const jobDoc = await getDoc(jobRef);
+            const jobData = jobDoc.data();
+
+            if (!jobData) {
+                throw new Error('Job not found');
+            }
+
+            // Start a batch write
+            const batch = writeBatch(db);
+
+            // Update application status and message
+            batch.update(applicationRef, {
                 status: status,
                 message: message,
                 updatedAt: new Date().toISOString()
             });
+
+            // Update job's applications array
+            let applications = jobData.applications || [];
+            if (status === 'approved') {
+                // Add to approved applications if not already there
+                if (!applications.includes(application.userId)) {
+                    applications.push(application.userId);
+                }
+            } else if (status === 'rejected') {
+                // Remove from applications if rejected
+                applications = applications.filter(id => id !== application.userId);
+            }
+
+            // Update job document
+            batch.update(jobRef, {
+                applications: applications,
+                updatedAt: new Date().toISOString()
+            });
+
+            // Commit the batch
+            await batch.commit();
+
+            // Show success message
+            const statusMessage = status === 'approved' ? 'approved' : 'rejected';
+            alert(`Application has been ${statusMessage} successfully!`);
+
+            // Force a reload of the jobs to update the UI
+            window.location.reload();
+
             return true;
         } catch (error) {
             console.error('Error updating application status:', error);
+            alert('Failed to update application status. Please try again.');
             return false;
         }
     }
@@ -613,5 +692,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 applicationsContainer.appendChild(applicationCard);
             });
         });
+    }
+
+    // Add this new function to check application status
+    async function checkApplicationStatus(jobId) {
+        try {
+            const applicationsRef = collection(db, 'applications');
+            const q = query(
+                applicationsRef,
+                where('jobId', '==', jobId),
+                where('userId', '==', auth.currentUser?.uid)
+            );
+            
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                const application = snapshot.docs[0].data();
+                return {
+                    status: application.status || 'pending',
+                    message: application.message || ''
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error('Error checking application status:', error);
+            return null;
+        }
     }
 });

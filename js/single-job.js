@@ -1,6 +1,8 @@
 import { auth, db } from './firebase-config.js';
 import { doc, getDoc, collection, query, where, getDocs, updateDoc, arrayRemove, arrayUnion, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+import { storage } from './firebase-config.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Get job ID from URL
@@ -8,9 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const jobId = urlParams.get('id');
 
     if (!jobId) {
-        showError('No job ID provided');
+        window.location.href = 'jobs.html';
         return;
     }
+
+    // Store current job ID when applying
+    let currentJobId = jobId;
 
     // Get DOM elements
     const jobTitle = document.getElementById('jobTitle');
@@ -24,9 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const requirements = document.getElementById('requirements');
     const benefits = document.getElementById('benefits');
     const similarJobsContainer = document.getElementById('similarJobs');
+    const loadingSpinner = document.getElementById('loadingSpinner');
     const applyBtn = document.querySelector('.apply-btn');
     const saveBtn = document.querySelector('.save-btn');
-    const loadingSpinner = document.getElementById('loadingSpinner');
 
     // Show loading state
     function showLoading() {
@@ -65,42 +70,53 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load job data
     async function loadJobData() {
         try {
-            showLoading();
-
-            let jobData = null;
-
-            // First try to get the job directly by Firestore document ID
-            const jobDoc = await getDoc(doc(db, 'jobs', jobId));
+            const jobRef = doc(db, 'jobs', jobId);
+            const jobDoc = await getDoc(jobRef);
             
             if (!jobDoc.exists()) {
-                // If not found, try to find it by searching for the custom job ID
-                const jobsQuery = query(
-                    collection(db, 'jobs'),
-                    where('id', '==', jobId)
-                );
-                
-                const querySnapshot = await getDocs(jobsQuery);
-                if (querySnapshot.empty) {
-                    showError('Job not found');
-                    return;
-                }
-                
-                // Get the first matching job
-                const doc = querySnapshot.docs[0];
-                jobData = { id: doc.id, ...doc.data() };
-            } else {
-                // Job found directly by Firestore document ID
-                jobData = { id: jobDoc.id, ...jobDoc.data() };
+                window.location.href = 'jobs.html';
+                return;
             }
 
-            // Update job details
+            const jobData = jobDoc.data();
+            jobData.id = jobDoc.id;
+            
+            // Update job details in the UI
             updateJobDetails(jobData);
 
-            // Load similar jobs
-            await loadSimilarJobs(jobData);
-
-            // Save job to history
-            await saveToHistory(jobData);
+            // Check if user is logged in and has applied
+            const user = auth.currentUser;
+            if (user) {
+                const applicationsRef = collection(db, 'applications');
+                const q = query(
+                    applicationsRef,
+                    where('jobId', '==', jobData.id),
+                    where('userId', '==', user.uid)
+                );
+                
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const application = querySnapshot.docs[0].data();
+                    const jobActions = document.querySelector('.job-actions');
+                    if (jobActions) {
+                        const applyBtn = jobActions.querySelector('.apply-btn');
+                        if (applyBtn) {
+                            const statusElement = document.createElement('div');
+                            statusElement.className = `application-status ${application.status === 'approved' ? 'status-approved' : 
+                                                    application.status === 'rejected' ? 'status-rejected' : 'status-pending'}`;
+                            statusElement.innerHTML = `
+                                <i class="fas ${application.status === 'approved' ? 'fa-check' : 
+                                             application.status === 'rejected' ? 'fa-times' : 'fa-clock'}"></i>
+                                <span>${application.status.charAt(0).toUpperCase() + application.status.slice(1)}</span>
+                            `;
+                            if (application.message) {
+                                statusElement.title = application.message;
+                            }
+                            jobActions.replaceChild(statusElement, applyBtn);
+                        }
+                    }
+                }
+            }
         } catch (error) {
             console.error('Error loading job:', error);
             showError('There was an error loading the job details');
@@ -121,11 +137,45 @@ document.addEventListener('DOMContentLoaded', function() {
         if (benefits) benefits.textContent = job.benefits;
         if (loadingSpinner) loadingSpinner.style.display = 'none';
 
-        // Handle closed job status
+        // Handle application status
         const jobCard = document.querySelector('.job-card');
         const applyBtn = document.querySelector('.apply-btn');
+        const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
         
-        if (job.status === 'closed') {
+        if (isApplied) {
+            // Query the applications collection to get the status
+            const applicationsRef = collection(db, 'applications');
+            const q = query(
+                applicationsRef,
+                where('jobId', '==', job.id),
+                where('userId', '==', auth.currentUser?.uid)
+            );
+            
+            getDocs(q).then(snapshot => {
+                if (!snapshot.empty) {
+                    const application = snapshot.docs[0].data();
+                    const statusElement = document.createElement('div');
+                    statusElement.className = `application-status ${application.status === 'approved' ? 'status-approved' : 
+                                            application.status === 'rejected' ? 'status-rejected' : 'status-pending'}`;
+                    statusElement.innerHTML = `
+                        <i class="fas fa-clock"></i>
+                        <span>${application.status.charAt(0).toUpperCase() + application.status.slice(1)}</span>
+                    `;
+                    if (application.message) {
+                        statusElement.title = application.message;
+                    }
+                    
+                    // Replace the apply button with the status element
+                    const jobActions = document.querySelector('.job-actions');
+                    if (jobActions) {
+                        const applyBtn = jobActions.querySelector('.apply-btn');
+                        if (applyBtn) {
+                            jobActions.replaceChild(statusElement, applyBtn);
+                        }
+                    }
+                }
+            });
+        } else if (job.status === 'closed') {
             jobCard.classList.add('closed');
             applyBtn.disabled = true;
             applyBtn.innerHTML = '<i class="fas fa-lock"></i> Job Closed';
@@ -268,14 +318,40 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check if user is logged in
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Redirect to application page
-                window.location.href = `apply.html?id=${jobId}`;
+                // Show apply modal
+                showApplyModal(jobId, jobTitle.textContent);
             } else {
                 // Redirect to login page
                 window.location.href = 'login.html';
             }
         });
     });
+
+    // Function to check if job is saved
+    async function checkSavedStatus(jobId) {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const savedJobs = userData.savedJobs || [];
+                
+                if (savedJobs.includes(jobId)) {
+                    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+                    saveBtn.classList.add('saved');
+                } else {
+                    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Job';
+                    saveBtn.classList.remove('saved');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking saved status:', error);
+        }
+    }
 
     // Function to toggle save job
     async function toggleSaveJob(jobId) {
@@ -312,36 +388,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to check if job is saved
-    async function checkSavedStatus(jobId) {
-        const user = auth.currentUser;
-        if (!user) return;
-
-        try {
-            const userRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userRef);
-            
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const savedJobs = userData.savedJobs || [];
-                
-                if (savedJobs.includes(jobId)) {
-                    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
-                    saveBtn.classList.add('saved');
-                }
-            }
-        } catch (error) {
-            console.error('Error checking saved status:', error);
-        }
-    }
-
     // Add event listener to save button
     saveBtn.addEventListener('click', async () => {
         await toggleSaveJob(jobId);
     });
-
-    // Check if job is saved when page loads
-    checkSavedStatus(jobId);
 
     // Function to save job to history
     async function saveToHistory(job) {
@@ -381,6 +431,169 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Function to show apply modal
+    function showApplyModal(jobId, jobTitle) {
+        currentJobId = jobId;
+        applyJobTitle.textContent = jobTitle;
+        applyModalOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Function to hide apply modal
+    function hideApplyModal() {
+        applyModalOverlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        applyForm.reset();
+        currentJobId = null;
+    }
+
+    // Close modal when clicking outside
+    applyModalOverlay.addEventListener('click', (e) => {
+        if (e.target === applyModalOverlay) {
+            hideApplyModal();
+        }
+    });
+
+    // Close modal when clicking close button
+    closeApplyModal.addEventListener('click', hideApplyModal);
+    cancelApply.addEventListener('click', hideApplyModal);
+
+    // Handle form submission
+    applyForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Check if user is logged in
+        const user = auth.currentUser;
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            // Get form data
+            const formData = new FormData(applyForm);
+            const resumeFile = formData.get('resume');
+            
+            // Validate file
+            if (!resumeFile || resumeFile.size === 0) {
+                alert('Please upload your resume');
+                return;
+            }
+
+            // Check file size (max 5MB)
+            if (resumeFile.size > 5 * 1024 * 1024) {
+                alert('Resume file size should be less than 5MB');
+                return;
+            }
+
+            // Check file type
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedTypes.includes(resumeFile.type)) {
+                alert('Please upload a PDF or Word document');
+                return;
+            }
+
+            // Create application data without the CV
+            const applicationData = {
+                fullName: formData.get('fullName'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                coverLetter: formData.get('coverLetter'),
+                jobId: currentJobId,
+                userId: user.uid,
+                status: 'pending',
+                appliedAt: new Date().toISOString()
+            };
+
+            // Add application to Firestore
+            const applicationsRef = collection(db, 'applications');
+            const applicationDoc = await addDoc(applicationsRef, applicationData);
+
+            // Update job's applications count
+            const jobRef = doc(db, 'jobs', currentJobId);
+            await updateDoc(jobRef, {
+                applications: arrayUnion(user.uid)
+            });
+
+            // Show success message
+            showNotification('Application submitted successfully!', 'success');
+            hideApplyModal();
+
+            // Update the apply button to show pending status
+            const jobActions = document.querySelector('.job-actions');
+            if (jobActions) {
+                const applyBtn = jobActions.querySelector('.apply-btn');
+                if (applyBtn) {
+                    const statusElement = document.createElement('div');
+                    statusElement.className = 'application-status status-pending';
+                    statusElement.innerHTML = `
+                        <i class="fas fa-clock"></i>
+                        <span>Pending</span>
+                    `;
+                    jobActions.replaceChild(statusElement, applyBtn);
+                }
+            }
+
+            // Wait for 2 seconds to show the notification
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // Verify the application status in Firestore
+            const applicationDocRef = doc(db, 'applications', applicationDoc.id);
+            const applicationSnapshot = await getDoc(applicationDocRef);
+            
+            if (applicationSnapshot.exists()) {
+                const application = applicationSnapshot.data();
+                const jobActions = document.querySelector('.job-actions');
+                if (jobActions) {
+                    const statusElement = jobActions.querySelector('.application-status');
+                    if (statusElement) {
+                        statusElement.className = `application-status ${application.status === 'approved' ? 'status-approved' : 
+                                                application.status === 'rejected' ? 'status-rejected' : 'status-pending'}`;
+                        statusElement.innerHTML = `
+                            <i class="fas ${application.status === 'approved' ? 'fa-check' : 
+                                         application.status === 'rejected' ? 'fa-times' : 'fa-clock'}"></i>
+                            <span>${application.status.charAt(0).toUpperCase() + application.status.slice(1)}</span>
+                        `;
+                        if (application.message) {
+                            statusElement.title = application.message;
+                        }
+                    }
+                }
+            }
+
+            // Reload the page to ensure everything is in sync
+            window.location.reload();
+        } catch (error) {
+            console.error('Error submitting application:', error);
+            showNotification('Failed to submit application. Please try again.', 'error');
+        }
+    });
+
+    // Function to show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
     // Initialize the page
     loadJobData();
+
+    // Check saved status after user authentication
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            checkSavedStatus(jobId);
+        }
+    });
 });

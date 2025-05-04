@@ -22,15 +22,25 @@ let contentSections = {};
 
 // Initialize content sections after DOM is loaded
 function initializeContentSections() {
+    console.log('Initializing content sections...');
+    
+    // Get the main content container
+    const mainContent = document.querySelector('.dashboard-content').parentElement;
+    console.log('Main content container:', mainContent);
+    
+    // Initialize content sections
     contentSections = {
         'applications': document.querySelector('.dashboard-content'),
-        'posted-jobs': document.createElement('div')
+        'posted-jobs': document.createElement('div'),
+        'my-applications': document.getElementById('my-applications-section')
     };
+    
+    console.log('Content sections:', contentSections);
 
     // Initialize other content sections
     contentSections['posted-jobs'].className = 'dashboard-content';
 
-    // Add content for other sections
+    // Add content for posted jobs section
     contentSections['posted-jobs'].innerHTML = `
         <div class="content-header">
             <h1>Posted Jobs</h1>
@@ -42,20 +52,30 @@ function initializeContentSections() {
     `;
 
     // Add all sections to the DOM
-    const mainContent = document.querySelector('.dashboard-content').parentElement;
     Object.values(contentSections).forEach(section => {
-        if (section !== contentSections['applications']) {
+        if (section && section !== contentSections['applications']) {
+            console.log('Adding section to DOM:', section.id);
             mainContent.appendChild(section);
             section.style.display = 'none';
         }
     });
+
+    // Make Applications tab active by default
+    const applicationsTab = document.querySelector('.sidebar-nav a[href="#applications"]');
+    if (applicationsTab) {
+        applicationsTab.parentElement.classList.add('active');
+    }
+    
+    console.log('Content sections initialized');
 }
 
 // Add click event listeners to tab links
 function initializeTabLinks() {
+    console.log('Initializing tab links...');
     tabLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
+            console.log('Tab clicked:', link.getAttribute('href'));
             
             // Remove active class from all tabs
             tabLinks.forEach(tab => {
@@ -67,25 +87,38 @@ function initializeTabLinks() {
             
             // Get the target section
             const target = link.getAttribute('href').substring(1);
+            console.log('Target section:', target);
             
             // Hide all content sections
             Object.values(contentSections).forEach(section => {
-                section.style.display = 'none';
+                if (section) {
+                    console.log('Hiding section:', section.id);
+                    section.style.display = 'none';
+                }
             });
             
             // Show the selected content section
             if (contentSections[target]) {
+                console.log('Showing section:', target);
                 contentSections[target].style.display = 'block';
                 
                 // Load content for the selected section
                 switch (target) {
                     case 'applications':
+                        console.log('Loading applications...');
                         loadApplications(auth.currentUser.uid);
                         break;
                     case 'posted-jobs':
+                        console.log('Loading posted jobs...');
                         loadPostedJobs(auth.currentUser.uid);
                         break;
+                    case 'my-applications':
+                        console.log('Loading my applications...');
+                        loadMyApplications(auth.currentUser.uid);
+                        break;
                 }
+            } else {
+                console.error('Content section not found:', target);
             }
         });
     });
@@ -117,9 +150,12 @@ onAuthStateChanged(auth, async (user) => {
             initializeContentSections();
             initializeTabLinks();
 
-            // Show applications tab by default
+            // Show applications tab by default and load content
             contentSections['applications'].style.display = 'block';
             loadApplications(user.uid);
+
+            // Also load my applications to ensure the empty state is ready
+            loadMyApplications(user.uid);
         } catch (error) {
             console.error('Error loading user data:', error);
             // Fallback to basic user info if Firestore data fails to load
@@ -160,21 +196,32 @@ async function loadApplications(userId) {
             `;
             return;
         }
+
+        // Split jobIds into chunks of 10 to respect Firestore's 'in' operator limit
+        const chunkSize = 10;
+        const jobIdChunks = [];
+        for (let i = 0; i < jobIds.length; i += chunkSize) {
+            jobIdChunks.push(jobIds.slice(i, i + chunkSize));
+        }
+
+        // Query applications for each chunk of job IDs
+        let allApplications = [];
+        for (const chunk of jobIdChunks) {
+            const applicationsQuery = query(
+                collection(db, 'applications'),
+                where('jobId', 'in', chunk)
+            );
+            const applicationsSnapshot = await getDocs(applicationsQuery);
+            allApplications = allApplications.concat(applicationsSnapshot.docs);
+        }
         
-        // Query applications for these jobs
-        const applicationsQuery = query(
-            collection(db, 'applications'),
-            where('jobId', 'in', jobIds)
-        );
-        const applicationsSnapshot = await getDocs(applicationsQuery);
-        
-        console.log('Found applications:', applicationsSnapshot.size);
+        console.log('Total applications found:', allApplications.length);
         
         // Clear existing applications
         applicationsList.innerHTML = '';
         
         // If no applications are found, show a message
-        if (applicationsSnapshot.empty) {
+        if (allApplications.length === 0) {
             applicationsList.innerHTML = `
                 <div class="no-applications">
                     <i class="ri-inbox-line"></i>
@@ -186,21 +233,52 @@ async function loadApplications(userId) {
         }
         
         // Display applications
-        for (const applicationDoc of applicationsSnapshot.docs) {
+        for (const applicationDoc of allApplications) {
             const application = applicationDoc.data();
             console.log('Processing application:', application);
             
-            // Get the job details
-            const jobDocRef = doc(db, 'jobs', application.jobId);
-            const jobDoc = await getDoc(jobDocRef);
-            const jobData = jobDoc.data();
-            
-            // Get the applicant's profile data
-            const userDocRef = doc(db, 'users', application.userId);
-            const userDoc = await getDoc(userDocRef);
-            const userData = userDoc.data();
-            
-            displayApplication(applicationDoc.id, application, jobData, userData);
+            try {
+                console.log('Fetching job details for jobId:', application.jobId);
+                // Get the job details
+                const jobDocRef = doc(db, 'jobs', application.jobId);
+                const jobDoc = await getDoc(jobDocRef);
+                const jobData = jobDoc.data();
+                console.log('Job data retrieved:', jobData);
+                
+                // Initialize userData with default values
+                let userData = {
+                    name: application.fullName || 'Anonymous Applicant',
+                    email: application.email,
+                    phone: application.phone
+                };
+
+                // Only try to fetch user data if userId exists
+                if (application.userId) {
+                    try {
+                        console.log('Fetching user details for userId:', application.userId);
+                        const userDocRef = doc(db, 'users', application.userId);
+                        const userDoc = await getDoc(userDocRef);
+                        if (userDoc.exists()) {
+                            userData = { ...userData, ...userDoc.data() };
+                            console.log('User data retrieved:', userData);
+                        } else {
+                            console.log('User document not found, using application data');
+                        }
+                    } catch (userError) {
+                        console.error('Error fetching user data:', userError);
+                        // Continue with default user data
+                    }
+                } else {
+                    console.log('No userId found in application, using application data');
+                }
+                
+                displayApplication(applicationDoc.id, application, jobData, userData);
+            } catch (error) {
+                console.error('Error processing application:', error);
+                console.error('Application data:', application);
+                // Continue with next application even if one fails
+                continue;
+            }
         }
     } catch (error) {
         console.error('Error loading applications:', error);
@@ -209,6 +287,7 @@ async function loadApplications(userId) {
                 <i class="ri-error-warning-line"></i>
                 <h3>Error Loading Applications</h3>
                 <p>There was an error loading your applications. Please try again later.</p>
+                <p class="error-details">${error.message}</p>
             </div>
         `;
     }
@@ -302,9 +381,10 @@ function displayApplication(applicationId, application, jobData, userData) {
     
     if (deleteBtn) {
         deleteBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
-                deleteApplication(applicationId);
-            }
+            showConfirmationModal(
+                'Are you sure you want to delete this application? This action cannot be undone.',
+                () => deleteApplication(applicationId)
+            );
         });
     }
     
@@ -348,6 +428,22 @@ function showStatusUpdateModal(applicationId, newStatus) {
     });
 }
 
+// Notification helper function
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="ri-${type === 'success' ? 'check' : 'close'}-circle-fill"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 // Update application status
 async function updateApplicationStatus(applicationId, newStatus, message = '') {
     try {
@@ -386,10 +482,9 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             if (!applications.includes(application.userId)) {
                 applications.push(application.userId);
             }
-        } else if (newStatus === 'rejected') {
-            // Remove from applications if rejected
-            applications = applications.filter(id => id !== application.userId);
         }
+        // Don't remove from applications array when rejected
+        // This ensures the application status is still visible
 
         // Update job document
         batch.update(jobRef, {
@@ -402,45 +497,33 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
 
         // Show success message
         const statusMessage = newStatus === 'approved' ? 'approved' : 'rejected';
-        alert(`Application has been ${statusMessage} successfully!`);
+        showNotification(`Application has been ${statusMessage} successfully!`);
 
         // Reload applications to show updated status
         await loadApplications(auth.currentUser.uid);
 
-        // Update the status in the jobs page if it's open
+        // If we're on the jobs page, force a reload to ensure UI is in sync
         if (window.location.pathname.includes('jobs.html')) {
-            // Find the application card in the jobs page
-            const applicationCards = document.querySelectorAll('.application-card');
-            applicationCards.forEach(card => {
-                if (card.dataset.applicationId === applicationId) {
-                    // Update the status display
-                    const statusElement = card.querySelector('.application-status');
-                    if (statusElement) {
-                        statusElement.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                        statusElement.className = `application-status ${statusColors[newStatus]}`;
-                    }
-                }
-            });
+            // Force a reload of the jobs page
+            window.location.reload();
         }
 
         // Update the status in the profile page if it's open
         if (window.location.pathname.includes('profile.html')) {
-            // Find the application card in the profile page
-            const applicationCards = document.querySelectorAll('.job-card');
-            applicationCards.forEach(card => {
-                if (card.dataset.applicationId === applicationId) {
-                    // Update the status display
-                    const statusElement = card.querySelector('.status');
-                    if (statusElement) {
-                        statusElement.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                        statusElement.className = `status ${newStatus}`;
-                    }
+            // Find the job card in the profile page
+            const jobCard = document.querySelector(`[data-job-id="${application.jobId}"]`);
+            if (jobCard) {
+                // Update the status display
+                const statusElement = jobCard.querySelector('.status');
+                if (statusElement) {
+                    statusElement.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                    statusElement.className = `status ${newStatus}`;
                 }
-            });
+            }
         }
     } catch (error) {
         console.error('Error updating application status:', error);
-        alert('Failed to update application status. Please try again.');
+        showNotification('Failed to update application status. Please try again.', 'error');
     }
 }
 
@@ -455,21 +538,51 @@ searchInput.addEventListener('input', filterApplications);
 filterSelect.addEventListener('change', filterApplications);
 
 function filterApplications() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const statusFilter = filterSelect.value;
-    
+    const searchInput = document.querySelector('.search-box input');
+    const statusFilter = document.querySelector('.filter-dropdown select');
     const applications = document.querySelectorAll('.application-card');
     
+    if (!searchInput || !statusFilter || !applications.length) return;
+    
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedStatus = statusFilter.value;
+    let hasVisibleResults = false;
+    
     applications.forEach(card => {
-        const applicantName = card.querySelector('.applicant-details h3').textContent.toLowerCase();
-        const jobTitle = card.querySelector('.applicant-details p').textContent.toLowerCase();
-        const status = card.querySelector('.application-status').textContent.toLowerCase();
+        const applicantName = card.querySelector('.applicant-details h3')?.textContent.toLowerCase() || '';
+        const jobTitle = card.querySelector('.applicant-details p')?.textContent.toLowerCase() || '';
+        const status = card.querySelector('.application-status')?.textContent.toLowerCase() || '';
         
         const matchesSearch = applicantName.includes(searchTerm) || jobTitle.includes(searchTerm);
-        const matchesStatus = statusFilter === 'all' || status.includes(statusFilter);
+        const matchesStatus = selectedStatus === 'all' || status.includes(selectedStatus);
         
-        card.style.display = matchesSearch && matchesStatus ? 'block' : 'none';
+        if (matchesSearch && matchesStatus) {
+            card.style.display = 'block';
+            hasVisibleResults = true;
+        } else {
+            card.style.display = 'none';
+        }
     });
+
+    // Show no results message if needed
+    const applicationsList = document.getElementById('applications-list');
+    const noResultsMessage = applicationsList.querySelector('.no-results-message');
+    
+    if (!hasVisibleResults) {
+        if (!noResultsMessage) {
+            const message = document.createElement('div');
+            message.className = 'no-results-message';
+            message.innerHTML = `
+                <i class="ri-search-line"></i>
+                <h3>No Applications Found</h3>
+                <p>No applications match your current filter criteria.</p>
+                ${searchTerm ? `<p class="filter-info">Search term: "${searchTerm}"</p>` : ''}
+            `;
+            applicationsList.appendChild(message);
+        }
+    } else if (noResultsMessage) {
+        noResultsMessage.remove();
+    }
 }
 
 // Function to load posted jobs
@@ -582,13 +695,13 @@ async function deleteApplication(applicationId) {
         await batch.commit();
 
         // Show success message
-        alert('Application deleted successfully!');
+        showNotification('Application deleted successfully!');
 
         // Reload applications to update the display
         await loadApplications(auth.currentUser.uid);
     } catch (error) {
         console.error('Error deleting application:', error);
-        alert('Failed to delete application. Please try again.');
+        showNotification('Failed to delete application. Please try again.', 'error');
     }
 }
 
@@ -689,3 +802,232 @@ document.getElementById('editPopupOverlay').addEventListener('click', function(e
 // Make functions available globally
 window.editJob = editJob;
 window.closeEditPopup = closeEditPopup;
+
+// Function to show confirmation modal
+function showConfirmationModal(message, onConfirm) {
+    const modal = document.createElement('div');
+    modal.className = 'confirmation-modal';
+    modal.innerHTML = `
+        <div class="confirmation-modal-content">
+            <h3>Confirm Action</h3>
+            <p>${message}</p>
+            <div class="confirmation-modal-actions">
+                <button class="cancel-btn">Cancel</button>
+                <button class="confirm-btn">Confirm</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Handle cancel button
+    modal.querySelector('.cancel-btn').addEventListener('click', () => {
+        modal.remove();
+    });
+
+    // Handle confirm button
+    modal.querySelector('.confirm-btn').addEventListener('click', () => {
+        modal.remove();
+        onConfirm();
+    });
+}
+
+// Function to load my applications
+async function loadMyApplications(userId) {
+    console.log('loadMyApplications called with userId:', userId);
+    try {
+        const applicationsRef = collection(db, 'applications');
+        const q = query(applicationsRef, where('userId', '==', userId));
+        console.log('Querying applications...');
+        const querySnapshot = await getDocs(q);
+        
+        const myApplicationsList = document.getElementById('my-applications-list');
+        console.log('myApplicationsList element:', myApplicationsList);
+        
+        if (!myApplicationsList) {
+            console.error('My applications list element not found');
+            return;
+        }
+        
+        // Clear existing content
+        myApplicationsList.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+            console.log('No applications found, showing empty state');
+            myApplicationsList.innerHTML = `
+                <div class="no-applications">
+                    <i class="ri-inbox-line"></i>
+                    <h3>No Applications Yet</h3>
+                    <p>You haven't submitted any job applications yet. Start your job search journey today!</p>
+                    <a href="jobs.html" class="btn btn-primary">
+                        <i class="ri-search-line"></i>
+                        Browse Jobs
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        let validApplications = 0;
+        
+        // Process each application
+        for (const docSnapshot of querySnapshot.docs) {
+            const application = docSnapshot.data();
+            console.log('Processing application:', application);
+            
+            try {
+                // Get the job details
+                const jobRef = doc(db, 'jobs', application.jobId);
+                const jobDoc = await getDoc(jobRef);
+                
+                if (!jobDoc.exists()) {
+                    console.warn('Job document not found for jobId:', application.jobId);
+                    continue;
+                }
+                
+                const jobData = jobDoc.data();
+                console.log('Job data retrieved:', jobData);
+                
+                // Create application card
+                const applicationCard = document.createElement('div');
+                applicationCard.className = 'application-card';
+                applicationCard.innerHTML = `
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <div class="applicant-details">
+                                <h3>${jobData.jobTitle || 'Untitled Job'}</h3>
+                                <p class="job-title">${jobData.companyName || 'Company not specified'}</p>
+                                <div class="contact-info">
+                                    <span class="contact-item">
+                                        <i class="ri-map-pin-line"></i>
+                                        ${jobData.location || 'Location not specified'}
+                                    </span>
+                                    <span class="contact-item">
+                                        <i class="ri-money-dollar-circle-line"></i>
+                                        ${jobData.salary || 'Salary not specified'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="application-status ${statusColors[application.status || 'pending']}">
+                            ${(application.status || 'pending').charAt(0).toUpperCase() + (application.status || 'pending').slice(1)}
+                        </div>
+                    </div>
+                    <div class="application-content">
+                        <div class="cover-letter">
+                            <h4>My Cover Letter</h4>
+                            <p>${application.coverLetter || 'No cover letter provided'}</p>
+                        </div>
+                        ${application.message ? `
+                            <div class="status-message">
+                                <h4>Message from Employer</h4>
+                                <p>${application.message}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                myApplicationsList.appendChild(applicationCard);
+                validApplications++;
+            } catch (jobError) {
+                console.error('Error loading job data:', jobError);
+                continue;
+            }
+        }
+
+        // If no valid applications were found (all jobs were deleted)
+        if (validApplications === 0) {
+            myApplicationsList.innerHTML = `
+                <div class="no-applications">
+                    <i class="ri-inbox-line"></i>
+                    <h3>No Active Applications</h3>
+                    <p>Your previous applications are no longer available as the jobs have been removed. You can start fresh by browsing new job opportunities.</p>
+                    <a href="jobs.html" class="btn btn-primary">
+                        <i class="ri-search-line"></i>
+                        Browse Jobs
+                    </a>
+                </div>
+            `;
+        }
+        
+        // Initialize search and filter functionality
+        initializeMyApplicationsSearch();
+    } catch (error) {
+        console.error('Error loading my applications:', error);
+        const myApplicationsList = document.getElementById('my-applications-list');
+        if (myApplicationsList) {
+            myApplicationsList.innerHTML = `
+                <div class="error-message">
+                    <i class="ri-error-warning-line"></i>
+                    <h3>Error Loading Applications</h3>
+                    <p>There was an error loading your applications. Please try again later.</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Function to initialize search and filter for My Applications
+function initializeMyApplicationsSearch() {
+    const searchInput = document.getElementById('my-applications-search');
+    const statusFilter = document.getElementById('my-applications-filter');
+    
+    if (searchInput && statusFilter) {
+        // Remove existing event listeners if any
+        searchInput.removeEventListener('input', filterMyApplications);
+        statusFilter.removeEventListener('change', filterMyApplications);
+        
+        // Add new event listeners
+        searchInput.addEventListener('input', filterMyApplications);
+        statusFilter.addEventListener('change', filterMyApplications);
+    }
+}
+
+// Function to filter my applications
+function filterMyApplications() {
+    const searchInput = document.getElementById('my-applications-search');
+    const statusFilter = document.getElementById('my-applications-filter');
+    const applications = document.querySelectorAll('#my-applications-list .application-card');
+    
+    if (!searchInput || !statusFilter || !applications.length) return;
+    
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedStatus = statusFilter.value;
+    let hasVisibleResults = false;
+    
+    applications.forEach(card => {
+        const jobTitle = card.querySelector('.applicant-details h3')?.textContent.toLowerCase() || '';
+        const companyName = card.querySelector('.job-title')?.textContent.toLowerCase() || '';
+        const status = card.querySelector('.application-status')?.textContent.toLowerCase() || '';
+        
+        const matchesSearch = jobTitle.includes(searchTerm) || companyName.includes(searchTerm);
+        const matchesStatus = selectedStatus === 'all' || status.includes(selectedStatus);
+        
+        if (matchesSearch && matchesStatus) {
+            card.style.display = 'block';
+            hasVisibleResults = true;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Show no results message if needed
+    const myApplicationsList = document.getElementById('my-applications-list');
+    const noResultsMessage = myApplicationsList.querySelector('.no-results-message');
+    
+    if (!hasVisibleResults) {
+        if (!noResultsMessage) {
+            const message = document.createElement('div');
+            message.className = 'no-results-message';
+            message.innerHTML = `
+                <i class="ri-search-line"></i>
+                <h3>No Applications Found</h3>
+                <p>No applications match your current filter criteria.</p>
+                ${searchTerm ? `<p class="filter-info">Search term: "${searchTerm}"</p>` : ''}
+            `;
+            myApplicationsList.appendChild(message);
+        }
+    } else if (noResultsMessage) {
+        noResultsMessage.remove();
+    }
+}

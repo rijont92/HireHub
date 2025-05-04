@@ -619,7 +619,7 @@
 }
 
 .submit-btn {
-    background-color: #4CAF50;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -630,7 +630,7 @@
 }
 
 .submit-btn:hover {
-    background-color: #45a049;
+    background-color: var(--hover);
 }
 
 .cancel-btn {
@@ -666,6 +666,18 @@
     background-color: #fff3cd;
     color: #856404;
 }
+
+.job-card .application-status.status-approved {
+    color: #155724;
+    background-color: #d4edda;
+}
+
+.job-card .application-status.status-rejected {
+    color: #721c24;
+    background-color:#f8d7da;
+}
+
+
 
 .job-card .application-status[title]:not([title=""]) {
     position: relative;
@@ -759,20 +771,48 @@
     background-color: #999;
 }
 
-.application-status.status-rejected {
-    background-color: red;
+/* Success Notification */
+.success-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
     color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    transform: translateX(120%);
+    transition: transform 0.3s ease-in-out;
 }
 
-.application-status.status-rejected:hover{
-    background-color: rgb(204, 4, 4);
+.success-notification.show {
+    transform: translateX(0);
 }
 
-.application-status.status-approved {
-    background-color: green;
+.success-notification i {
+    font-size: 1.2rem;
+}
+
+.success-notification .message {
+    font-weight: 500;
+}
+
+.success-notification .close-btn {
+    background: none;
+    border: none;
     color: white;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+    font-size: 1.2rem;
+    opacity: 0.8;
+    transition: opacity 0.2s;
 }
 
-.application-status.status-approved:hover {
-    background-color: rgb(4, 98, 4);
+.success-notification .close-btn:hover {
+    opacity: 1;
 }

@@ -444,13 +444,13 @@
 }
 
 .save-btn {
-    background: #2196f3;
+    background: var(--primary-color);
     color: white;
     border: none;
 }
 
 .save-btn:hover {
-    background: #1976d2;
+    background: var(--hover);
 }
 
 @media (max-width: 1200px) {

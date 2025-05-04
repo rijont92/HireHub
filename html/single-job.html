@@ -272,5 +272,46 @@
 
     <script src="../js/header.js"></script>
     <script type="module" src="../js/single-job.js"></script>
+
+    <!-- Apply Modal -->
+    <div class="apply-modal-overlay" id="applyModalOverlay">
+        <div class="apply-modal">
+            <div class="apply-modal-header">
+                <h3>Apply for <span id="applyJobTitle"></span></h3>
+                <button class="close-modal" id="closeApplyModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="apply-modal-content">
+                <form id="applyForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resume">Resume/CV</label>
+                        <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+                        <small>Accepted formats: PDF, DOC, DOCX (Max size: 5MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="coverLetter">Cover Letter</label>
+                        <textarea id="coverLetter" name="coverLetter" rows="5" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Submit Application</button>
+                        <button type="button" class="cancel-btn" id="cancelApply">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html> 
