@@ -1,0 +1,155 @@
+import { db } from './firebase-config.js';
+import { collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Popular Categories');
+    
+    const categoriesContainer = document.getElementById('categories-container');
+    if (!categoriesContainer) {
+        console.error('Categories container not found!');
+        return;
+    }
+    
+    // Default categories with their icons and colors
+    const defaultCategories = {
+        'IT & Software': {
+            icon: 'fa-laptop-code',
+            color: '#4CAF50',
+            count: 0
+        },
+        'Design & Creative': {
+            icon: 'fa-palette',
+            color: '#9C27B0',
+            count: 0
+        },
+        'Marketing': {
+            icon: 'fa-bullhorn',
+            color: '#FF9800',
+            count: 0
+        },
+        'Sales': {
+            icon: 'fa-chart-line',
+            color: '#2196F3',
+            count: 0
+        },
+        'Customer Service': {
+            icon: 'fa-headset',
+            color: '#E91E63',
+            count: 0
+        },
+        'Finance': {
+            icon: 'fa-money-bill-wave',
+            color: '#00BCD4',
+            count: 0
+        },
+        'Healthcare': {
+            icon: 'fa-heartbeat',
+            color: '#F44336',
+            count: 0
+        },
+        'Education': {
+            icon: 'fa-graduation-cap',
+            color: '#3F51B5',
+            count: 0
+        }
+    };
+
+    // Function to get category icon
+    function getCategoryIcon(category) {
+        return defaultCategories[category]?.icon || 'fa-briefcase';
+    }
+
+    // Function to get category color
+    function getCategoryColor(category) {
+        return defaultCategories[category]?.color || '#757575';
+    }
+
+    // Function to create category card HTML
+    function createCategoryCard(category, count) {
+        const icon = getCategoryIcon(category);
+        const color = getCategoryColor(category);
+        
+        return `
+           
+                <div class="category-col">
+                    <div class="category-icon" style="background-color: ${color}20">
+                        <i class="fas ${icon}" style="color: ${color}"></i>
+                    </div>
+                    <div class="category-content">
+                        <h4>${category}</h4>
+                        <p>${count} ${count === 1 ? 'Job' : 'Jobs'}</p>
+                    </div>
+                </div>
+        `;
+    }
+
+    // Function to load popular categories
+    async function loadPopularCategories() {
+        try {
+            console.log('Loading popular categories...');
+            
+            // Show loading spinner
+            categoriesContainer.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            `;
+
+            const jobsQuery = query(collection(db, 'jobs'));
+            console.log('Querying jobs collection...');
+            
+            const querySnapshot = await getDocs(jobsQuery);
+            console.log('Got query snapshot:', querySnapshot.size, 'jobs found');
+            
+            // Initialize category counts with default categories
+            const categoryCounts = { ...defaultCategories };
+            
+            // Count jobs per category
+            querySnapshot.forEach((doc) => {
+                const job = doc.data();
+                if (job.category && defaultCategories[job.category]) {
+                    categoryCounts[job.category].count++;
+                }
+            });
+
+            console.log('Category counts:', categoryCounts);
+
+            // Convert to array and sort by count
+            const categories = Object.entries(categoryCounts)
+                .map(([category, data]) => ({ 
+                    category, 
+                    count: data.count,
+                    icon: data.icon,
+                    color: data.color
+                }))
+                .sort((a, b) => b.count - a.count);
+
+            console.log('Sorted categories:', categories);
+
+            // Clear existing content
+            categoriesContainer.innerHTML = '';
+
+            // Add each category to the container
+            categories.forEach(({ category, count }) => {
+                const categoryCard = createCategoryCard(category, count);
+                categoriesContainer.innerHTML += categoryCard;
+            });
+
+            console.log('Categories loaded successfully');
+
+        } catch (error) {
+            console.error('Error loading popular categories:', error);
+            categoriesContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <h3>Error Loading Categories</h3>
+                    <p>There was an error loading the categories. Please try again later.</p>
+                    <p class="error-details">${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    // Load popular categories when the page loads
+    loadPopularCategories();
+}); 

@@ -46,6 +46,7 @@
 .search-box {
     position: relative;
     flex: 1;
+    min-width: 300px;
 }
 
 .search-box input {
@@ -69,6 +70,7 @@
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .select-wrapper {
@@ -498,10 +500,14 @@
     .search-filters {
         flex-direction: column;
     }
+    .search-box {
+        width: 100%;
+        min-width: unset;
+    }
     .filters {
         flex-direction: column;
     }
-    .filters select {
+    .select-wrapper {
         width: 100%;
     }
     .edit-job-form {
@@ -676,8 +682,6 @@
     color: #721c24;
     background-color:#f8d7da;
 }
-
-
 
 .job-card .application-status[title]:not([title=""]) {
     position: relative;

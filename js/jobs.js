@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     const jobTypeFilter = document.getElementById('jobTypeFilter');
     const locationFilter = document.getElementById('locationFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
     const noJobsMessage = document.getElementById('noJobsMessage');
     const loadingSpinner = document.getElementById('loadingSpinner');
 
@@ -132,16 +133,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const searchTerm = searchInput.value.toLowerCase();
         const selectedJobType = jobTypeFilter.value.toLowerCase();
         const selectedLocation = locationFilter.value;
+        const selectedCategory = categoryFilter.value;
 
         const filteredJobs = allJobs.filter(job => {
-            const matchesSearch = job.jobTitle.toLowerCase().includes(searchTerm) ||
-                                job.companyName.toLowerCase().includes(searchTerm) ||
-                                job.jobDescription.toLowerCase().includes(searchTerm);
-            
-            const matchesJobType = !selectedJobType || job.jobType.toLowerCase() === selectedJobType;
-            const matchesLocation = !selectedLocation || job.location === selectedLocation;
+            // Check if job and its properties exist before accessing them
+            if (!job) return false;
 
-            return matchesSearch && matchesJobType && matchesLocation;
+            const jobTitle = (job.jobTitle || '').toLowerCase();
+            const companyName = (job.companyName || '').toLowerCase();
+            const jobDescription = (job.jobDescription || '').toLowerCase();
+            const jobType = (job.jobType || '').toLowerCase();
+            const location = job.location || '';
+            const category = job.category || '';
+
+            const matchesSearch = jobTitle.includes(searchTerm) ||
+                                companyName.includes(searchTerm) ||
+                                jobDescription.includes(searchTerm);
+            
+            const matchesJobType = !selectedJobType || jobType === selectedJobType;
+            const matchesLocation = !selectedLocation || location === selectedLocation;
+            const matchesCategory = !selectedCategory || category === selectedCategory;
+
+            return matchesSearch && matchesJobType && matchesLocation && matchesCategory;
         });
 
         displayJobs(filteredJobs);
@@ -173,10 +186,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Function to populate category filter
+    function populateCategoryFilter() {
+        const predefinedCategories = [
+            'IT & Software',
+            'Design & Creative',
+            'Marketing',
+            'Sales',
+            'Customer Service',
+            'Finance',
+            'Healthcare',
+            'Education',
+            'Engineering',
+            'Manufacturing',
+            'Retail',
+            'Hospitality',
+            'Transportation',
+            'Construction',
+            'Media & Entertainment',
+            'Non-Profit',
+            'Government',
+            'Legal',
+            'Human Resources',
+            'Administrative',
+            'Research & Development',
+            'Quality Assurance',
+            'Project Management',
+            'Product Management',
+            'Business Development',
+            'Consulting',
+            'Real Estate',
+            'Insurance',
+            'Banking',
+            'Telecommunications',
+            'Energy & Utilities',
+            'Agriculture',
+            'Environmental',
+            'Security',
+            'Logistics',
+            'Supply Chain',
+            'Architecture',
+            'Art & Design',
+            'Fashion',
+            'Food & Beverage',
+            'Sports & Fitness',
+            'Travel & Tourism',
+            'Other'
+        ];
+
+        categoryFilter.innerHTML = '<option value="">All Industries</option>';
+        predefinedCategories.forEach(category => {
+            categoryFilter.innerHTML += `<option value="${category}">${category}</option>`;
+        });
+    }
+
     // Event listeners for filters
     searchInput.addEventListener('input', filterJobs);
     jobTypeFilter.addEventListener('change', filterJobs);
     locationFilter.addEventListener('change', filterJobs);
+    categoryFilter.addEventListener('change', filterJobs);
 
     // Function to fetch jobs from Firestore
     async function fetchJobs() {
@@ -230,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             populateLocationFilter();
+            populateCategoryFilter();
             displayJobs(allJobs);
         } catch (error) {
             console.error('Error fetching jobs:', error);

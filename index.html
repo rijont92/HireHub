@@ -124,13 +124,15 @@
                </div>
 
                
-               <button class="btn">
-                  <svg height="24" width="24" fill="#FFFFFF" viewBox="0 0 24 24" data-name="Layer 1" id="Layer_1" class="sparkle">
-                     <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
-                  </svg>
+               <a href="html/jobs.html">
+                  <button class="btn">
+                     <svg height="24" width="24" fill="#FFFFFF" viewBox="0 0 24 24" data-name="Layer 1" id="Layer_1" class="sparkle">
+                        <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
+                     </svg>
 
-                  <span class="text">Find Jobs</span>
-               </button>
+                     <span class="text">Find Jobs</span>
+                  </button>
+               </a>
 
 
             </div>
@@ -148,441 +150,33 @@
      
      <!-- categories -->
 
-     <section class="container">
-      <h2 class="popular">Popular Categories</h2>
-      <div class="statistics-container">
-        
-        <div class="statistics-col">
-          <div class="statistics-content">
-            <div class="statistics-icon">
-               <i class="fa fa-utensils"></i>
+     <section class="popular-categories">
+        <div class="container">
+            <div class="section-title">
+                <h2>Popular Categories</h2>
+                <p>Find jobs in the most popular categories</p>
             </div>
-            <h4>120+</h4>
-            <p>Gastro-Hospitality</p>
-          </div>
-        </div>
-
-        <div class="statistics-col">
-          <div class="statistics-content">
-            <div class="statistics-icon">
-               <i class="fa fa-hard-hat"></i>
+            <div class="categories-container" id="categories-container">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
             </div>
-            <h4>80+</h4>
-            <p>Build & Design</p>
-          </div>
         </div>
-
-        <div class="statistics-col">
-          <div class="statistics-content">
-            <div class="statistics-icon">
-               <i class="fa-solid fa-hospital"></i>
-            </div>
-            <h4>100+</h4>
-            <p>MedCare Professionals</p>
-          </div>
-        </div>
-
-        <div class="statistics-col">
-          <div class="statistics-content">
-            <div class="statistics-icon">
-               <i class="fa fa-store"></i>
-            </div>
-            <h4>150+</h4>
-            <p>Retail & Service</p>
-          </div>
-        </div>
-      </div>
     </section>
 
 
     <section class="container">
-
       <div class="featured-title">
          <h2>Hot Job Opportunities</h2>
          <p>Discover top job opportunities from leading companies. Find roles that match your skills and take the next step in your career today!</p>
       </div>
 
       <div class="featured-container" id="featured-container">
-
-         <a href="#">
-            <div class="featured-col">
-   
-               <div class="featured-top-row">
-   
-               <div class="featured-top">
-                  <div class="featured-logo">
-                     <img src="img/innovation-academy-job.jpg" alt="Innovation Academy">
-                  </div>
-   
-                  <div class="job-title">
-                     <div class="job-title-top">
-                        <h4>IA</h4>
-                     </div>
-   
-                     <div class="job-title-bottom">
-                       <p>1 days ago</p>
-                     </div>
-                  
-                  </div>
-   
-               </div>
-   
-               <div class="featured-job-time">
-                     <div class="time-job">
-                        <p>Part Time</p>
-                     </div>
-               </div>
-   
-   
-            </div>
-   
-               <div class="featured-price">
-                  <p>Programming Teacher</p>
-               </div>
-   
-               <div class="location">
-                  <div class="location-icon">
-                     <i class="fa fa-map-marker-alt"></i>
-                  </div>
-   
-                  <div class="location-p">
-                     <p>Vushtrri</p>
-                  </div>
-               </div>
-   
-               <div class="featured-bar-container">
-                  <div class="featured-bar">
-                     <div class="featured-bar-color" data-value="60"></div>
-                  </div>
-               </div>
-   
-               <div class="featured-p-number">
-                 <p>3 applied <span>of 5 vacancy</span></p>
-               </div>
-   
-   
-   
-            </div>
-         </a>
-
-         <a href="#">
-         <div class="featured-col">
-
-            <div class="featured-top-row">
-
-            <div class="featured-top">
-               <div class="featured-logo">
-                  <img src="img/mercom-job.png" alt="Mercom company">
-               </div>
-
-               <div class="job-title">
-                  <div class="job-title-top">
-                     <h4>Mercom Company</h4>
-                  </div>
-
-                  <div class="job-title-bottom">
-                    <p>2 days ago</p>
-                  </div>
-               
-               </div>
-
-            </div>
-
-            <div class="featured-job-time">
-                  <div class="time-job">
-                     <p>Full Time</p>
-                  </div>
-            </div>
-
-
+         <!-- Jobs will be dynamically loaded here -->
+         <div class="loading-spinner">
+            <div class="spinner"></div>
          </div>
-
-            <div class="featured-price">
-               <p>Teknik i ndërtimit</p>
-            </div>
-
-            <div class="location">
-               <div class="location-icon">
-                  <i class="fa fa-map-marker-alt"></i>
-               </div>
-
-               <div class="location-p">
-                  <p>Prishtinë</p>
-               </div>
-            </div>
-
-            <div class="featured-bar-container">
-               <div class="featured-bar">
-                  <div class="featured-bar-color" data-value="85"></div>
-               </div>
-            </div>
-
-            <div class="featured-p-number">
-              <p>34 applied <span>of 40 vacancy</span></p>
-            </div>
-
-
-
-         </div>
-         </a>
-
-
-         <a href="#">
-         <div class="featured-col">
-
-            <div class="featured-top-row">
-
-            <div class="featured-top">
-               <div class="featured-logo">
-                  <img src="img/peugout-kosova-job.png" alt="Peugot Kosova">
-               </div>
-
-               <div class="job-title">
-                  <div class="job-title-top">
-                     <h4>Peugot Kosova</h4>
-                  </div>
-
-                  <div class="job-title-bottom">
-                    <p>5 days ago</p>
-                  </div>
-               
-               </div>
-
-            </div>
-
-            <div class="featured-job-time">
-                  <div class="time-job">
-                     <p>Part Time</p>
-                  </div>
-            </div>
-
-
-         </div>
-
-            <div class="featured-price">
-               <p>Konsulentë/e të shitjes</p>
-            </div>
-
-            <div class="location">
-               <div class="location-icon">
-                  <i class="fa fa-map-marker-alt"></i>
-               </div>
-
-               <div class="location-p">
-                  <p>Ferizaj</p>
-               </div>
-            </div>
-
-            <div class="featured-bar-container">
-               <div class="featured-bar">
-                  <div class="featured-bar-color"  data-value="40"></div>
-               </div>
-            </div>
-
-            <div class="featured-p-number">
-              <p>4 applied <span>of 10 vacancy</span></p>
-            </div>
-
-
-
-         </div>
-         </a>
-
-         <a href="#">
-         <div class="featured-col">
-
-            <div class="featured-top-row">
-
-            <div class="featured-top">
-               <div class="featured-logo">
-                  <img src="img/viva-fresh-job.png" alt="Viva fresh">
-               </div>
-
-               <div class="job-title">
-                  <div class="job-title-top">
-                     <h4>Viva Fresh</h4>
-                  </div>
-
-                  <div class="job-title-bottom">
-                    <p>3 days ago</p>
-                  </div>
-               
-               </div>
-
-            </div>
-
-            <div class="featured-job-time">
-                  <div class="time-job">
-                     <p>Full Time</p>
-                  </div>
-            </div>
-
-
-         </div>
-
-            <div class="featured-price">
-               <p>Menagjer/e</p>
-            </div>
-
-            <div class="location">
-               <div class="location-icon">
-                  <i class="fa fa-map-marker-alt"></i>
-               </div>
-
-               <div class="location-p">
-                  <p>Vushtrri</p>
-               </div>
-            </div>
-
-            <div class="featured-bar-container">
-               <div class="featured-bar">
-                  <div class="featured-bar-color" data-value="33"></div>
-               </div>
-            </div>
-
-            <div class="featured-p-number">
-              <p>1 applied <span>of 3 vacancy</span></p>
-            </div>
-
-
-
-         </div>
-         </a>
-
-
-         <!-- second row -->
-
-
-         <a href="#">
-            <div class="featured-col">
-   
-               <div class="featured-top-row">
-   
-               <div class="featured-top">
-                  <div class="featured-logo">
-                     <img src="img/hib-logo-job.png" alt="Hib Petrol">
-                  </div>
-   
-                  <div class="job-title">
-                     <div class="job-title-top">
-                        <h4>Hib Petrol</h4>
-                     </div>
-   
-                     <div class="job-title-bottom">
-                       <p>6 days ago</p>
-                     </div>
-                  
-                  </div>
-   
-               </div>
-   
-               <div class="featured-job-time">
-                     <div class="time-job">
-                        <p>Full Time</p>
-                     </div>
-               </div>
-   
-   
-            </div>
-   
-               <div class="featured-price">
-                  <p>Kamarier/e</p>
-               </div>
-   
-               <div class="location">
-                  <div class="location-icon">
-                     <i class="fa fa-map-marker-alt"></i>
-                  </div>
-   
-                  <div class="location-p">
-                     <p>Gjilan</p>
-                  </div>
-               </div>
-   
-               <div class="featured-bar-container">
-                  <div class="featured-bar">
-                     <div class="featured-bar-color"  data-value="60"></div>
-                  </div>
-               </div>
-   
-               <div class="featured-p-number">
-                 <p>3 applied <span>of 5 vacancy</span></p>
-               </div>
-   
-   
-   
-            </div>
-            </a>
-   
-   
-            <a href="#">
-            <div class="featured-col">
-   
-               <div class="featured-top-row">
-   
-               <div class="featured-top">
-                  <div class="featured-logo">
-                     <img src="img/etc-logo-job.png" alt="Etc">
-                  </div>
-   
-                  <div class="job-title">
-                     <div class="job-title-top">
-                        <h4>ETC</h4>
-                     </div>
-   
-                     <div class="job-title-bottom">
-                       <p>4 days ago</p>
-                     </div>
-                  
-                  </div>
-   
-               </div>
-   
-               <div class="featured-job-time">
-                     <div class="time-job">
-                        <p>Full Time</p>
-                     </div>
-               </div>
-   
-   
-            </div>
-   
-               <div class="featured-price">
-                  <p>Punëtor/e në Market</p>
-               </div>
-   
-               <div class="location">
-                  <div class="location-icon">
-                     <i class="fa fa-map-marker-alt"></i>
-                  </div>
-   
-                  <div class="location-p">
-                     <p>Gjakovë</p>
-                  </div>
-               </div>
-   
-               <div class="featured-bar-container">
-                  <div class="featured-bar">
-                     <div class="featured-bar-color"  data-value="85"></div>
-                  </div>
-               </div>
-   
-               <div class="featured-p-number">
-                 <p>6 applied <span>of 7 vacancy</span></p>
-               </div>
-
-     
-   
-   
-   
-            </div>
-            </a>
-   
-           
-
-
       </div>
-
     </section>
 
 
@@ -612,7 +206,7 @@
              <h3>Drin Zahiti</h3>
 
             <div class="review-button">
-               <a href="#">Share Job</a>
+               <a href="html/post-job.html">Post Job</a>
             </div>
             
 
@@ -861,5 +455,9 @@
 
      <script src="js/header.js"></script>
      <script type="module" src="js/home.js"></script>
+     <script type="module" src="js/hot-jobs.js"></script>
+     <script type="module" src="js/popular-categories.js"></script>
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/auth-state.js"></script>
 </body>
 </html>

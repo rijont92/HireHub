@@ -114,6 +114,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 break;
                 
+            case 'category':
+                if (!value) {
+                    showError(input, 'Please select an industry category');
+                    return false;
+                }
+                break;
+                
             case 'location':
                 if (value.length < 2) {
                     showError(input, 'Please enter a valid location');
@@ -248,37 +255,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                     // Collect form data
                     const formData = new FormData(postJobForm);
-                    const jobData = {};
-                    
-                    // Convert FormData to object
-                    for (let [key, value] of formData.entries()) {
-                        jobData[key] = value;
-                    }
+                    const jobData = {
+                        jobTitle: formData.get('jobTitle'),
+                        companyName: formData.get('companyName'),
+                        companyLogo: formData.get('companyLogo') || 'img/logo.png',
+                        jobType: formData.get('jobType'),
+                        category: formData.get('category'),
+                        location: formData.get('location'),
+                        salary: formData.get('salary'),
+                        vacancy: parseInt(formData.get('vacancy')),
+                        description: formData.get('jobDescription'),
+                        requirements: formData.get('requirements'),
+                        responsibilities: formData.get('responsibilities'),
+                        benefits: formData.get('benefits'),
+                        applicationDeadline: formData.get('applicationDeadline'),
+                        contactEmail: formData.get('contactEmail'),
+                        postedBy: auth.currentUser.uid,
+                        postedDate: new Date().toISOString(),
+                        status: 'active',
+                        applications: [],
+                        savedBy: []
+                    };
 
-                    // Add timestamp and ID
-                    jobData.id = Date.now().toString();
-                    jobData.postedDate = new Date().toISOString();
-
-                    // Handle company logo
-                    const logoFile = formData.get('companyLogo');
-                    if (logoFile) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            jobData.companyLogo = e.target.result;
-                            saveAndRedirect(jobData);
-                        }
-                        reader.readAsDataURL(logoFile);
-                    } else {
-                        jobData.companyLogo = '../img/default-logo.png';
-                        saveAndRedirect(jobData);
-                    }
-                    
+                    await saveAndRedirect(jobData);
                 } catch (error) {
                     console.error('Error posting job:', error);
-                    alert('Error posting job. Please try again.');
+                    showNotification('Error posting job. Please try again.', 'error');
                 }
             }
         });
+    }
+
+    // Add notification function
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 
     async function saveAndRedirect(jobData) {
@@ -289,13 +308,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('User not authenticated');
             }
 
-            // Add job to Firestore
-            const jobRef = await addDoc(collection(db, 'jobs'), {
-                ...jobData,
+            // Get form data
+            const formData = new FormData(postJobForm);
+            
+            // Handle company logo file
+            let companyLogoUrl = 'img/logo.png'; // Default logo
+            const logoFile = formData.get('companyLogo');
+            
+            if (logoFile && logoFile instanceof File) {
+                // Convert file to base64 string
+                const reader = new FileReader();
+                companyLogoUrl = await new Promise((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(logoFile);
+                });
+            }
+            
+            // Create job data object with all fields
+            const jobData = {
+                jobTitle: formData.get('jobTitle'),
+                companyName: formData.get('companyName'),
+                companyLogo: companyLogoUrl,
+                jobType: formData.get('jobType'),
+                category: formData.get('category'),
+                location: formData.get('location'),
+                salary: formData.get('salary'),
+                vacancy: parseInt(formData.get('vacancy')),
+                description: formData.get('jobDescription'),
+                requirements: formData.get('requirements'),
+                responsibilities: formData.get('responsibilities'),
+                benefits: formData.get('benefits'),
+                applicationDeadline: formData.get('applicationDeadline'),
+                contactEmail: formData.get('contactEmail'),
                 postedBy: user.uid,
+                postedDate: new Date().toISOString(),
                 status: 'active',
-                createdAt: new Date().toISOString()
-            });
+                applications: [],
+                savedBy: []
+            };
+
+            // Add job to Firestore
+            const jobRef = await addDoc(collection(db, 'jobs'), jobData);
 
             // Update user's postedJobs array
             const userRef = doc(db, 'users', user.uid);
@@ -307,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showSuccessPopup();
         } catch (error) {
             console.error('Error saving job:', error);
-            alert('Error saving job. Please try again.');
+            showNotification('Error saving job. Please try again.', 'error');
         }
     }
 
