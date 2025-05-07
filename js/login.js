@@ -107,7 +107,7 @@ loginForm.addEventListener('submit', async (e) => {
         } else if (result.error.includes('invalid-email')) {
             generalError.textContent = 'Please enter a valid email address';
         } else {
-            generalError.textContent = 'An error occurred. Please try again.';
+            generalError.textContent = 'Incorrect email or password';
         }
     }
 });

@@ -278,6 +278,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show apply modal
     function showApplyModal(jobId, jobTitle) {
+        const user = auth.currentUser;
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
         currentJobId = jobId;
         applyJobTitle.textContent = jobTitle;
         applyModalOverlay.style.display = 'flex';
@@ -592,6 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to show application management modal
     function showApplicationManagementModal(application) {
+        
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `

@@ -1,6 +1,6 @@
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-import { collection, query, where, getDocs, updateDoc, doc, getDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { collection, query, where, getDocs, updateDoc, doc, getDoc, writeBatch, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // DOM Elements
 const applicationsList = document.getElementById('applications-list');
@@ -214,6 +214,13 @@ async function loadApplications(userId) {
             const applicationsSnapshot = await getDocs(applicationsQuery);
             allApplications = allApplications.concat(applicationsSnapshot.docs);
         }
+        
+        // Sort all applications by appliedAt date (newest first)
+        allApplications.sort((a, b) => {
+            const dateA = new Date(a.data().appliedAt || 0);
+            const dateB = new Date(b.data().appliedAt || 0);
+            return dateB - dateA;
+        });
         
         console.log('Total applications found:', allApplications.length);
         

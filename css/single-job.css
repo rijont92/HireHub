@@ -26,6 +26,8 @@
     margin: auto;
 }
 
+
+
 .single-job-container {
     display: grid;
     grid-template-columns: 1fr;
@@ -262,7 +264,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-#similarJobs {
+.similar-jobs-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 50px;

@@ -10,21 +10,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Set profile picture immediately on page load
     const profileImage = document.getElementById('profile-pic');
-    if (userData.profileImage) {
-        profileImage.src = userData.profileImage;
-        profileImage.onerror = function() {
-            this.src = '../img/useri.png';
-        };
-    } else {
-        profileImage.src = '../img/useri.png';
+    if (profileImage) {
+        if (userData.profileImage) {
+            profileImage.src = userData.profileImage;
+            profileImage.onerror = function() {
+                this.src = '../img/useri.png';
+            };
+        } else {
+            profileImage.src = '../img/useri.png';
+        }
     }
 
     // Set default values for input fields from localStorage
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
 
-    if (userData.name) nameInput.value = userData.name;
-    if (userData.email) emailInput.value = userData.email;
+    if (nameInput && userData.name) nameInput.value = userData.name;
+    if (emailInput && userData.email) emailInput.value = userData.email;
 
     // Tab switching functionality
     const menuItems = document.querySelectorAll('.settings-menu li');
@@ -36,7 +38,10 @@ document.addEventListener('DOMContentLoaded', function() {
             sections.forEach(s => s.classList.remove('active'));
             item.classList.add('active');
             const tab = item.getAttribute('data-tab');
-            document.getElementById(`${tab}-section`).classList.add('active');
+            const targetSection = document.getElementById(`${tab}-section`);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
         });
     });
 
@@ -52,11 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     const userData = userDoc.data();
                     
                     // Update input values with Firestore data if available
-                    nameInput.value = userData.name || nameInput.value || '';
-                    emailInput.value = userData.email || emailInput.value || '';
+                    if (nameInput) nameInput.value = userData.name || nameInput.value || '';
+                    if (emailInput) emailInput.value = userData.email || emailInput.value || '';
 
                     // Update profile image if available in Firestore
-                    if (userData.profileImage) {
+                    if (profileImage && userData.profileImage) {
                         profileImage.src = userData.profileImage;
                         profileImage.onerror = function() {
                             this.src = '../img/useri.png';
@@ -69,9 +74,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         const pushToggle = document.getElementById('push-notifications');
                         const jobAlertsToggle = document.getElementById('job-alerts');
 
-                        emailToggle.checked = userData.notifications.email || false;
-                        pushToggle.checked = userData.notifications.push || false;
-                        jobAlertsToggle.checked = userData.notifications.jobAlerts || false;
+                        if (emailToggle) emailToggle.checked = userData.notifications.email || false;
+                        if (pushToggle) pushToggle.checked = userData.notifications.push || false;
+                        if (jobAlertsToggle) jobAlertsToggle.checked = userData.notifications.jobAlerts || false;
                     }
 
                     // Load saved settings
@@ -79,8 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     // Create new user document if it doesn't exist
                     await setDoc(userDocRef, {
-                        name: user.displayName || nameInput.value || '',
-                        email: user.email || emailInput.value || '',
+                        name: user.displayName || (nameInput ? nameInput.value : '') || '',
+                        email: user.email || (emailInput ? emailInput.value : '') || '',
                         profileImage: '../img/useri.png',
                         bio: '',
                         education: [],
@@ -578,54 +583,57 @@ document.addEventListener('DOMContentLoaded', function() {
             const jobAlertsToggle = document.getElementById('job-alerts');
 
             // Set the initial state of toggles based on Firestore data
-            emailToggle.checked = userData.notifications.email || false;
-            pushToggle.checked = userData.notifications.push || false;
-            jobAlertsToggle.checked = userData.notifications.jobAlerts || false;
+            if (emailToggle) emailToggle.checked = userData.notifications.email || false;
+            if (pushToggle) pushToggle.checked = userData.notifications.push || false;
+            if (jobAlertsToggle) jobAlertsToggle.checked = userData.notifications.jobAlerts || false;
         }
     }
 
     // Save notification settings
-    document.getElementById('save-notifications').addEventListener('click', async () => {
-        try {
-            const user = auth.currentUser;
-            if (!user) {
-                throw new Error('No user logged in');
+    const saveNotificationsBtn = document.getElementById('save-notifications');
+    if (saveNotificationsBtn) {
+        saveNotificationsBtn.addEventListener('click', async () => {
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    throw new Error('No user logged in');
+                }
+
+                console.log('Current user:', user.uid);
+
+                // Get current notification settings
+                const notifications = {
+                    email: document.getElementById('email-notifications')?.checked || false,
+                    jobAlerts: document.getElementById('job-alerts')?.checked || false,
+                    push: document.getElementById('push-notifications')?.checked || false
+                };
+
+                console.log('Saving notifications:', notifications);
+
+                // Update Firestore
+                const userDocRef = doc(db, 'users', user.uid);
+                console.log('Document reference created:', userDocRef);
+
+                await updateDoc(userDocRef, {
+                    notifications: notifications
+                });
+
+                console.log('Firestore update successful');
+
+                // Update localStorage
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                userData.notifications = notifications;
+                localStorage.setItem('userData', JSON.stringify(userData));
+            } catch (error) {
+                console.error('Error saving notification settings:', error);
+                console.error('Error details:', {
+                    code: error.code,
+                    message: error.message,
+                    stack: error.stack
+                });
             }
-
-            console.log('Current user:', user.uid);
-
-            // Get current notification settings
-            const notifications = {
-                email: document.getElementById('email-notifications').checked,
-                jobAlerts: document.getElementById('job-alerts').checked,
-                push: document.getElementById('push-notifications').checked
-            };
-
-            console.log('Saving notifications:', notifications);
-
-            // Update Firestore
-            const userDocRef = doc(db, 'users', user.uid);
-            console.log('Document reference created:', userDocRef);
-
-            await updateDoc(userDocRef, {
-                notifications: notifications
-            });
-
-            console.log('Firestore update successful');
-
-            // Update localStorage
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            userData.notifications = notifications;
-            localStorage.setItem('userData', JSON.stringify(userData));
-        } catch (error) {
-            console.error('Error saving notification settings:', error);
-            console.error('Error details:', {
-                code: error.code,
-                message: error.message,
-                stack: error.stack
-            });
-        }
-    });
+        });
+    }
 
     // Track notification changes in real-time
     const notificationInputs = document.querySelectorAll('.notification-option input[type="checkbox"]');
@@ -688,41 +696,54 @@ document.addEventListener('DOMContentLoaded', function() {
         userData = updatedData;
     }
 
-    // Password reset form submission
-    document.getElementById('security-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('reset-email').value;
-        const errorEmail = document.getElementById('error-email');
+    // Add security form event listener if the form exists
+    const securityForm = document.getElementById('security-form');
+    if (securityForm) {
+        securityForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email')?.value;
+            const errorEmail = document.getElementById('error-email');
 
-        try {
-            // Send password reset email
-            await sendPasswordResetEmail(auth, email);
-            console.log('Password reset email sent to:', email);
-            
-            // Show success message
-            const successMessage = document.createElement('div');
-            successMessage.style.color = 'green';
-            successMessage.style.marginTop = '10px';
-            successMessage.textContent = `Password reset email sent to ${email}. Please check your inbox (and spam folder).`;
-            document.getElementById('security-form').appendChild(successMessage);
-
-            // Remove the message after 5 seconds
-            setTimeout(() => {
-                successMessage.remove();
-            }, 5000);
-            
-            // Reset form
-            document.getElementById('security-form').reset();
-        } catch (error) {
-            console.error('Error sending password reset email:', error);
-            if (error.code === 'auth/user-not-found') {
-                errorEmail.textContent = 'No account found with this email address';
-            } else {
-                errorEmail.textContent = 'Error sending password reset email. Please try again.';
+            if (!email) {
+                if (errorEmail) {
+                    errorEmail.textContent = 'Please enter your email address';
+                    errorEmail.classList.add('show');
+                }
+                return;
             }
-            errorEmail.classList.add('show');
-        }
-    });
+
+            try {
+                // Send password reset email to the entered email
+                await sendPasswordResetEmail(auth, email);
+                console.log('Password reset email sent to:', email);
+                
+                // Show success message
+                const successMessage = document.createElement('div');
+                successMessage.style.color = 'green';
+                successMessage.style.marginTop = '10px';
+                successMessage.textContent = `Password reset email sent to ${email}. Please check your inbox (and spam folder).`;
+                securityForm.appendChild(successMessage);
+
+                // Remove the message after 5 seconds
+                setTimeout(() => {
+                    successMessage.remove();
+                }, 5000);
+                
+                // Reset form
+                securityForm.reset();
+            } catch (error) {
+                console.error('Error sending password reset email:', error);
+                if (errorEmail) {
+                    if (error.code === 'auth/user-not-found') {
+                        errorEmail.textContent = 'No account found with this email address';
+                    } else {
+                        errorEmail.textContent = 'Error sending password reset email. Please try again.';
+                    }
+                    errorEmail.classList.add('show');
+                }
+            }
+        });
+    }
 
     // Delete Account Functionality
     document.getElementById('delete-account-btn').addEventListener('click', () => {
