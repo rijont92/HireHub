@@ -327,11 +327,11 @@ a,li {
 }
 
 .nonee {
-  display: none;
+  display: block !important;
 }
 
 .none2 {
-  display: none;
+  display: block !important;
 }
 
 /*=============== BREAKPOINTS ===============*/
