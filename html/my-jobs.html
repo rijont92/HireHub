@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/my-jobs.css">
+    <link rel="stylesheet" href="css/styles.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,6 +17,7 @@
     <script type="module" src="../js/firebase-config.js"></script>
     <script type="module" src="../js/auth-state.js"></script>
     <script type="module" src="../js/my-jobs.js"></script>
+    <script type="module" src="../js/notification-center.js"></script>
 </head>
 <body>
     <header class="header">
@@ -27,16 +29,20 @@
                 
                 <div class="nav-rightt" >
                     <div class="nav-li-right">
-                        <ul>
-                            <li>
-                                <a href="#" class="nav__link">
-                                <div class="bell  nonee">
-                                    <i class="fa-regular fa-bell"></i>
-                                    <div class="red-circle"></div>
-                                </div>
-                                </a>
+                       <ul>
+                          <li>
+                             <a href="#" class="nav__link">
+                             <div class="notification-bell">
+                                <i class="fa-regular fa-bell"></i>
+                                <div class="notification-count"></div>
+                             </div>
+                             </a>
                             </li>
-                        </ul>
+           
+                            <!-- <li><a href="#" class="nav__link">
+                             <img src="img/happy-client.png" alt="User" class="user nonee" id="img-profile2">
+                            </a></li> -->
+                       </ul>
                     </div>
 
                     <div class="nav__toggle" id="nav-toggle">
@@ -106,9 +112,9 @@
 
                     <li class="nonee none2">
                         <a href="#" class="nav__link">
-                        <div class="bell">
+                        <div class="notification-bell">
                             <i class="fa-regular fa-bell"></i>
-                            <div class="red-circle"></div>
+                            <div class="notification-count"></div>
                         </div>
                         </a>
                     </li>
