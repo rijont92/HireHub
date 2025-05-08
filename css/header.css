@@ -616,3 +616,7 @@ a,li {
     align-items: center;
   }
 }
+
+.none2 {
+  display: none !important;
+}
