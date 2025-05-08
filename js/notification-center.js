@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, orderBy, limit, doc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, orderBy, limit, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { auth, db } from './firebase-config.js';
 
 class NotificationCenter {
@@ -9,12 +9,10 @@ class NotificationCenter {
         this.panel = null;
         this.notifications = [];
         this.unreadCount = 0;
+        this.unsubscribers = [];
+        this.isInitialized = false;
         
-        if (this.bells.length === 0) {
-            return;
-        }
-
-        if (this.counts.length === 0) {
+        if (this.bells.length === 0 || this.counts.length === 0) {
             return;
         }
         
@@ -22,13 +20,19 @@ class NotificationCenter {
     }
 
     init() {
+        if (this.isInitialized) {
+            console.log('DEBUG: Notification center already initialized');
+            return;
+        }
+
+        console.log('DEBUG: Initializing notification center');
         this.createPanel();
         this.setupEventListeners();
         this.setupAuthListener();
+        this.isInitialized = true;
     }
 
     createPanel() {
-        // Remove existing panel if it exists
         const existingPanel = document.querySelector('.notification-panel');
         if (existingPanel) {
             existingPanel.remove();
@@ -50,7 +54,6 @@ class NotificationCenter {
     }
 
     setupEventListeners() {
-        // Bell click handlers
         this.bells.forEach(bell => {
             bell.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -59,21 +62,18 @@ class NotificationCenter {
             });
         });
 
-        // Close button handler
         const closeBtn = this.panel.querySelector('.close-btn');
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.hidePanel();
         });
 
-        // Clear all button handler
         const clearAllBtn = this.panel.querySelector('.clear-all-btn');
         clearAllBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.clearAllNotifications();
         });
 
-        // Click outside handler
         document.addEventListener('click', (e) => {
             if (this.panel && this.panel.classList.contains('active')) {
                 if (!this.panel.contains(e.target) && !Array.from(this.bells).some(bell => bell.contains(e.target))) {
@@ -84,184 +84,463 @@ class NotificationCenter {
     }
 
     setupAuthListener() {
-        onAuthStateChanged(auth, (user) => {
+        console.log('DEBUG: Setting up auth listener');
+        
+        // Clean up existing listeners
+        this.cleanupListeners();
+        
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                this.listenForJobApplications(user.uid);
-                this.listenForApplicationStatus(user.uid);
+                console.log('DEBUG: User authenticated, loading notifications');
+                this.loadNotifications(user.uid);
+                this.setupJobApplicationListeners(user.uid);
+                this.setupApplicationStatusListeners(user.uid);
             } else {
+                console.log('DEBUG: No user authenticated, clearing notifications');
                 this.hidePanel();
                 this.updateCount(0);
+                this.notifications = [];
+                this.renderNotifications();
+            }
+        });
+        this.unsubscribers.push(unsubscribe);
+    }
+
+    cleanupListeners() {
+        console.log('DEBUG: Cleaning up existing listeners');
+        this.unsubscribers.forEach(unsubscribe => {
+            try {
+                unsubscribe();
+            } catch (error) {
+                console.error('DEBUG: Error unsubscribing:', error);
+            }
+        });
+        this.unsubscribers = [];
+    }
+
+    setupJobApplicationListeners(userId) {
+        console.log('DEBUG: Setting up job application listener for user:', userId);
+        
+        // Listen for jobs posted by the user
+        const jobsQuery = query(
+            collection(db, 'jobs'),
+            where('postedBy', '==', userId)
+        );
+
+        const unsubscribeJobs = onSnapshot(jobsQuery, async (jobsSnapshot) => {
+            console.log('DEBUG: Jobs snapshot received:', jobsSnapshot.size);
+            
+            // Clean up any existing application listeners
+            this.cleanupApplicationListeners();
+            
+            jobsSnapshot.forEach(async (jobDoc) => {
+                const jobId = jobDoc.id;
+                const jobData = jobDoc.data();
+                console.log('DEBUG: Processing job:', { jobId, jobTitle: jobData.jobTitle });
+
+                // Listen for applications to this job
+                const applicationsQuery = query(
+                    collection(db, 'applications'),
+                    where('jobId', '==', jobId)
+                );
+
+                const unsubscribeApplications = onSnapshot(applicationsQuery, async (applicationsSnapshot) => {
+                    console.log('DEBUG: Applications snapshot received for job:', jobId);
+                    const changes = applicationsSnapshot.docChanges();
+                    console.log('DEBUG: Number of application changes:', changes.length);
+                    
+                    for (const change of changes) {
+                        if (change.type === 'added') {
+                            try {
+                                const application = change.doc.data();
+                                console.log('DEBUG: New application data:', application);
+                                
+                                // Check if the application is new (within last 5 seconds)
+                                const appliedAt = new Date(application.appliedAt || application.timestamp);
+                                const now = new Date();
+                                const isNewApplication = (now - appliedAt) < 5000; // 5 seconds
+
+                                if (!isNewApplication) {
+                                    console.log('DEBUG: Skipping old application:', {
+                                        appliedAt: appliedAt.toISOString(),
+                                        now: now.toISOString()
+                                    });
+                                    continue;
+                                }
+
+                                // Get the applicant's user data
+                                const userDoc = await getDoc(doc(db, 'users', application.userId));
+                                if (!userDoc.exists()) {
+                                    console.error('DEBUG: User document not found for applicant:', application.userId);
+                                    continue;
+                                }
+
+                                const userData = userDoc.data();
+                                if (!userData) {
+                                    console.error('DEBUG: User data is empty for applicant:', application.userId);
+                                    continue;
+                                }
+
+                                // Create notification for the job poster
+                                await this.createApplicationNotification({
+                                    ...application,
+                                    fullName: userData.fullName || userData.name || 'Unknown Applicant',
+                                    profileImage: userData.profileImage || userData.photoURL || '../img/useri.png'
+                                }, jobData);
+                            } catch (error) {
+                                console.error('DEBUG: Error processing application notification:', error);
+                            }
+                        }
+                    }
+                });
+                this.unsubscribers.push(unsubscribeApplications);
+            });
+        });
+        this.unsubscribers.push(unsubscribeJobs);
+    }
+
+    cleanupApplicationListeners() {
+        // Remove only application-related listeners
+        this.unsubscribers = this.unsubscribers.filter(unsubscribe => {
+            try {
+                unsubscribe();
+                return false;
+            } catch (error) {
+                console.error('DEBUG: Error unsubscribing from application listener:', error);
+                return true;
             }
         });
     }
 
-    listenForJobApplications(userId) {
-        try {
-            // Query for jobs posted by the current user
-            const jobsQuery = query(
-                collection(db, 'jobs'),
-                where('postedBy', '==', userId)
-            );
+    setupApplicationStatusListeners(userId) {
+        console.log('DEBUG: Setting up application status listener for user:', userId);
+        
+        // Listen for user's own applications
+        const applicationsQuery = query(
+            collection(db, 'applications'),
+            where('userId', '==', userId)
+        );
 
-            // Listen for changes in the user's jobs
-            onSnapshot(jobsQuery, (jobsSnapshot) => {
-                if (jobsSnapshot.size === 0) {
-                    return;
-                }
-
-                jobsSnapshot.forEach((jobDoc) => {
-                    const jobId = jobDoc.id;
-                    const jobData = jobDoc.data();
-                    
-                    // Query for applications to this job
-                    const applicationsQuery = query(
-                        collection(db, 'applications'),
-                        where('jobId', '==', jobId),
-                        limit(10)
-                    );
-
-                    // Listen for new applications
-                    onSnapshot(applicationsQuery, async (applicationsSnapshot) => {
-                        const changes = applicationsSnapshot.docChanges();
-                        for (const change of changes) {
-                            if (change.type === 'added') {
-                                const application = change.doc.data();
-                                // Only create notification if the job is posted by the current user
-                                if (jobData.postedBy === userId) {
-                                    this.createNotification(application, jobData);
-                                }
-                            }
-                        }
-
-                        // Get all applications
-                        const allApplicationsSnapshot = await getDocs(applicationsQuery);
-                        const applications = allApplicationsSnapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        })).sort((a, b) => b.appliedAt - a.appliedAt);
-
-                        // Get user data for each application
-                        for (const application of applications) {
-                            try {
-                                const userDoc = await getDoc(doc(db, 'users', application.userId));
-                                if (userDoc.exists()) {
-                                    const userData = userDoc.data();
-                                    application.fullName = userData.fullName;
-                                }
-                            } catch (error) {
-                                console.error('Error getting user data:', error);
-                            }
-                        }
-                    });
+        const unsubscribeApplications = onSnapshot(applicationsQuery, async (applicationsSnapshot) => {
+            console.log('DEBUG: Application snapshot received');
+            console.log('DEBUG: Total applications:', applicationsSnapshot.size);
+            
+            const changes = applicationsSnapshot.docChanges();
+            console.log('DEBUG: Number of changes:', changes.length);
+            
+            for (const change of changes) {
+                console.log('DEBUG: Processing change:', {
+                    type: change.type,
+                    docId: change.doc.id
                 });
-            });
-        } catch (error) {
-            console.error('Error setting up job applications listener:', error);
-        }
-    }
-
-    listenForApplicationStatus(userId) {
-        try {
-            // First, get all jobs posted by the user
-            const jobsQuery = query(
-                collection(db, 'jobs'),
-                where('postedBy', '==', userId)
-            );
-
-            // Listen for changes in the user's jobs
-            onSnapshot(jobsQuery, async (jobsSnapshot) => {
-                // For each job, listen for application changes
-                jobsSnapshot.forEach(async (jobDoc) => {
-                    const jobId = jobDoc.id;
-
-                    // Query for applications to this job
-                    const applicationsQuery = query(
-                        collection(db, 'applications'),
-                        where('jobId', '==', jobId)
-                    );
-
-                    // Listen for changes in applications to this job
-                    onSnapshot(applicationsQuery, async (applicationsSnapshot) => {
-                        const changes = applicationsSnapshot.docChanges();
+                
+                if (change.type === 'modified') {
+                    try {
+                        const application = change.doc.data();
+                        const oldData = change.oldIndex !== -1 ? applicationsSnapshot.docs[change.oldIndex].data() : null;
                         
-                        for (const change of changes) {
-                            // Handle both added and modified changes
-                            if (change.type === 'added' || change.type === 'modified') {
-                                const application = change.doc.data();
-                                
-                                // For added documents, we need to check if it has a status
-                                // For modified documents, we need to check if the status changed
-                                const shouldCreateNotification = 
-                                    (change.type === 'added' && (application.status === 'approved' || application.status === 'rejected')) ||
-                                    (change.type === 'modified' && 
-                                     change.oldIndex !== -1 && 
-                                     applicationsSnapshot.docs[change.oldIndex].data().status !== application.status &&
-                                     (application.status === 'approved' || application.status === 'rejected'));
+                        console.log('DEBUG: Application data:', {
+                            docId: change.doc.id,
+                            oldStatus: oldData?.status,
+                            newStatus: application.status,
+                            userId: application.userId,
+                            jobId: application.jobId
+                        });
 
-                                if (shouldCreateNotification) {
-                                    const jobDoc = await getDoc(doc(db, 'jobs', jobId));
-                                    if (jobDoc.exists()) {
-                                        const jobData = jobDoc.data();
-                                        this.createStatusNotification(application, jobData);
-                                    }
-                                }
+                        // Check if status has changed to approved or rejected
+                        if (application.status === 'approved' || application.status === 'rejected') {
+                            console.log('DEBUG: Status is approved/rejected:', application.status);
+                            
+                            // Get the job details
+                            const jobDoc = await getDoc(doc(db, 'jobs', application.jobId));
+                            if (!jobDoc.exists()) {
+                                console.error('DEBUG: Job document not found:', application.jobId);
+                                continue;
                             }
+
+                            const jobData = jobDoc.data();
+                            console.log('DEBUG: Job data retrieved:', {
+                                jobId: application.jobId,
+                                jobTitle: jobData.jobTitle,
+                                postedBy: jobData.postedBy
+                            });
+                            
+                            // Create notification for the applicant
+                            await this.createStatusNotification(application, jobData, userId);
+                        } else {
+                            console.log('DEBUG: Status is not approved/rejected:', application.status);
                         }
-                    });
+                    } catch (error) {
+                        console.error('DEBUG: Error processing status notification:', error);
+                    }
+                }
+            }
+        }, (error) => {
+            console.error('DEBUG: Error in application status listener:', error);
+        });
+        
+        this.unsubscribers.push(unsubscribeApplications);
+    }
+
+    async loadNotifications(userId) {
+        try {
+            console.log('DEBUG: Loading notifications for user:', userId);
+            const notificationsQuery = query(
+                collection(db, 'notifications'),
+                where('userId', '==', userId),
+                orderBy('timestamp', 'desc')
+            );
+
+            const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+                console.log('DEBUG: Notifications snapshot received:', snapshot.size);
+                this.notifications = [];
+                this.unreadCount = 0;
+
+                snapshot.forEach((doc) => {
+                    const notification = { id: doc.id, ...doc.data() };
+                    this.notifications.push(notification);
+                    if (!notification.read) {
+                        this.unreadCount++;
+                    }
                 });
+
+                console.log('DEBUG: Processed notifications:', {
+                    total: this.notifications.length,
+                    unread: this.unreadCount
+                });
+
+                this.updateCount(this.unreadCount);
+                this.renderNotifications();
+            });
+            this.unsubscribers.push(unsubscribe);
+        } catch (error) {
+            console.error('DEBUG: Error loading notifications:', error);
+        }
+    }
+
+    async createApplicationNotification(application, job) {
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                console.error('DEBUG: No current user found');
+                return;
+            }
+
+            console.log('DEBUG: Creating application notification:', {
+                jobId: application.jobId,
+                applicantId: application.userId,
+                applicantName: application.fullName
+            });
+
+            // Validate required data
+            if (!application || !job || !application.userId || !application.jobId) {
+                console.error('DEBUG: Missing required data:', {
+                    hasApplication: !!application,
+                    hasJob: !!job,
+                    userId: application?.userId,
+                    jobId: application?.jobId
+                });
+                return;
+            }
+
+            // Check if notification already exists
+            const existingNotificationsQuery = query(
+                collection(db, 'notifications'),
+                where('userId', '==', user.uid),
+                where('type', '==', 'application'),
+                where('jobId', '==', application.jobId),
+                where('applicantId', '==', application.userId)
+            );
+
+            const existingNotifications = await getDocs(existingNotificationsQuery);
+            console.log('DEBUG: Checking for existing notifications:', {
+                count: existingNotifications.size,
+                userId: user.uid,
+                jobId: application.jobId,
+                applicantId: application.userId
+            });
+
+            if (!existingNotifications.empty) {
+                console.log('DEBUG: Notification already exists, skipping');
+                return;
+            }
+
+            // Ensure all required fields are present with fallbacks
+            const notificationData = {
+                type: 'application',
+                jobId: application.jobId,
+                jobTitle: job.jobTitle || 'Untitled Job',
+                applicantId: application.userId,
+                applicantName: application.fullName,
+                applicantImage: application.profileImage,
+                timestamp: new Date().toISOString(),
+                read: false,
+                userId: user.uid
+            };
+
+            console.log('DEBUG: Prepared notification data:', notificationData);
+
+            // Validate all required fields are defined
+            if (Object.values(notificationData).some(value => value === undefined)) {
+                console.error('DEBUG: Invalid notification data:', notificationData);
+                return;
+            }
+
+            const docRef = await addDoc(collection(db, 'notifications'), notificationData);
+            console.log('DEBUG: Application notification created successfully:', {
+                id: docRef.id,
+                ...notificationData
             });
         } catch (error) {
-            console.error('Error setting up application status listener:', error);
+            console.error('DEBUG: Error creating application notification:', error);
         }
     }
 
-    createNotification(application, job) {
-        const notification = {
-            id: `application-${application.id}`,
-            jobId: application.jobId,
-            jobTitle: job.jobTitle,
-            applicantName: application.fullName,
-            timestamp: application.appliedAt,
-            read: false
-        };
+    async createStatusNotification(application, job, userId) {
+        try {
+            console.log('DEBUG: Creating status notification:', {
+                userId,
+                jobId: application.jobId,
+                status: application.status,
+                applicationData: application
+            });
 
-        this.notifications.unshift(notification);
-        this.unreadCount++;
-        this.updateCount(this.unreadCount);
-        this.renderNotifications();
+            // Validate required data
+            if (!application || !job || !application.jobId || !application.status) {
+                console.error('DEBUG: Missing required data:', {
+                    hasApplication: !!application,
+                    hasJob: !!job,
+                    jobId: application?.jobId,
+                    status: application?.status
+                });
+                return;
+            }
+
+            // Check if notification already exists
+            const existingNotificationsQuery = query(
+                collection(db, 'notifications'),
+                where('userId', '==', userId),
+                where('type', '==', 'status'),
+                where('jobId', '==', application.jobId),
+                where('status', '==', application.status)
+            );
+
+            const existingNotifications = await getDocs(existingNotificationsQuery);
+            console.log('DEBUG: Checking for existing notifications:', {
+                count: existingNotifications.size,
+                userId,
+                jobId: application.jobId,
+                status: application.status
+            });
+
+            if (!existingNotifications.empty) {
+                console.log('DEBUG: Notification already exists, skipping');
+                return;
+            }
+
+            // Get the job poster's name for the notification
+            let jobPosterName = 'The employer';
+            try {
+                const jobPosterDoc = await getDoc(doc(db, 'users', job.postedBy));
+                if (jobPosterDoc.exists()) {
+                    const jobPosterData = jobPosterDoc.data();
+                    jobPosterName = jobPosterData.fullName || jobPosterData.name || 'The employer';
+                    console.log('DEBUG: Job poster name retrieved:', jobPosterName);
+                }
+            } catch (error) {
+                console.error('DEBUG: Error getting job poster name:', error);
+            }
+
+            // Ensure all required fields are present with fallbacks
+            const notificationData = {
+                type: 'status',
+                status: application.status,
+                jobId: application.jobId,
+                jobTitle: job.jobTitle || 'Untitled Job',
+                message: application.status === 'approved' 
+                    ? `${jobPosterName} has approved your application for <strong>${job.jobTitle || 'Untitled Job'}</strong>!`
+                    : `${jobPosterName} has rejected your application for <strong>${job.jobTitle || 'Untitled Job'}</strong>.`,
+                timestamp: new Date().toISOString(),
+                read: false,
+                userId: userId
+            };
+
+            console.log('DEBUG: Prepared notification data:', notificationData);
+
+            // Validate all required fields are defined
+            if (Object.values(notificationData).some(value => value === undefined)) {
+                console.error('DEBUG: Invalid notification data:', notificationData);
+                return;
+            }
+
+            const docRef = await addDoc(collection(db, 'notifications'), notificationData);
+            console.log('DEBUG: Status notification created successfully:', {
+                id: docRef.id,
+                ...notificationData
+            });
+        } catch (error) {
+            console.error('DEBUG: Error creating status notification:', error);
+        }
     }
 
-    createStatusNotification(application, job) {
-        let message = '';
-        let icon = '';
-
-        switch (application.status) {
-            case 'approved':
-                message = `Your application for <strong>${job.jobTitle}</strong> has been approved!`;
-                icon = 'fa-check-circle';
-                break;
-            case 'rejected':
-                message = `Your application for <strong>${job.jobTitle}</strong> has been rejected.`;
-                icon = 'fa-times-circle';
-                break;
-            default:
-                return; // Don't create notification for other statuses
+    async markAsRead(notificationId) {
+        try {
+            const notificationRef = doc(db, 'notifications', notificationId);
+            await updateDoc(notificationRef, { read: true });
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
         }
+    }
 
-        const notification = {
-            id: `status-${application.id}`,
-            jobId: application.jobId,
-            jobTitle: job.jobTitle,
-            message: message,
-            icon: icon,
-            timestamp: new Date().toISOString(),
-            read: false
-        };
+    async clearAllNotifications() {
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                console.error('DEBUG: No current user found for clearing notifications');
+                return;
+            }
 
-        this.notifications.unshift(notification);
-        this.unreadCount++;
-        this.updateCount(this.unreadCount);
-        this.renderNotifications();
+            console.log('DEBUG: Clearing all notifications for user:', user.uid);
+
+            // Get all notifications for the current user
+            const notificationsQuery = query(
+                collection(db, 'notifications'),
+                where('userId', '==', user.uid)
+            );
+
+            const snapshot = await getDocs(notificationsQuery);
+            console.log('DEBUG: Found notifications to delete:', snapshot.size);
+
+            if (snapshot.empty) {
+                console.log('DEBUG: No notifications to clear');
+                return;
+            }
+
+            // Create a batch write
+            const batch = writeBatch(db);
+
+            // Add each notification to the batch
+            snapshot.forEach((doc) => {
+                console.log('DEBUG: Adding notification to batch:', doc.id);
+                batch.delete(doc.ref);
+            });
+
+            // Commit the batch
+            await batch.commit();
+            console.log('DEBUG: Successfully cleared all notifications');
+
+            // Update local state
+            this.notifications = [];
+            this.unreadCount = 0;
+            this.updateCount(0);
+            this.renderNotifications();
+
+            // Clean up and reinitialize listeners
+            this.cleanupListeners();
+            this.setupAuthListener();
+        } catch (error) {
+            console.error('DEBUG: Error clearing notifications:', error);
+        }
     }
 
     renderNotifications() {
@@ -289,32 +568,23 @@ class NotificationCenter {
             const item = document.createElement('div');
             item.className = `notification-item ${notification.read ? '' : 'unread'}`;
             
-            // Check if this is a status notification
-            const isStatusNotification = notification.id && notification.id.startsWith('status-');
-            
-            // Determine the icon and color based on notification type and status
-            let icon = 'fa-user';
-            let iconColor = '#4a90e2';
-            
-            if (isStatusNotification) {
-                if (notification.message.includes('approved')) {
-                    icon = 'fa-check-circle';
-                    iconColor = '#2ecc71';
-                } else if (notification.message.includes('rejected')) {
-                    icon = 'fa-times-circle';
-                    iconColor = '#e74c3c';
-                }
-            }
+            const isStatusNotification = notification.type === 'status';
             
             item.innerHTML = `
                 <div class="notification-content">
-                    <div class="notification-header">
-                        <i class="fa-solid ${icon}" style="color: ${iconColor}"></i>
+                    <div class="notification-header-2">
+                        ${isStatusNotification ? 
+                            `<i class="fa-solid ${notification.status === 'approved' ? 'fa-check-circle' : 'fa-times-circle'}" 
+                                style="color: ${notification.status === 'approved' ? '#2ecc71' : '#e74c3c'}"></i>` :
+                            `<img src="${notification.applicantImage}" alt="${notification.applicantName}" class="notification-avatar">`
+                        }
                         <span class="notification-time">${this.formatTime(notification.timestamp)}</span>
                     </div>
                     <div class="notification-message">
-                        ${isStatusNotification ? notification.message : 
-                            `<strong>${notification.applicantName}</strong> applied for <strong>${notification.jobTitle}</strong>`}
+                        ${isStatusNotification ? 
+                            notification.message : 
+                            `<strong>${notification.applicantName}</strong> applied for <strong>${notification.jobTitle}</strong>`
+                        }
                     </div>
                     <div class="application-actions">
                         <button class="view-application-btn" data-job-id="${notification.jobId}">
@@ -325,17 +595,12 @@ class NotificationCenter {
                 ${notification.read ? '' : '<div class="unread-dot"></div>'}
             `;
 
-            // Add click handler for the notification
             item.addEventListener('click', () => {
                 if (!notification.read) {
-                    notification.read = true;
-                    this.unreadCount--;
-                    this.updateCount(this.unreadCount);
-                    this.renderNotifications();
+                    this.markAsRead(notification.id);
                 }
             });
 
-            // Add click handler for the view button
             const viewBtn = item.querySelector('.view-application-btn');
             viewBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -391,13 +656,6 @@ class NotificationCenter {
                 countElement.style.display = 'none';
             }
         });
-    }
-
-    clearAllNotifications() {
-        this.notifications = [];
-        this.unreadCount = 0;
-        this.updateCount(0);
-        this.renderNotifications();
     }
 }
 
