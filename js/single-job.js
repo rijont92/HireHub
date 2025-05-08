@@ -127,6 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
+
+            // After updateJobDetails(jobData) in loadJobData, add:
+            showPosterInfo(jobData.postedBy);
         } catch (error) {
             console.error('Error loading job:', error);
             showError('There was an error loading the job details');
@@ -838,4 +841,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Add this function at the end of DOMContentLoaded:
+    async function showPosterInfo(uid) {
+        if (!uid) return;
+        const posterInfoDiv = document.getElementById('posterInfo');
+        const posterImage = document.getElementById('posterImage');
+        const posterName = document.getElementById('posterName');
+        const posterEmail = document.getElementById('posterEmail');
+        try {
+            const userRef = doc(db, 'users', uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                const user = userSnap.data();
+                posterImage.src = user.profileImage || '../img/logo.png';
+                posterName.textContent = user.name || 'No Name';
+                posterEmail.textContent = user.email || '';
+                posterInfoDiv.style.display = 'flex';
+            } else {
+                posterInfoDiv.style.display = 'none';
+            }
+        } catch (e) {
+            posterInfoDiv.style.display = 'none';
+        }
+    }
 });
