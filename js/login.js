@@ -97,10 +97,18 @@ loginForm.addEventListener('submit', async (e) => {
         }
     } else {
         // Handle error
-        if (result.error.includes('user-not-found') || 
+        if (result.needsVerification) {
+            generalError.innerHTML = `
+                <div style="text-align: center; color: #755ea3; margin-bottom: 10px;">
+                    <i class="fas fa-envelope" style="font-size: 24px;"></i>
+                </div>
+                <p style="margin-bottom: 10px;">Please verify your email address first.</p>
+                <p style="font-size: 0.9em; color: #666;">A new verification email has been sent to your inbox.</p>
+                <p style="font-size: 0.9em; color: #666;">Check your email and click the verification link to continue.</p>
+            `;
+        } else if (result.error.includes('user-not-found') || 
             result.error.includes('wrong-password') || 
-            result.error.includes('auth/wrong-password') ||
-            result.error.includes('auth/user-not-found')) {
+            result.error.includes('auth/wrong-password')) {
             generalError.textContent = 'Email or password is invalid';
         } else if (result.error.includes('too-many-requests')) {
             generalError.textContent = 'Too many failed attempts. Please try again later.';

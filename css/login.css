@@ -356,3 +356,59 @@ hr {
         width: 90%;
     }
 }
+
+/* Verification Page Styles */
+.verification-content {
+    text-align: center;
+    padding: 20px;
+}
+
+.verification-icon {
+    font-size: 48px;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.verification-content p {
+    margin: 10px 0;
+    color: var(--text-color);
+}
+
+.verification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.resend-btn, .check-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.resend-btn {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.check-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.resend-btn:hover {
+    background-color: var(--primary-light-hover);
+}
+
+.check-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.verification-message {
+    margin-top: 15px;
+    font-size: 0.9rem;
+}

@@ -139,10 +139,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 
                 // Save to localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
-                localStorage.setItem('isAuthenticated', 'true');
                 
-                // Signup successful
-                window.location.href = '../index.html';
+                // Redirect to verification page
+                window.location.href = 'verify-email.html';
             } else {
                 // Handle error
                 if (result.error.includes('email-already-in-use')) {
