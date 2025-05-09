@@ -45,7 +45,7 @@ class NotificationCenter {
                 <h3>Notifications</h3>
                 <div class="notification-actions">
                     <button class="clear-all-btn">Clear All</button>
-                    <button class="close-btn">&times;</button>
+                    <button class="close-btn-1">&times;</button>
                 </div>
             </div>
             <div class="notification-list"></div>
@@ -62,7 +62,7 @@ class NotificationCenter {
             });
         });
 
-        const closeBtn = this.panel.querySelector('.close-btn');
+        const closeBtn = this.panel.querySelector('.close-btn-1');
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.hidePanel();

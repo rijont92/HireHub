@@ -135,7 +135,7 @@
     background-color: rgba(117, 94, 163, 0.1);
 }
 
-.close-btn {
+.close-btn-1 {
     background: none;
     border: none;
     color: var(--light-text);
@@ -143,10 +143,15 @@
     font-size: 1.2rem;
     padding: 5px;
     border-radius: 50%;
+    height: 20px;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transition: background-color 0.2s;
 }
 
-.close-btn:hover {
+.close-btn-1:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
