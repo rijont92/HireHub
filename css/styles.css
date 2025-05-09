@@ -103,6 +103,11 @@
     align-items: center;
 }
 
+.oo {
+    justify-content: center;
+}
+
+
 .notification-header h3 {
     margin: 0;
     font-size: 1.1rem;

@@ -405,7 +405,7 @@ hr {
 }
 
 .check-btn:hover {
-    background-color: var(--primary-dark);
+    background-color: var(--hover);
 }
 
 .verification-message {

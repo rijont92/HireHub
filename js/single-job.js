@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (location) location.textContent = job.location;
         if (salary) salary.textContent = job.salary;
         if (deadline) deadline.textContent = formatDate(job.applicationDeadline);
-        if (jobDescription) jobDescription.textContent = job.jobDescription;
+        if (jobDescription) jobDescription.textContent = job.description;
         if (requirements) requirements.textContent = job.requirements;
         if (benefits) benefits.textContent = job.benefits;
         if (loadingSpinner) loadingSpinner.style.display = 'none';

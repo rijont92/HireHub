@@ -454,6 +454,12 @@ function showNotification(message, type = 'success') {
 // Update application status
 async function updateApplicationStatus(applicationId, newStatus, message = '') {
     try {
+        console.log('🔄 Updating application status:', {
+            applicationId,
+            newStatus,
+            message
+        });
+
         // Get the application document
         const applicationRef = doc(db, 'applications', applicationId);
         const applicationDoc = await getDoc(applicationRef);
@@ -463,6 +469,8 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             throw new Error('Application not found');
         }
 
+        console.log('📄 Application data:', application);
+
         // Get the job document
         const jobRef = doc(db, 'jobs', application.jobId);
         const jobDoc = await getDoc(jobRef);
@@ -471,6 +479,19 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
         if (!jobData) {
             throw new Error('Job not found');
         }
+
+        console.log('📋 Job data:', jobData);
+
+        // Get the job poster's details for the notification
+        const jobPosterRef = doc(db, 'users', auth.currentUser.uid);
+        const jobPosterDoc = await getDoc(jobPosterRef);
+        const jobPosterData = jobPosterDoc.data();
+        const jobPosterName = jobPosterData.fullName || jobPosterData.name || 'The employer';
+
+        // Get the applicant's details
+        const applicantRef = doc(db, 'users', application.userId);
+        const applicantDoc = await getDoc(applicantRef);
+        const applicantData = applicantDoc.data();
 
         // Start a batch write
         const batch = writeBatch(db);
@@ -490,8 +511,6 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
                 applications.push(application.userId);
             }
         }
-        // Don't remove from applications array when rejected
-        // This ensures the application status is still visible
 
         // Update job document
         batch.update(jobRef, {
@@ -499,8 +518,30 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             updatedAt: new Date().toISOString()
         });
 
+        // Create notification for the applicant
+        const notificationData = {
+            type: 'status',
+            status: newStatus,
+            jobId: application.jobId,
+            jobTitle: jobData.jobTitle || 'Untitled Job',
+            message: newStatus === 'approved' 
+                ? `${jobPosterName} has approved your application for <strong>${jobData.jobTitle || 'Untitled Job'}</strong>!`
+                : `${jobPosterName} has rejected your application for <strong>${jobData.jobTitle || 'Untitled Job'}</strong>.`,
+            timestamp: new Date().toISOString(),
+            read: false,
+            userId: application.userId, // This is the applicant's ID
+            applicantId: application.userId,
+            applicantName: applicantData?.fullName || applicantData?.name || 'Applicant',
+            applicantImage: applicantData?.profileImage || '../img/useri.png'
+        };
+
+        // Add notification to batch
+        const notificationRef = doc(collection(db, 'notifications'));
+        batch.set(notificationRef, notificationData);
+
         // Commit the batch
         await batch.commit();
+        console.log('✅ Batch update committed');
 
         // Show success message
         const statusMessage = newStatus === 'approved' ? 'approved' : 'rejected';
@@ -508,19 +549,22 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
 
         // Reload applications to show updated status
         await loadApplications(auth.currentUser.uid);
+        console.log('📊 Applications reloaded');
 
         // If we're on the jobs page, force a reload to ensure UI is in sync
         if (window.location.pathname.includes('jobs.html')) {
-            // Force a reload of the jobs page
-            window.location.reload();
+            console.log('🔄 Reloading jobs page...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000); // Delay reload by 2 seconds
+            return;
         }
 
         // Update the status in the profile page if it's open
         if (window.location.pathname.includes('profile.html')) {
-            // Find the job card in the profile page
+            console.log('📝 Updating profile page...');
             const jobCard = document.querySelector(`[data-job-id="${application.jobId}"]`);
             if (jobCard) {
-                // Update the status display
                 const statusElement = jobCard.querySelector('.status');
                 if (statusElement) {
                     statusElement.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
@@ -528,8 +572,14 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
                 }
             }
         }
+
+        // Force a reload of the page to ensure notifications are updated
+        console.log('🔄 Reloading page in 2 seconds...');
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000); // Delay reload by 2 seconds
     } catch (error) {
-        console.error('Error updating application status:', error);
+        console.error('❌ Error updating application status:', error);
         showNotification('Failed to update application status. Please try again.', 'error');
     }
 }

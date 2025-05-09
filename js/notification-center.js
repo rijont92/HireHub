@@ -213,70 +213,55 @@ class NotificationCenter {
     }
 
     setupApplicationStatusListeners(userId) {
-        console.log('DEBUG: Setting up application status listener for user:', userId);
+        console.log('🔔 Setting up application status listener for user:', userId);
         
-        // Listen for user's own applications
         const applicationsQuery = query(
             collection(db, 'applications'),
             where('userId', '==', userId)
         );
 
         const unsubscribeApplications = onSnapshot(applicationsQuery, async (applicationsSnapshot) => {
-            console.log('DEBUG: Application snapshot received');
-            console.log('DEBUG: Total applications:', applicationsSnapshot.size);
+            console.log('📥 Application status changes detected');
             
             const changes = applicationsSnapshot.docChanges();
-            console.log('DEBUG: Number of changes:', changes.length);
+            console.log('📊 Number of status changes:', changes.length);
             
             for (const change of changes) {
-                console.log('DEBUG: Processing change:', {
-                    type: change.type,
-                    docId: change.doc.id
-                });
-                
                 if (change.type === 'modified') {
                     try {
                         const application = change.doc.data();
                         const oldData = change.oldIndex !== -1 ? applicationsSnapshot.docs[change.oldIndex].data() : null;
                         
-                        console.log('DEBUG: Application data:', {
-                            docId: change.doc.id,
+                        console.log('🔄 Status change detected:', {
+                            applicationId: change.doc.id,
                             oldStatus: oldData?.status,
                             newStatus: application.status,
-                            userId: application.userId,
                             jobId: application.jobId
                         });
 
-                        // Check if status has changed to approved or rejected
                         if (application.status === 'approved' || application.status === 'rejected') {
-                            console.log('DEBUG: Status is approved/rejected:', application.status);
+                            console.log('✅ Processing status update:', application.status);
                             
-                            // Get the job details
                             const jobDoc = await getDoc(doc(db, 'jobs', application.jobId));
                             if (!jobDoc.exists()) {
-                                console.error('DEBUG: Job document not found:', application.jobId);
+                                console.error('❌ Job not found:', application.jobId);
                                 continue;
                             }
 
                             const jobData = jobDoc.data();
-                            console.log('DEBUG: Job data retrieved:', {
+                            console.log('📋 Job data retrieved:', {
                                 jobId: application.jobId,
-                                jobTitle: jobData.jobTitle,
-                                postedBy: jobData.postedBy
+                                jobTitle: jobData.jobTitle
                             });
                             
-                            // Create notification for the applicant
                             await this.createStatusNotification(application, jobData, userId);
-                        } else {
-                            console.log('DEBUG: Status is not approved/rejected:', application.status);
+                            console.log('📨 Status notification created');
                         }
                     } catch (error) {
-                        console.error('DEBUG: Error processing status notification:', error);
+                        console.error('❌ Error in status notification:', error);
                     }
                 }
             }
-        }, (error) => {
-            console.error('DEBUG: Error in application status listener:', error);
         });
         
         this.unsubscribers.push(unsubscribeApplications);
@@ -343,13 +328,15 @@ class NotificationCenter {
                 return;
             }
 
-            // Check if notification already exists
+            // Check if notification already exists within the last 5 minutes
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
             const existingNotificationsQuery = query(
                 collection(db, 'notifications'),
                 where('userId', '==', user.uid),
                 where('type', '==', 'application'),
                 where('jobId', '==', application.jobId),
-                where('applicantId', '==', application.userId)
+                where('applicantId', '==', application.userId),
+                where('timestamp', '>=', fiveMinutesAgo)
             );
 
             const existingNotifications = await getDocs(existingNotificationsQuery);
@@ -357,11 +344,12 @@ class NotificationCenter {
                 count: existingNotifications.size,
                 userId: user.uid,
                 jobId: application.jobId,
-                applicantId: application.userId
+                applicantId: application.userId,
+                timeWindow: '5 minutes'
             });
 
             if (!existingNotifications.empty) {
-                console.log('DEBUG: Notification already exists, skipping');
+                console.log('DEBUG: Recent notification already exists, skipping');
                 return;
             }
 
@@ -398,60 +386,51 @@ class NotificationCenter {
 
     async createStatusNotification(application, job, userId) {
         try {
-            console.log('DEBUG: Creating status notification:', {
+            console.log('📝 Creating status notification for:', {
                 userId,
                 jobId: application.jobId,
-                status: application.status,
-                applicationData: application
+                status: application.status
             });
 
-            // Validate required data
             if (!application || !job || !application.jobId || !application.status) {
-                console.error('DEBUG: Missing required data:', {
-                    hasApplication: !!application,
-                    hasJob: !!job,
-                    jobId: application?.jobId,
-                    status: application?.status
-                });
+                console.error('❌ Missing required data for status notification');
                 return;
             }
 
-            // Check if notification already exists
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
             const existingNotificationsQuery = query(
                 collection(db, 'notifications'),
                 where('userId', '==', userId),
                 where('type', '==', 'status'),
                 where('jobId', '==', application.jobId),
-                where('status', '==', application.status)
+                where('status', '==', application.status),
+                where('timestamp', '>=', fiveMinutesAgo)
             );
 
             const existingNotifications = await getDocs(existingNotificationsQuery);
-            console.log('DEBUG: Checking for existing notifications:', {
-                count: existingNotifications.size,
+            console.log('🔍 Checking existing notifications:', {
+                found: !existingNotifications.empty,
                 userId,
                 jobId: application.jobId,
                 status: application.status
             });
 
             if (!existingNotifications.empty) {
-                console.log('DEBUG: Notification already exists, skipping');
+                console.log('⏭️ Recent notification exists, skipping');
                 return;
             }
 
-            // Get the job poster's name for the notification
             let jobPosterName = 'The employer';
             try {
                 const jobPosterDoc = await getDoc(doc(db, 'users', job.postedBy));
                 if (jobPosterDoc.exists()) {
                     const jobPosterData = jobPosterDoc.data();
                     jobPosterName = jobPosterData.fullName || jobPosterData.name || 'The employer';
-                    console.log('DEBUG: Job poster name retrieved:', jobPosterName);
                 }
             } catch (error) {
-                console.error('DEBUG: Error getting job poster name:', error);
+                console.error('❌ Error getting job poster name:', error);
             }
 
-            // Ensure all required fields are present with fallbacks
             const notificationData = {
                 type: 'status',
                 status: application.status,
@@ -465,21 +444,15 @@ class NotificationCenter {
                 userId: userId
             };
 
-            console.log('DEBUG: Prepared notification data:', notificationData);
-
-            // Validate all required fields are defined
-            if (Object.values(notificationData).some(value => value === undefined)) {
-                console.error('DEBUG: Invalid notification data:', notificationData);
-                return;
-            }
+            console.log('📤 Creating notification with data:', notificationData);
 
             const docRef = await addDoc(collection(db, 'notifications'), notificationData);
-            console.log('DEBUG: Status notification created successfully:', {
-                id: docRef.id,
-                ...notificationData
-            });
+            console.log('✅ Status notification created:', docRef.id);
+
+            await this.loadNotifications(userId);
+            console.log('🔄 Notification panel updated');
         } catch (error) {
-            console.error('DEBUG: Error creating status notification:', error);
+            console.error('❌ Error creating status notification:', error);
         }
     }
 
@@ -551,7 +524,7 @@ class NotificationCenter {
             list.innerHTML = `
                 <div class="notification-item empty-state">
                     <div class="notification-content">
-                        <div class="notification-header">
+                        <div class="notification-header oo">
                             <i class="fa-solid fa-bell-slash"></i>
                         </div>
                         <div class="notification-message">
