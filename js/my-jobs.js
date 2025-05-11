@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 loadingSpinner.style.display = 'none';
+                jobsList.style.display = 'block';
                 return;
             }
 
@@ -128,6 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p>No jobs match your current filters.</p>
                 </div>
             `;
+
+            jobsList.style.display = 'block'; 
             return;
         }
 

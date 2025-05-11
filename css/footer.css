@@ -40,6 +40,9 @@ footer {
     vertical-align:  middle;
   }
   
+  footer {
+    padding-bottom: 50px;
+  }
   
   .wrapper .footer-widget p {
     margin-bottom: 30px;

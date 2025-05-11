@@ -633,7 +633,6 @@ function filterApplications() {
                 <i class="ri-search-line"></i>
                 <h3>No Applications Found</h3>
                 <p>No applications match your current filter criteria.</p>
-                ${searchTerm ? `<p class="filter-info">Search term: "${searchTerm}"</p>` : ''}
             `;
             applicationsList.appendChild(message);
         }
@@ -1080,7 +1079,6 @@ function filterMyApplications() {
                 <i class="ri-search-line"></i>
                 <h3>No Applications Found</h3>
                 <p>No applications match your current filter criteria.</p>
-                ${searchTerm ? `<p class="filter-info">Search term: "${searchTerm}"</p>` : ''}
             `;
             myApplicationsList.appendChild(message);
         }
