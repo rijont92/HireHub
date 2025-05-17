@@ -298,7 +298,7 @@ function displayApplication(applicationId, application, jobData, userData) {
     applicationCard.innerHTML = `
         <div class="application-header">
             <div class="applicant-info">
-                <div class="applicant-avatar">
+                <div class="applicant-avatar" onclick="window.location.href='view-profile.html?id=${application.userId}'" style="cursor: pointer;">
                     ${profileImage ? 
                         `<img src="${profileImage}" alt="${application.fullName}" class="profile-image">` :
                         `<div class="avatar-circle">
@@ -307,7 +307,7 @@ function displayApplication(applicationId, application, jobData, userData) {
                     }
                 </div>
                 <div class="applicant-details">
-                    <h3>${application.fullName || 'Anonymous Applicant'}</h3>
+                    <h3 onclick="window.location.href='view-profile.html?id=${application.userId}'" style="cursor: pointer;">${application.fullName || 'Anonymous Applicant'}</h3>
                     <p class="job-title">Applied for: ${jobData?.jobTitle || 'Unknown Job'}</p>
                     <div class="contact-info">
                         <span class="contact-item">

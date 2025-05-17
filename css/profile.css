@@ -104,15 +104,27 @@ body {
 
 .profile-stats {
     display: flex;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 1rem 0;
 }
 
-.profile-stats span {
+.profile-stats > span {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     color: #666;
+    font-size: 0.95rem;
+}
+
+.profile-stats i {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.profile-stats > span > span {
+    color: #333;
+    font-size: 0.95rem;
 }
 
 .edit-profile-btn {
@@ -368,7 +380,7 @@ body {
     color: #333;
 }
 
-.form-group input[type="text"],
+.form-group input,
 .form-group textarea {
     width: 100%;
     padding: 12px;

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireHub | View Profile</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/view-profile.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/logo-tab.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/auth-state.js"></script>
+    <script type="module" src="../js/notification-center.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <!-- Same header as other pages -->
+        <nav class="nav container">
+            <div class="nav__data">
+                <a href="../index.html" class="nav__logo">
+                    <img src="../img/logo.png" alt="logo">
+                </a>
+                
+                <div class="nav-rightt">
+                    <div class="nav-li-right">
+                        <ul>
+                            <li>
+                                <a href="#" class="nav__link">
+                                    <div class="notification-bell">
+                                        <i class="fa-regular fa-bell"></i>
+                                        <div class="notification-count"></div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="nav__toggle" id="nav-toggle">
+                        <i class="ri-menu-line nav__burger"></i>
+                        <i class="ri-close-line nav__close"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li><a href="../index.html" class="nav__link">Home</a></li>
+                    <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+                    <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                    <li class="dropdown__item">
+                        <div class="nav__link">
+                            Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+
+                        <ul class="dropdown__menu">
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-user-line"></i> Profile
+                                </a>                          
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-settings-3-line"></i>Settings
+                                </a>
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-file-text-line"></i> My Jobs
+                                </a>
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-bookmark-line"></i>Saved Jobs
+                                </a>
+                            </li>
+
+                            <li class="remove">
+                                <a href="#" class="dropdown__link">
+                                    <i class="ri-history-line"></i>History
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="/html/login.html" class="dropdown__link" onclick="logOut()" id="login">
+                                    <i class="ri-logout-box-line"></i>Log in
+                                </a>
+                            </li>
+
+                            <li id="sign__up">
+                                <a href="/html/sign_up.html" class="dropdown__link">
+                                    <i class="ri-login-box-line"></i>Sign up
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li><a href="about.html" class="nav__link">About</a></li>
+                    <li><a href="contact.html" class="nav__link">Contact</a></li>
+
+                    <li class="nonee none2">
+                        <a href="#" class="nav__link">
+                            <div class="notification-bell">
+                                <i class="fa-regular fa-bell"></i>
+                                <div class="notification-count"></div>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="profile-container">
+                <!-- Loading Spinner -->
+                <div id="loadingSpinner" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading profile...</p>
+                </div>
+
+                <!-- Profile Content -->
+                <div class="profile-content" style="display: none;">
+                    <!-- Profile Banner -->
+                     <div class="profile-header">
+                    <div class="profile-banner">
+                        <div class="profile-picture">
+                            <img id="profileImage" src="../img/logo.png" alt="Profile Picture">
+                        </div>
+                    </div>
+                    </div>
+
+                    <!-- Profile Info -->
+                    <div class="profile-info">
+                        <h1 id="userName">Loading...</h1>
+                        <p class="title" id="userProfession">Loading...</p>
+                        <p id="userEmail">Loading...</p>
+                        <div class="profile-stats">
+                            <span><i class="fas fa-map-marker-alt"></i> <span id="userLocation">Loading...</span></span>
+                            <span><i class="fas fa-building"></i> <span id="userCompany">Loading...</span></span>
+                            <span><i class="fas fa-phone"></i> <span id="userPhone">Loading...</span></span>
+                            <span><i class="fas fa-globe"></i> <span id="userWebsite">Loading...</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Profile Sections -->
+                    <div class="profile-content">
+                        <!-- About Section -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h2>About</h2>
+                            </div>
+                            <p id="userBio">Loading...</p>
+                        </div>
+
+                        <!-- Skills Section -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h2>Skills</h2>
+                            </div>
+                            <div class="skills-container" id="skillsList">
+                                <!-- Skills will be dynamically added here -->
+                            </div>
+                        </div>
+
+                        <!-- Experience Section -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h2>Experience</h2>
+                            </div>
+                            <div id="experienceList">
+                                <!-- Experience items will be dynamically added here -->
+                            </div>
+                        </div>
+
+                        <!-- Education Section -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h2>Education</h2>
+                            </div>
+                            <div id="educationList">
+                                <!-- Education items will be dynamically added here -->
+                            </div>
+                        </div>
+
+                        <!-- Posted Jobs Section -->
+                        <div class="profile-section">
+                            <div class="section-header">
+                                <h2>Posted Jobs</h2>
+                            </div>
+                            <div id="postedJobs" class="posted-jobs-grid">
+                                <!-- Posted jobs will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="wrapper">
+                <div class="footer-widget wrapper-center">
+                    <a href="#">
+                        <img src="../img/logo.png" alt="" class="logo">
+                    </a>
+                    <p class="desc">
+                        Connecting skilled professionals with top employers for success and growth.
+                    </p>
+                    <ul class="socials">
+                        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                        <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+                    </ul>
+                </div>
+                <div class="footer-widget">
+                    <h6>Quick Links</h6>
+                    <ul class="links">
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="jobs.html">Jobs</a></li>
+                        <li><a href="post-job.html">Post a Job</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-widget">
+                    <h6>Services</h6>
+                    <ul class="links">
+                        <li><a href="#">Job Search</a></li>
+                        <li><a href="#">Save Jobs</a></li>
+                        <li><a href="post-job.html">Post a Job</a></li>
+                        <li><a href="#">Manage Applications</a></li>
+                        <li><a href="#">Job Alerts</a></li>
+                    </ul>
+                </div>
+                <div class="footer-widget">
+                    <h6>Help &amp; Support</h6>
+                    <ul class="links">
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Live Chat</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/header.js"></script>
+    <script type="module" src="../js/view-profile.js"></script>
+</body>
+</html> 

@@ -187,11 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const editTitle = document.getElementById('editTitle');
                 const editLocation = document.getElementById('editLocation');
                 const themeColorInput = document.getElementById('themeColor');
+                const editCompany = document.getElementById('editCompany');
+                const editPhone = document.getElementById('editPhone');
+                const editWebsite = document.getElementById('editWebsite');
                 
                 if (editName) editName.value = userData.name || '';
                 if (editTitle) editTitle.value = userData.title || '';
                 if (editLocation) editLocation.value = userData.location || '';
                 if (themeColorInput) themeColorInput.value = userData.themeColor || defaultThemeColor;
+                if (editCompany) editCompany.value = userData.company || '';
+                if (editPhone) editPhone.value = userData.phone || '';
+                if (editWebsite) editWebsite.value = userData.website || '';
                 break;
             case 'about':
                 const editBio = document.getElementById('editBio');
@@ -304,12 +310,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const title = document.getElementById('editTitle').value;
             const location = document.getElementById('editLocation').value;
             const themeColor = document.getElementById('themeColor').value;
+            const company = document.getElementById('editCompany').value;
+            const phone = document.getElementById('editPhone').value;
+            const website = document.getElementById('editWebsite').value;
 
             // Update userData object
             userData.name = name;
             userData.title = title;
             userData.location = location;
             userData.themeColor = themeColor;
+            userData.company = company || 'Company not specified';
+            userData.phone = phone || 'Phone not specified';
+            userData.website = website || 'Website not specified';
 
             try {
                 // Update Firestore
@@ -318,7 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     name: name,
                     title: title,
                     location: location,
-                    themeColor: themeColor
+                    themeColor: themeColor,
+                    company: company || 'Company not specified',
+                    phone: phone || 'Phone not specified',
+                    website: website || 'Website not specified'
                 });
 
                 // Update localStorage
@@ -476,20 +491,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to update profile information
     function updateProfileDisplay() {
-        document.getElementById('userName').textContent = userData.name || 'User';
-        document.getElementById('userTitle').textContent = userData.title || 'Professional';
-        document.getElementById('userLocation').textContent = userData.location || 'Not specified';
-        document.getElementById('userEmail').textContent = userData.email || 'No email provided';
-        document.getElementById('userBio').textContent = userData.bio || 'No bio available';
-        
-        // Update profile image
+        // Update profile information
+        document.getElementById('userName').textContent = userData.name || 'User Name';
+        document.getElementById('userTitle').textContent = userData.title || 'Professional Title';
+        document.getElementById('userLocation').textContent = userData.location || 'Location';
+        document.getElementById('userEmail').textContent = userData.email || 'Email';
+        document.getElementById('userCompany').textContent = userData.company || 'Company not specified';
+        document.getElementById('userPhone').textContent = userData.phone || 'Phone not specified';
+        document.getElementById('userWebsite').textContent = userData.website || 'Website not specified';
+
+        // Update profile picture if exists
         if (userData.profileImage) {
-            profileImage.src = userData.profileImage;
-            profileImage.onerror = function() {
-                this.src = '../img/useri.png';
-            };
-        } else {
-            profileImage.src = '../img/useri.png';
+            document.getElementById('profileImage').src = userData.profileImage;
         }
 
         // Update skills

@@ -837,6 +837,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 posterName.textContent = user.name || 'No Name';
                 posterEmail.textContent = user.email || '';
                 posterInfoDiv.style.display = 'flex';
+                
+                // Make the entire poster info div clickable
+                posterInfoDiv.style.cursor = 'pointer';
+                posterInfoDiv.addEventListener('click', () => {
+                    window.location.href = `view-profile.html?id=${uid}`;
+                });
+            
             } else {
                 posterInfoDiv.style.display = 'none';
             }
