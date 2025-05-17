@@ -2,7 +2,6 @@ import { db } from './firebase-config.js';
 import { collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded - Popular Categories');
     
     const categoriesContainer = document.getElementById('categories-container');
     if (!categoriesContainer) {
@@ -86,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to load popular categories
     async function loadPopularCategories() {
         try {
-            console.log('Loading popular categories...');
             
             // Show loading spinner
             categoriesContainer.innerHTML = `
@@ -96,10 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
 
             const jobsQuery = query(collection(db, 'jobs'));
-            console.log('Querying jobs collection...');
             
             const querySnapshot = await getDocs(jobsQuery);
-            console.log('Got query snapshot:', querySnapshot.size, 'jobs found');
             
             // Initialize category counts with default categories
             const categoryCounts = { ...defaultCategories };
@@ -112,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            console.log('Category counts:', categoryCounts);
 
             // Convert to array and sort by count
             const categories = Object.entries(categoryCounts)
@@ -124,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }))
                 .sort((a, b) => b.count - a.count);
 
-            console.log('Sorted categories:', categories);
 
             // Clear existing content
             categoriesContainer.innerHTML = '';
@@ -135,7 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 categoriesContainer.innerHTML += categoryCard;
             });
 
-            console.log('Categories loaded successfully');
 
         } catch (error) {
             console.error('Error loading popular categories:', error);

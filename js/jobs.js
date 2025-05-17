@@ -462,7 +462,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to save/unsave a job
     async function saveJob(jobId) {
-        console.log('Save button clicked with jobId:', jobId);
         const user = auth.currentUser;
         if (!user) {
             window.location.href = 'login.html';
@@ -491,7 +490,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const userData = userDoc.data();
             const savedJobs = userData.savedJobs || [];
-            console.log('Current saved jobs array:', savedJobs);
             
             if (savedJobs.includes(jobId)) {
                 // Remove job from saved jobs array
@@ -499,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     savedJobs: arrayRemove(jobId),
                     updatedAt: new Date().toISOString()
                 });
-                console.log('Removed job from saved jobs:', jobId);
                 job.isSaved = false;
                 saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Job';
                 saveBtn.classList.remove('saved');
@@ -509,7 +506,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     savedJobs: arrayUnion(jobId),
                     updatedAt: new Date().toISOString()
                 });
-                console.log('Added job to saved jobs:', jobId);
                 job.isSaved = true;
                 saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
                 saveBtn.classList.add('saved');

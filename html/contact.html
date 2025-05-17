@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <!-- <link rel="stylesheet" href="css/styles.css"> -->
     <link rel="stylesheet" href="../css/contact.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -239,7 +239,6 @@
         (function() {
             try {
                 emailjs.init("5T7gOiJsCCN0SRMsL");
-                console.log("EmailJS initialized successfully");
             } catch (error) {
                 console.error("EmailJS initialization failed:", error);
             }
@@ -311,12 +310,10 @@
                     message: message.value.trim()
                 };
 
-                console.log("Sending email with params:", templateParams);
 
                 // Send email using EmailJS
                 emailjs.send('service_nb1jn0a', 'template_9z5n9hn', templateParams)
                     .then(function(response) {
-                        console.log('SUCCESS!', response.status, response.text);
                         // Show success message
                         document.getElementById('successMessage').classList.add('active');
                         // Reset form

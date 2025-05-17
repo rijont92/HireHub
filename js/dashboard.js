@@ -22,11 +22,9 @@ let contentSections = {};
 
 // Initialize content sections after DOM is loaded
 function initializeContentSections() {
-    console.log('Initializing content sections...');
     
     // Get the main content container
     const mainContent = document.querySelector('.dashboard-content').parentElement;
-    console.log('Main content container:', mainContent);
     
     // Initialize content sections
     contentSections = {
@@ -35,7 +33,6 @@ function initializeContentSections() {
         'my-applications': document.getElementById('my-applications-section')
     };
     
-    console.log('Content sections:', contentSections);
 
     // Initialize other content sections
     contentSections['posted-jobs'].className = 'dashboard-content';
@@ -54,7 +51,6 @@ function initializeContentSections() {
     // Add all sections to the DOM
     Object.values(contentSections).forEach(section => {
         if (section && section !== contentSections['applications']) {
-            console.log('Adding section to DOM:', section.id);
             mainContent.appendChild(section);
             section.style.display = 'none';
         }
@@ -66,16 +62,13 @@ function initializeContentSections() {
         applicationsTab.parentElement.classList.add('active');
     }
     
-    console.log('Content sections initialized');
 }
 
 // Add click event listeners to tab links
 function initializeTabLinks() {
-    console.log('Initializing tab links...');
     tabLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Tab clicked:', link.getAttribute('href'));
             
             // Remove active class from all tabs
             tabLinks.forEach(tab => {
@@ -87,33 +80,27 @@ function initializeTabLinks() {
             
             // Get the target section
             const target = link.getAttribute('href').substring(1);
-            console.log('Target section:', target);
             
             // Hide all content sections
             Object.values(contentSections).forEach(section => {
                 if (section) {
-                    console.log('Hiding section:', section.id);
                     section.style.display = 'none';
                 }
             });
             
             // Show the selected content section
             if (contentSections[target]) {
-                console.log('Showing section:', target);
                 contentSections[target].style.display = 'block';
                 
                 // Load content for the selected section
                 switch (target) {
                     case 'applications':
-                        console.log('Loading applications...');
                         loadApplications(auth.currentUser.uid);
                         break;
                     case 'posted-jobs':
-                        console.log('Loading posted jobs...');
                         loadPostedJobs(auth.currentUser.uid);
                         break;
                     case 'my-applications':
-                        console.log('Loading my applications...');
                         loadMyApplications(auth.currentUser.uid);
                         break;
                 }
@@ -170,7 +157,6 @@ onAuthStateChanged(auth, async (user) => {
 // Load applications for the current user
 async function loadApplications(userId) {
     try {
-        console.log('Loading applications for user:', userId);
         
         // Query jobs posted by the current user
         const jobsQuery = query(
@@ -179,7 +165,6 @@ async function loadApplications(userId) {
         );
         const jobsSnapshot = await getDocs(jobsQuery);
         
-        console.log('Found jobs:', jobsSnapshot.size);
         
         // Get all job IDs
         const jobIds = jobsSnapshot.docs.map(doc => doc.id);
@@ -222,7 +207,6 @@ async function loadApplications(userId) {
             return dateB - dateA;
         });
         
-        console.log('Total applications found:', allApplications.length);
         
         // Clear existing applications
         applicationsList.innerHTML = '';
@@ -242,15 +226,12 @@ async function loadApplications(userId) {
         // Display applications
         for (const applicationDoc of allApplications) {
             const application = applicationDoc.data();
-            console.log('Processing application:', application);
             
             try {
-                console.log('Fetching job details for jobId:', application.jobId);
                 // Get the job details
                 const jobDocRef = doc(db, 'jobs', application.jobId);
                 const jobDoc = await getDoc(jobDocRef);
                 const jobData = jobDoc.data();
-                console.log('Job data retrieved:', jobData);
                 
                 // Initialize userData with default values
                 let userData = {
@@ -262,21 +243,16 @@ async function loadApplications(userId) {
                 // Only try to fetch user data if userId exists
                 if (application.userId) {
                     try {
-                        console.log('Fetching user details for userId:', application.userId);
                         const userDocRef = doc(db, 'users', application.userId);
                         const userDoc = await getDoc(userDocRef);
                         if (userDoc.exists()) {
                             userData = { ...userData, ...userDoc.data() };
-                            console.log('User data retrieved:', userData);
                         } else {
-                            console.log('User document not found, using application data');
                         }
                     } catch (userError) {
                         console.error('Error fetching user data:', userError);
                         // Continue with default user data
                     }
-                } else {
-                    console.log('No userId found in application, using application data');
                 }
                 
                 displayApplication(applicationDoc.id, application, jobData, userData);
@@ -312,9 +288,6 @@ function getInitials(name) {
 
 // Display a single application
 function displayApplication(applicationId, application, jobData, userData) {
-    console.log('Displaying application:', application);
-    console.log('Job data:', jobData);
-    console.log('User data:', userData);
     
     const applicationCard = document.createElement('div');
     applicationCard.className = 'application-card';
@@ -454,12 +427,7 @@ function showNotification(message, type = 'success') {
 // Update application status
 async function updateApplicationStatus(applicationId, newStatus, message = '') {
     try {
-        console.log('🔄 Updating application status:', {
-            applicationId,
-            newStatus,
-            message
-        });
-
+     
         // Get the application document
         const applicationRef = doc(db, 'applications', applicationId);
         const applicationDoc = await getDoc(applicationRef);
@@ -469,7 +437,6 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             throw new Error('Application not found');
         }
 
-        console.log('📄 Application data:', application);
 
         // Get the job document
         const jobRef = doc(db, 'jobs', application.jobId);
@@ -480,7 +447,6 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             throw new Error('Job not found');
         }
 
-        console.log('📋 Job data:', jobData);
 
         // Get the job poster's details for the notification
         const jobPosterRef = doc(db, 'users', auth.currentUser.uid);
@@ -541,7 +507,7 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
 
         // Commit the batch
         await batch.commit();
-        console.log('✅ Batch update committed');
+
 
         // Show success message
         const statusMessage = newStatus === 'approved' ? 'approved' : 'rejected';
@@ -549,11 +515,9 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
 
         // Reload applications to show updated status
         await loadApplications(auth.currentUser.uid);
-        console.log('📊 Applications reloaded');
 
         // If we're on the jobs page, force a reload to ensure UI is in sync
         if (window.location.pathname.includes('jobs.html')) {
-            console.log('🔄 Reloading jobs page...');
             setTimeout(() => {
                 window.location.reload();
             }, 2000); // Delay reload by 2 seconds
@@ -562,7 +526,6 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
 
         // Update the status in the profile page if it's open
         if (window.location.pathname.includes('profile.html')) {
-            console.log('📝 Updating profile page...');
             const jobCard = document.querySelector(`[data-job-id="${application.jobId}"]`);
             if (jobCard) {
                 const statusElement = jobCard.querySelector('.status');
@@ -574,7 +537,6 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
         }
 
         // Force a reload of the page to ensure notifications are updated
-        console.log('🔄 Reloading page in 2 seconds...');
         setTimeout(() => {
             window.location.reload();
         }, 2000); // Delay reload by 2 seconds
@@ -644,7 +606,6 @@ function filterApplications() {
 // Function to load posted jobs
 async function loadPostedJobs(userId) {
     try {
-        console.log('Loading jobs for user:', userId);
         
         const jobsQuery = query(
             collection(db, 'jobs'),
@@ -652,7 +613,6 @@ async function loadPostedJobs(userId) {
         );
         const jobsSnapshot = await getDocs(jobsQuery);
         
-        console.log('Found jobs:', jobsSnapshot.size);
         
         const jobsList = document.getElementById('posted-jobs-list');
         if (!jobsList) {
@@ -676,7 +636,6 @@ async function loadPostedJobs(userId) {
         
         jobsSnapshot.forEach(doc => {
             const job = doc.data();
-            console.log('Job data:', job); // Debug log to see the actual job data structure
             
             const jobCard = document.createElement('div');
             jobCard.className = 'job-card';
@@ -890,15 +849,12 @@ function showConfirmationModal(message, onConfirm) {
 
 // Function to load my applications
 async function loadMyApplications(userId) {
-    console.log('loadMyApplications called with userId:', userId);
     try {
         const applicationsRef = collection(db, 'applications');
         const q = query(applicationsRef, where('userId', '==', userId));
-        console.log('Querying applications...');
         const querySnapshot = await getDocs(q);
         
         const myApplicationsList = document.getElementById('my-applications-list');
-        console.log('myApplicationsList element:', myApplicationsList);
         
         if (!myApplicationsList) {
             console.error('My applications list element not found');
@@ -909,7 +865,6 @@ async function loadMyApplications(userId) {
         myApplicationsList.innerHTML = '';
         
         if (querySnapshot.empty) {
-            console.log('No applications found, showing empty state');
             myApplicationsList.innerHTML = `
                 <div class="no-applications">
                     <i class="ri-inbox-line"></i>
@@ -929,7 +884,6 @@ async function loadMyApplications(userId) {
         // Process each application
         for (const docSnapshot of querySnapshot.docs) {
             const application = docSnapshot.data();
-            console.log('Processing application:', application);
             
             try {
                 // Get the job details
@@ -942,7 +896,6 @@ async function loadMyApplications(userId) {
                 }
                 
                 const jobData = jobDoc.data();
-                console.log('Job data retrieved:', jobData);
                 
                 // Create application card
                 const applicationCard = document.createElement('div');

@@ -21,11 +21,9 @@ class NotificationCenter {
 
     init() {
         if (this.isInitialized) {
-            console.log('DEBUG: Notification center already initialized');
             return;
         }
 
-        console.log('DEBUG: Initializing notification center');
         this.createPanel();
         this.setupEventListeners();
         this.setupAuthListener();
@@ -84,19 +82,16 @@ class NotificationCenter {
     }
 
     setupAuthListener() {
-        console.log('DEBUG: Setting up auth listener');
         
         // Clean up existing listeners
         this.cleanupListeners();
         
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                console.log('DEBUG: User authenticated, loading notifications');
                 this.loadNotifications(user.uid);
                 this.setupJobApplicationListeners(user.uid);
                 this.setupApplicationStatusListeners(user.uid);
             } else {
-                console.log('DEBUG: No user authenticated, clearing notifications');
                 this.hidePanel();
                 this.updateCount(0);
                 this.notifications = [];
@@ -107,7 +102,6 @@ class NotificationCenter {
     }
 
     cleanupListeners() {
-        console.log('DEBUG: Cleaning up existing listeners');
         this.unsubscribers.forEach(unsubscribe => {
             try {
                 unsubscribe();
@@ -119,7 +113,6 @@ class NotificationCenter {
     }
 
     setupJobApplicationListeners(userId) {
-        console.log('DEBUG: Setting up job application listener for user:', userId);
         
         // Listen for jobs posted by the user
         const jobsQuery = query(
@@ -128,7 +121,6 @@ class NotificationCenter {
         );
 
         const unsubscribeJobs = onSnapshot(jobsQuery, async (jobsSnapshot) => {
-            console.log('DEBUG: Jobs snapshot received:', jobsSnapshot.size);
             
             // Clean up any existing application listeners
             this.cleanupApplicationListeners();
@@ -136,7 +128,6 @@ class NotificationCenter {
             jobsSnapshot.forEach(async (jobDoc) => {
                 const jobId = jobDoc.id;
                 const jobData = jobDoc.data();
-                console.log('DEBUG: Processing job:', { jobId, jobTitle: jobData.jobTitle });
 
                 // Listen for applications to this job
                 const applicationsQuery = query(
@@ -145,15 +136,12 @@ class NotificationCenter {
                 );
 
                 const unsubscribeApplications = onSnapshot(applicationsQuery, async (applicationsSnapshot) => {
-                    console.log('DEBUG: Applications snapshot received for job:', jobId);
                     const changes = applicationsSnapshot.docChanges();
-                    console.log('DEBUG: Number of application changes:', changes.length);
                     
                     for (const change of changes) {
                         if (change.type === 'added') {
                             try {
                                 const application = change.doc.data();
-                                console.log('DEBUG: New application data:', application);
                                 
                                 // Check if the application is new (within last 5 seconds)
                                 const appliedAt = new Date(application.appliedAt || application.timestamp);
@@ -161,10 +149,6 @@ class NotificationCenter {
                                 const isNewApplication = (now - appliedAt) < 5000; // 5 seconds
 
                                 if (!isNewApplication) {
-                                    console.log('DEBUG: Skipping old application:', {
-                                        appliedAt: appliedAt.toISOString(),
-                                        now: now.toISOString()
-                                    });
                                     continue;
                                 }
 
@@ -213,7 +197,6 @@ class NotificationCenter {
     }
 
     setupApplicationStatusListeners(userId) {
-        console.log('🔔 Setting up application status listener for user:', userId);
         
         const applicationsQuery = query(
             collection(db, 'applications'),
@@ -221,10 +204,8 @@ class NotificationCenter {
         );
 
         const unsubscribeApplications = onSnapshot(applicationsQuery, async (applicationsSnapshot) => {
-            console.log('📥 Application status changes detected');
             
             const changes = applicationsSnapshot.docChanges();
-            console.log('📊 Number of status changes:', changes.length);
             
             for (const change of changes) {
                 if (change.type === 'modified') {
@@ -232,15 +213,9 @@ class NotificationCenter {
                         const application = change.doc.data();
                         const oldData = change.oldIndex !== -1 ? applicationsSnapshot.docs[change.oldIndex].data() : null;
                         
-                        console.log('🔄 Status change detected:', {
-                            applicationId: change.doc.id,
-                            oldStatus: oldData?.status,
-                            newStatus: application.status,
-                            jobId: application.jobId
-                        });
+                      
 
                         if (application.status === 'approved' || application.status === 'rejected') {
-                            console.log('✅ Processing status update:', application.status);
                             
                             const jobDoc = await getDoc(doc(db, 'jobs', application.jobId));
                             if (!jobDoc.exists()) {
@@ -249,13 +224,8 @@ class NotificationCenter {
                             }
 
                             const jobData = jobDoc.data();
-                            console.log('📋 Job data retrieved:', {
-                                jobId: application.jobId,
-                                jobTitle: jobData.jobTitle
-                            });
-                            
+                        
                             await this.createStatusNotification(application, jobData, userId);
-                            console.log('📨 Status notification created');
                         }
                     } catch (error) {
                         console.error('❌ Error in status notification:', error);
@@ -269,7 +239,6 @@ class NotificationCenter {
 
     async loadNotifications(userId) {
         try {
-            console.log('DEBUG: Loading notifications for user:', userId);
             const notificationsQuery = query(
                 collection(db, 'notifications'),
                 where('userId', '==', userId),
@@ -277,7 +246,6 @@ class NotificationCenter {
             );
 
             const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-                console.log('DEBUG: Notifications snapshot received:', snapshot.size);
                 this.notifications = [];
                 this.unreadCount = 0;
 
@@ -289,10 +257,7 @@ class NotificationCenter {
                     }
                 });
 
-                console.log('DEBUG: Processed notifications:', {
-                    total: this.notifications.length,
-                    unread: this.unreadCount
-                });
+             
 
                 this.updateCount(this.unreadCount);
                 this.renderNotifications();
@@ -311,12 +276,7 @@ class NotificationCenter {
                 return;
             }
 
-            console.log('DEBUG: Creating application notification:', {
-                jobId: application.jobId,
-                applicantId: application.userId,
-                applicantName: application.fullName
-            });
-
+          
             // Validate required data
             if (!application || !job || !application.userId || !application.jobId) {
                 console.error('DEBUG: Missing required data:', {
@@ -340,16 +300,9 @@ class NotificationCenter {
             );
 
             const existingNotifications = await getDocs(existingNotificationsQuery);
-            console.log('DEBUG: Checking for existing notifications:', {
-                count: existingNotifications.size,
-                userId: user.uid,
-                jobId: application.jobId,
-                applicantId: application.userId,
-                timeWindow: '5 minutes'
-            });
+    
 
             if (!existingNotifications.empty) {
-                console.log('DEBUG: Recent notification already exists, skipping');
                 return;
             }
 
@@ -366,7 +319,6 @@ class NotificationCenter {
                 userId: user.uid
             };
 
-            console.log('DEBUG: Prepared notification data:', notificationData);
 
             // Validate all required fields are defined
             if (Object.values(notificationData).some(value => value === undefined)) {
@@ -375,10 +327,7 @@ class NotificationCenter {
             }
 
             const docRef = await addDoc(collection(db, 'notifications'), notificationData);
-            console.log('DEBUG: Application notification created successfully:', {
-                id: docRef.id,
-                ...notificationData
-            });
+           
         } catch (error) {
             console.error('DEBUG: Error creating application notification:', error);
         }
@@ -386,12 +335,7 @@ class NotificationCenter {
 
     async createStatusNotification(application, job, userId) {
         try {
-            console.log('📝 Creating status notification for:', {
-                userId,
-                jobId: application.jobId,
-                status: application.status
-            });
-
+       
             if (!application || !job || !application.jobId || !application.status) {
                 console.error('❌ Missing required data for status notification');
                 return;
@@ -408,15 +352,9 @@ class NotificationCenter {
             );
 
             const existingNotifications = await getDocs(existingNotificationsQuery);
-            console.log('🔍 Checking existing notifications:', {
-                found: !existingNotifications.empty,
-                userId,
-                jobId: application.jobId,
-                status: application.status
-            });
+          
 
             if (!existingNotifications.empty) {
-                console.log('⏭️ Recent notification exists, skipping');
                 return;
             }
 
@@ -444,13 +382,10 @@ class NotificationCenter {
                 userId: userId
             };
 
-            console.log('📤 Creating notification with data:', notificationData);
 
             const docRef = await addDoc(collection(db, 'notifications'), notificationData);
-            console.log('✅ Status notification created:', docRef.id);
 
             await this.loadNotifications(userId);
-            console.log('🔄 Notification panel updated');
         } catch (error) {
             console.error('❌ Error creating status notification:', error);
         }
@@ -473,7 +408,6 @@ class NotificationCenter {
                 return;
             }
 
-            console.log('DEBUG: Clearing all notifications for user:', user.uid);
 
             // Get all notifications for the current user
             const notificationsQuery = query(
@@ -482,10 +416,8 @@ class NotificationCenter {
             );
 
             const snapshot = await getDocs(notificationsQuery);
-            console.log('DEBUG: Found notifications to delete:', snapshot.size);
 
             if (snapshot.empty) {
-                console.log('DEBUG: No notifications to clear');
                 return;
             }
 
@@ -494,13 +426,11 @@ class NotificationCenter {
 
             // Add each notification to the batch
             snapshot.forEach((doc) => {
-                console.log('DEBUG: Adding notification to batch:', doc.id);
                 batch.delete(doc.ref);
             });
 
             // Commit the batch
             await batch.commit();
-            console.log('DEBUG: Successfully cleared all notifications');
 
             // Update local state
             this.notifications = [];

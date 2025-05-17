@@ -18,14 +18,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to create job card
     function createJobCard(job, jobId) {
-        console.log('Creating job card with job object:', job);
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isClosed = job.status === 'closed';
         
         const jobItem = document.createElement('div');
         jobItem.className = `job-item ${isClosed ? 'closed' : ''}`;
         jobItem.dataset.jobId = jobId;
-        console.log('Set job item dataset jobId to:', jobId);
         
         jobItem.innerHTML = `
             <div class="job-item-content">
@@ -92,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const saveBtn = jobItem.querySelector('.save-btn');
         saveBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            console.log('Save button clicked with jobId:', jobId);
             await toggleSaveJob(jobId);
         });
 
@@ -101,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (applyBtn && !applyBtn.disabled) {
             applyBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                console.log('Apply button clicked with jobId:', jobId);
                 showApplyModal(jobId, job.jobTitle);
             });
         }
@@ -128,7 +124,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
             const savedJobs = userDoc.data()?.savedJobs || [];
-            console.log('User saved jobs:', savedJobs);
 
             const jobsContainer = document.getElementById('savedJobsContainer');
             jobsContainer.innerHTML = '';
@@ -145,8 +140,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (jobDoc.exists()) {
                     const jobData = jobDoc.data();
-                    console.log('Job document data:', jobData);
-                    console.log('Job document ID:', jobId);
                     
                     const jobCard = createJobCard(jobData, jobId);
                     jobsContainer.appendChild(jobCard);
@@ -193,14 +186,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
             const savedJobs = userDoc.data()?.savedJobs || [];
-            console.log('Current saved jobs array:', savedJobs);
 
             if (savedJobs.includes(jobId)) {
                 // Remove job from saved jobs array
                 await updateDoc(userRef, {
                     savedJobs: arrayRemove(jobId)
                 });
-                console.log('Removed job from saved jobs:', jobId);
                 
                 // Remove job card from UI
                 const jobCard = document.querySelector(`.job-item[data-job-id="${jobId}"]`);
@@ -253,7 +244,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show apply modal
     function showApplyModal(jobId, jobTitle) {
-        console.log('Showing apply modal for job:', jobId, jobTitle);
         currentJobId = jobId;
         applyJobTitle.textContent = jobTitle;
         applyModalOverlay.style.display = 'flex';

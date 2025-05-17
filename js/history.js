@@ -183,58 +183,46 @@ dateFilter.addEventListener('change', (e) => {
     now.setHours(0, 0, 0, 0); // Set to start of day
     let filteredHistory = [...jobHistory];
     
-    console.log('Current date:', now);
-    console.log('Total jobs before filtering:', jobHistory.length);
     
     switch (filterValue) {
         case 'week':
             const lastWeek = new Date();
             lastWeek.setDate(lastWeek.getDate() - 7);
             lastWeek.setHours(0, 0, 0, 0);
-            console.log('Last week date:', lastWeek);
             
             filteredHistory = jobHistory.filter(job => {
                 const jobDate = job.viewedAt.toDate();
                 jobDate.setHours(0, 0, 0, 0);
-                console.log('Job date:', jobDate, 'Job title:', job.jobTitle);
                 // Only show jobs from last week, excluding today
                 return jobDate >= lastWeek && !compareDates(jobDate, now);
             });
-            console.log('Jobs after week filter:', filteredHistory.length);
             break;
             
         case 'month':
             const lastMonth = new Date();
             lastMonth.setMonth(lastMonth.getMonth() - 1);
             lastMonth.setHours(0, 0, 0, 0);
-            console.log('Last month date:', lastMonth);
             
             filteredHistory = jobHistory.filter(job => {
                 const jobDate = job.viewedAt.toDate();
                 jobDate.setHours(0, 0, 0, 0);
-                console.log('Job date:', jobDate, 'Job title:', job.jobTitle);
                 // Only show jobs from last month, excluding today
                 return jobDate >= lastMonth && !compareDates(jobDate, now);
             });
-            console.log('Jobs after month filter:', filteredHistory.length);
             break;
             
         case 'year':
             const currentYear = now.getFullYear();
-            console.log('Current year:', currentYear);
             
             filteredHistory = jobHistory.filter(job => {
                 const jobDate = job.viewedAt.toDate();
                 const jobYear = jobDate.getFullYear();
-                console.log('Job date:', jobDate, 'Job year:', jobYear, 'Job title:', job.jobTitle);
                 // Only show jobs from last year
                 return jobYear === currentYear - 1;
             });
-            console.log('Jobs after year filter:', filteredHistory.length);
             break;
             
         case 'all':
-            console.log('Showing all jobs');
             break;
     }
     

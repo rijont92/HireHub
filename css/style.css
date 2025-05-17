@@ -558,7 +558,7 @@ body {
   line-height: 92px;
   border-radius: 50%;
   background: var(--primary-color);
-  box-shadow: 0 8px 32px rgba(75, 41, 139,.75);
+  /* box-shadow: 0 8px 32px rgba(75, 41, 139,.75);   */
   display: flex;
   justify-content: center;
   align-items: center;

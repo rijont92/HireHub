@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
         postJobContainer.classList.add('blurred');
     }
 
-    console.log(localStorage.getItem("isAuthenticated"));
 
     // Set minimum date to today
     const today = new Date();

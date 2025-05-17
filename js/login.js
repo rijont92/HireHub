@@ -68,7 +68,7 @@ loginForm.addEventListener('submit', async (e) => {
                 const userData = userDoc.data();
                 
                 // Store user data in localStorage
-                localStorage.setItem('userData', JSON.stringify(userData));
+                // localStorage.setItem('userData', JSON.stringify(userData));
             } else {
                 // If no user document exists, create a default user data
                 const defaultUserData = {

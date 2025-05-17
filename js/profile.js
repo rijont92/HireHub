@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            console.log("User is authenticated:", user.uid);
             
             // Set up real-time listener for Firestore changes
             const userRef = doc(db, 'users', user.uid);
@@ -59,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
             getDoc(userRef).then((docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const firestoreData = docSnapshot.data();
-                    console.log("Initial Firestore data:", firestoreData);
                     
                     // Update userData with Firestore data
                     userData = { ...userData, ...firestoreData };
@@ -78,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
             unsubscribeFirestore = onSnapshot(userRef, (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const firestoreData = docSnapshot.data();
-                    console.log("Firestore update received:", firestoreData);
                     
                     // Update userData with Firestore data
                     userData = { ...userData, ...firestoreData };
@@ -93,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error listening to Firestore changes:", error);
             });
         } else {
-            console.log("User is not authenticated");
             window.location.href = '/html/login.html';
         }
     });

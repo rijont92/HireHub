@@ -78,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     continue;
                 }
                 
-                console.log('Fetching job with ID:', jobId);
                 const jobRef = doc(db, 'jobs', jobId);
                 const jobDoc = await getDoc(jobRef);
                 
@@ -87,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         firestoreId: jobId,  // Store the actual Firestore document ID
                         ...jobDoc.data() 
                     };
-                    console.log('Found job:', job);
                     allJobs.push(job);
                     if (job.location) locations.add(job.location);
                 } else {
@@ -224,10 +222,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make functions available globally
     window.editJob = async function(jobId) {
         try {
-            console.log('Attempting to edit job with ID:', jobId);
             // Get the job data using the Firestore document ID
             const jobRef = doc(db, 'jobs', jobId);
-            console.log('Fetching job document...');
             const jobDoc = await getDoc(jobRef);
             
             if (!jobDoc.exists()) {
@@ -236,7 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            console.log('Job document found:', jobDoc.data());
             const jobData = jobDoc.data();
 
             // Fill the form with job data

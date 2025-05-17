@@ -115,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const newEmail = emailInput.value;
-            console.log('Sending verification email to:', newEmail);
 
             // Show password confirmation modal
             const passwordModal = document.getElementById('passwordConfirmModal');
@@ -360,7 +359,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const newName = nameInput.value;
-            console.log('Updating name to:', newName);
 
             // Update Firestore
             const userDocRef = doc(db, 'users', user.uid);
@@ -373,7 +371,6 @@ document.addEventListener('DOMContentLoaded', function() {
             userData.name = newName;
             localStorage.setItem('userData', JSON.stringify(userData));
 
-            console.log('Name update successful');
         } catch (error) {
             console.error('Error updating name:', error);
             console.error('Error details:', {
@@ -599,7 +596,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('No user logged in');
                 }
 
-                console.log('Current user:', user.uid);
 
                 // Get current notification settings
                 const notifications = {
@@ -608,17 +604,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     push: document.getElementById('push-notifications')?.checked || false
                 };
 
-                console.log('Saving notifications:', notifications);
 
                 // Update Firestore
                 const userDocRef = doc(db, 'users', user.uid);
-                console.log('Document reference created:', userDocRef);
 
                 await updateDoc(userDocRef, {
                     notifications: notifications
                 });
 
-                console.log('Firestore update successful');
 
                 // Update localStorage
                 const userData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -645,7 +638,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('No user logged in');
                 }
 
-                console.log('Current user:', user.uid);
 
                 // Get current notification settings
                 const notifications = {
@@ -654,17 +646,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     push: document.getElementById('push-notifications').checked
                 };
 
-                console.log('Saving notifications:', notifications);
 
                 // Update Firestore
                 const userDocRef = doc(db, 'users', user.uid);
-                console.log('Document reference created:', userDocRef);
 
                 await updateDoc(userDocRef, {
                     notifications: notifications
                 });
 
-                console.log('Firestore update successful');
 
                 // Update localStorage
                 const userData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -715,7 +704,6 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 // Send password reset email to the entered email
                 await sendPasswordResetEmail(auth, email);
-                console.log('Password reset email sent to:', email);
                 
                 // Show success message
                 const successMessage = document.createElement('div');
@@ -771,7 +759,6 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const userDocRef = doc(db, 'users', user.uid);
                 await deleteDoc(userDocRef);
-                console.log('Firestore document deleted successfully');
             } catch (firestoreError) {
                 console.error('Error deleting Firestore document:', firestoreError);
             }
@@ -781,7 +768,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const storage = getStorage();
                 const profilePicRef = ref(storage, `profile-pictures/${user.uid}`);
                 await deleteObject(profilePicRef);
-                console.log('Profile picture deleted successfully');
             } catch (storageError) {
                 console.log('No profile picture to delete or error deleting:', storageError);
             }
@@ -789,7 +775,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Delete user's authentication
             try {
                 await deleteUser(user);
-                console.log('User authentication deleted successfully');
             } catch (authError) {
                 console.error('Error deleting user authentication:', authError);
                 if (authError.code === 'auth/requires-recent-login') {
@@ -803,7 +788,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Clear localStorage
             localStorage.removeItem('userData');
             localStorage.setItem('isAuthenticated', 'false');
-            console.log('LocalStorage cleared and isAuthenticated set to false');
 
             // Close delete confirmation modal
             document.getElementById('deleteAccountModal').style.display = 'none';

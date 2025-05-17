@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Store current job ID when applying
     let currentJobId = jobId;
-    console.log('Initial job ID from URL:', jobId);
 
     // Get DOM elements
     const jobTitle = document.getElementById('jobTitle');
@@ -91,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Load similar jobs after loading the main job data
-            console.log('Loading similar jobs for:', jobData);
             await loadSimilarJobs(jobData);
 
             // Check if user is logged in and has applied
@@ -242,7 +240,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            console.log('Current job data:', currentJob);
 
             // Query similar jobs from Firestore
             const jobsQuery = query(
@@ -251,9 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 where('status', '==', 'active')
             );
 
-            console.log('Fetching similar jobs with query:', jobsQuery);
             const querySnapshot = await getDocs(jobsQuery);
-            console.log('Found similar jobs:', querySnapshot.size);
 
             const similarJobs = [];
 
@@ -263,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     id: doc.id,  // This is the Firestore document ID
                     ...doc.data()
                 };
-                console.log('Processing similar job:', jobData.id);
                 
                 // Exclude current job using the Firestore document ID
                 if (doc.id !== currentJob.id) {
@@ -276,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            console.log('Filtered similar jobs:', similarJobs.length);
 
             // Sort by location match first, then take top 3
             similarJobs.sort((a, b) => {
@@ -285,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return 0;
             }).slice(0, 3);
 
-            console.log('Final similar jobs to display:', similarJobs.length);
 
             // Clear existing content
             similarJobsContainer.innerHTML = '';
@@ -296,7 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 jobsGrid.className = 'similar-jobs-grid-2';
 
                 similarJobs.forEach(job => {
-                    console.log('Creating card for job with ID:', job.id);
                     const jobCard = createJobCard(job);
                     jobsGrid.appendChild(jobCard);
                 });
@@ -329,7 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!user) return;
 
         try {
-            console.log('Checking saved status for job:', jobId);
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
             
@@ -366,7 +356,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            console.log('Toggling save job:', jobId);
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
             
@@ -449,7 +438,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('No job ID provided to showApplyModal');
             return;
         }
-        console.log('Opening apply modal for job:', jobId);
         currentJobId = jobId;
         applyJobTitle.textContent = jobTitle;
         applyModalOverlay.style.display = 'flex';
@@ -468,7 +456,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (applyBtn) {
         applyBtn.addEventListener('click', () => {
             const jobTitle = document.getElementById('jobTitle')?.textContent;
-            console.log('Apply button clicked for job:', jobId);
             showApplyModal(jobId, jobTitle);
         });
     }
@@ -502,7 +489,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        console.log('Submitting application for job:', currentJobId);
 
         try {
             // Get form data
@@ -530,7 +516,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // First verify the job exists
             const jobRef = doc(db, 'jobs', currentJobId);
-            console.log('Checking job document:', currentJobId);
             const jobDoc = await getDoc(jobRef);
 
             if (!jobDoc.exists()) {
@@ -540,7 +525,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const jobData = jobDoc.data();
-            console.log('Job data retrieved:', jobData);
 
             // Check if job is still active
             if (jobData.status !== 'active') {
@@ -568,7 +552,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 appliedAt: new Date().toISOString()
             };
 
-            console.log('Creating application with data:', applicationData);
 
             // Start a batch write
             const batch = writeBatch(db);
@@ -588,7 +571,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Commit the batch
             await batch.commit();
-            console.log('Application submitted successfully');
 
             // Show success message
             showNotification('Application submitted successfully!', 'success');
@@ -704,7 +686,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to create job card for similar jobs
     function createJobCard(job) {
-        console.log('Creating job card with job data:', job);
         const card = document.createElement('div');
         
         // Define job type class based on job type
@@ -712,7 +693,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Ensure we're using the Firestore document ID
         const jobId = job.id;
-        console.log('Using job ID for card:', jobId);
         
         // Verify the job ID is a valid Firestore document ID
         if (!jobId || typeof jobId !== 'string' || jobId.length < 20) {
@@ -790,7 +770,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = 'login.html';
                     return;
                 }
-                console.log('Opening apply modal for job ID:', jobId);
                 showApplyModal(jobId, job.jobTitle);
             });
 
