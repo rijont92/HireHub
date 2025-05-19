@@ -1,6 +1,7 @@
 import { auth, db } from './firebase-config.js';
 import { collection, query, where, getDocs, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { createNewChat, openChat } from './chat.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const featuredContainer = document.getElementById('featured-container');
@@ -59,7 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const progress = calculateProgress(job.applications, job.vacancy);
         const timeAgo = formatDate(job.postedDate);
         
-        return `
+        const jobCard = document.createElement('div');
+        jobCard.className = 'job-card';
+        
+        jobCard.innerHTML = `
             <a href="html/single-job.html?id=${job.id}">
                 <div class="featured-col">
                     <div class="featured-top-row">
@@ -107,7 +111,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </a>
+            <div class="job-actions"></div>
         `;
+
+        // Add message button
+        const messageButton = document.createElement('button');
+        messageButton.className = 'message-job-poster';
+        messageButton.innerHTML = '<i class="ri-message-2-line"></i> Message';
+        messageButton.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!job.postedBy) return;
+            // Fetch the real display name from users collection
+            let otherUserName = 'User';
+            try {
+                const userDoc = await getDocs(query(collection(db, 'users'), where('uid', '==', job.postedBy)));
+                userDoc.forEach((doc) => {
+                    const user = doc.data();
+                    if (user.displayName) otherUserName = user.displayName;
+                });
+            } catch (e) {}
+            const chatId = await createNewChat(job.postedBy, otherUserName, job.companyName);
+            if (chatId) {
+                // Show chat widget and open the chat
+                document.getElementById('chatWidget').classList.add('active');
+                openChat(chatId, job.postedBy);
+            }
+        });
+        
+        // Add the message button to the job card
+        jobCard.querySelector('.job-actions').appendChild(messageButton);
+        
+        return jobCard;
     }
 
     // Function to load hot jobs
@@ -156,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add each job to the container
             topJobs.forEach(job => {
                 const jobCard = createJobCard(job);
-                featuredContainer.innerHTML += jobCard;
+                featuredContainer.appendChild(jobCard);
             });
 
             // Initialize progress bars

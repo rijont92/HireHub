@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/chat.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,6 +84,7 @@
                  </li>
                  <li><a href="html/about.html" class="nav__link">About</a></li>
                  <li><a href="html/contact.html" class="nav__link">Contact</a></li>
+                 <li><a href="#" class="nav__link" id="headerChatBtn"><i class="ri-message-2-line"></i> Messages</a></li>
 
                  <li class="nonee none2">
                   <a href="#" class="nav__link">
@@ -461,5 +463,68 @@
      <script type="module" src="js/popular-categories.js"></script>
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/auth-state.js"></script>
+    <script type="module" src="js/chat.js"></script>
+    <script>
+        // Debug chat elements
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Chat elements check:');
+            console.log('Chat widget:', document.getElementById('chatWidget'));
+            console.log('Chat toggle:', document.getElementById('chatToggle'));
+            console.log('Chat list:', document.getElementById('chatList'));
+            console.log('Messages container:', document.getElementById('messagesContainer'));
+            console.log('Message input:', document.getElementById('messageInput'));
+            console.log('Send message button:', document.getElementById('sendMessage'));
+            console.log('Header chat button:', document.getElementById('headerChatBtn'));
+        });
+    </script>
+   
+    <!-- Chat Interface -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <h3>Messages</h3>
+            <button class="minimize-btn" id="minimizeChat">
+                <i class="ri-subtract-line"></i>
+            </button>
+            <!-- TEMP ADMIN BUTTON -->
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-list" id="chatList">
+                <!-- Chat conversations will be listed here -->
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Messages will appear here -->
+                </div>
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
+                    <button id="sendMessage">
+                        <i class="ri-send-plane-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="chat-toggle" id="chatToggle">
+        <i class="ri-message-2-line"></i>
+    </button>
+
+    <script>
+    // TEMP ADMIN BUTTON HANDLER
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('updateChatNamesBtn');
+        if (btn && typeof updateAllChatParticipantNames === 'function') {
+            btn.addEventListener('click', () => {
+                btn.disabled = true;
+                btn.textContent = 'Updating...';
+                updateAllChatParticipantNames().then(() => {
+                    btn.textContent = 'Done!';
+                    setTimeout(() => btn.remove(), 2000);
+                });
+            });
+        }
+    });
+    </script>
 </body>
 </html>
