@@ -120,6 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Create user document in Firestore
                 const userData = {
                     name: name,
+                    displayName: name,
                     email: email,
                     profileImage: profileImageBase64,
                     createdAt: new Date().toISOString(),
