@@ -17,6 +17,7 @@
     <script type="module" src="../js/firebase-config.js"></script>
     <script type="module" src="../js/auth-state.js"></script>
     <script type="module" src="../js/notification-center.js"></script>
+    <link rel="stylesheet" href="../css/chat.css">
 </head>
 <body>
     <header class="header">
@@ -317,7 +318,40 @@
       </div>
    </footer>
 
+        
+   <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <h3>Messages</h3>
+            <button class="minimize-btn" id="minimizeChat">
+                <i class="ri-subtract-line"></i>
+            </button>
+            <!-- TEMP ADMIN BUTTON -->
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-list" id="chatList">
+                <!-- Chat conversations will be listed here -->
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Messages will appear here -->
+                </div>
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
+                    <button id="sendMessage">
+                        <i class="ri-send-plane-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="chat-toggle" id="chatToggle">
+        <i class="ri-message-2-line"></i>
+    </button>
+
     <script src="../js/header.js"></script>
+    <script type="module" src="../js/chat.js"></script>
     <!-- <script src="../js/about.js"></script> -->
 </body>
 </html> 

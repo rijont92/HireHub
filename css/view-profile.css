@@ -311,4 +311,32 @@
     .profile-info h1 {
         font-size: 1.8rem;
     }
+}
+
+.start-chat-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.start-chat-btn:hover {
+    background-color: var(--hover);
+}
+
+.start-chat-btn i {
+    font-size: 18px;
+}
+
+/* Hide the button if user is viewing their own profile */
+.start-chat-btn.hidden {
+    display: none;
 } 

@@ -19,6 +19,7 @@
     <script type="module" src="../js/auth-state.js"></script>
     <script type="module" src="../js/notification-center.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="../css/chat.css">
 </head>
 <body>
     <header class="header">
@@ -234,6 +235,9 @@
         </div>
     </footer>
 
+
+           
+   
     <script>
         // Initialize EmailJS
         (function() {
@@ -368,7 +372,51 @@
             });
         });
     </script>
+    
+    <div class="chat-widget" id="chatWidget" style="left: 100px; right: auto;">
+        <div class="chat-header">
+            <h3>Messages</h3>
+            <button class="minimize-btn" id="minimizeChat">
+                <i class="ri-subtract-line"></i>
+            </button>
+            <!-- TEMP ADMIN BUTTON -->
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-list" id="chatList">
+                <!-- Chat conversations will be listed here -->
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Messages will appear here -->
+                </div>
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
+                    <button id="sendMessage">
+                        <i class="ri-send-plane-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+       <button class="chat-toggle" id="chatToggle" style="left: 20px;">
+        <i class="ri-message-2-line"></i>
+    </button>
+
+
+      <script type="text/javascript">
+      var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+      (function(){
+      var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+      s1.async=true;
+      s1.src='https://embed.tawk.to/6780777649e2fd8dfe056513/1ih6t59ql';
+      s1.charset='UTF-8';
+      s1.setAttribute('crossorigin','*');
+      s0.parentNode.insertBefore(s1,s0);
+      })();
+   </script>
     <script src="../js/header.js"></script>
+    <script type="module" src="../js/chat.js"></script>
 </body>
 </html> 

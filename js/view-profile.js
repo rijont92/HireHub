@@ -1,5 +1,6 @@
 import { auth, db } from './firebase-config.js';
-import { doc, getDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { createNewChat, openChat } from './chat.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Get user ID from URL
@@ -27,6 +28,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const experienceList = document.getElementById('experienceList');
     const educationList = document.getElementById('educationList');
     const postedJobs = document.getElementById('postedJobs');
+    const startChatBtn = document.getElementById('startChatBtn');
+
+    // Handle Start Chatting button click
+    startChatBtn.addEventListener('click', async () => {
+        if (!auth.currentUser) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        try {
+            // Get the profile user's name and company
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef);
+            const userData = userDoc.data();
+            
+            const displayName = userData.name || 'User';
+            const companyName = userData.company || '';
+
+            // Create new chat and open it
+            const chatId = await createNewChat(userId, displayName, companyName);
+            if (chatId) {
+                // Open the chat widget
+                const chatWidget = document.getElementById('chatWidget');
+                if (chatWidget) {
+                    chatWidget.classList.add('active');
+                }
+                // Open the specific chat
+                openChat(chatId, userId);
+            }
+        } catch (error) {
+            console.error('Error starting chat:', error);
+            alert('Failed to start chat. Please try again.');
+        }
+    });
 
     // Load user profile
     async function loadUserProfile() {

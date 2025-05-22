@@ -111,7 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </a>
-            <div class="job-actions"></div>
         `;
 
         // Add message button
@@ -139,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Add the message button to the job card
-        jobCard.querySelector('.job-actions').appendChild(messageButton);
         
         return jobCard;
     }
