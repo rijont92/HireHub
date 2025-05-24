@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
         const isClosed = job.status === 'closed';
         const isSaved = job.isSaved || false;
+        const isHotJob = job.isHotJob;
         
         // Get application status if applied
         let applicationStatus = 'pending';
@@ -68,7 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         return `
-            <div class="job-card ${isClosed ? 'closed' : ''}" data-job-id="${job.id}">
+            <div class="job-card ${isClosed ? 'closed' : ''} ${isHotJob ? 'hot-job' : ''}" data-job-id="${job.id}">
+                ${isHotJob ? '<div class="hot-job-badge"><i class="fas fa-fire"></i> Hot Job</div>' : ''}
                 <div class="job-card-content">
                     <div class="job-header">
                         <div class="company-logo-wrapper">
@@ -168,6 +170,14 @@ document.addEventListener('DOMContentLoaded', function() {
             noJobsMessage.style.display = 'block';
         } else {
             noJobsMessage.style.display = 'none';
+            
+            // Sort jobs: hot jobs first, then by date
+            jobs.sort((a, b) => {
+                if (a.isHotJob && !b.isHotJob) return -1;
+                if (!a.isHotJob && b.isHotJob) return 1;
+                return new Date(b.postedDate) - new Date(a.postedDate);
+            });
+
             jobs.forEach(job => {
                 const jobCardHTML = createJobCard(job);
                 const tempDiv = document.createElement('div');

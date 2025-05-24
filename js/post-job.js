@@ -2,6 +2,11 @@ import { auth, db } from './firebase-config.js';
 import { collection, addDoc, doc, updateDoc, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
+// Add PayPal SDK
+const paypalScript = document.createElement('script');
+paypalScript.src = 'https://www.paypal.com/sdk/js?client-id=ATvGyJEjEo_vMlTxeh53DRbuP7Arcz6pomm3ZsrduW-BAy8oCo_w-djwWjEx4DGI44UFSy95ZG3tsgym&currency=EUR';
+document.head.appendChild(paypalScript);
+
 document.addEventListener('DOMContentLoaded', function() {
     const postJobForm = document.getElementById('postJobForm');
     const logoInput = document.getElementById('companyLogo');
@@ -10,6 +15,87 @@ document.addEventListener('DOMContentLoaded', function() {
     const applicationDeadline = document.getElementById('applicationDeadline');
     const btn = document.getElementById("btn");
     const postJobContainer = document.querySelector('.blured');
+    const hotJobCheckbox = document.getElementById('hotJobCheckbox');
+    const paypalButtonContainer = document.getElementById('paypal-button-container');
+
+    // Initialize PayPal button
+    let paypalButtonInitialized = false;
+
+    function initializePayPalButton() {
+        if (paypalButtonInitialized) return;
+        
+        paypal.Buttons({
+            style: {
+                color: 'silver', // options: 'gold', 'blue', 'silver', 'white', 'black'
+                shape: 'rect',
+                label: 'paypal',
+                height: 45
+            },
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '5.00'
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    // Payment successful
+                    hotJobCheckbox.checked = true;
+                    hotJobCheckbox.disabled = true;
+                    paypalButtonContainer.style.display = 'none';
+                    showNotification('Payment successful! Your job will be featured as a hot job.', 'success');
+                });
+            },
+            onError: function(err) {
+                console.error('PayPal Error:', err);
+                showNotification('Payment failed. Please try again.', 'error');
+            }
+        }).render('#paypal-button-container')
+        .then(() => {
+            paypalButtonInitialized = true;
+            console.log('PayPal button rendered successfully');
+        })
+        .catch(err => {
+            console.error('PayPal button render error:', err);
+            showNotification('Error initializing payment. Please refresh the page.', 'error');
+        });
+    }
+
+    // Handle hot job checkbox change
+    if (hotJobCheckbox) {
+        hotJobCheckbox.addEventListener('change', function() {
+            console.log('Hot job checkbox changed:', this.checked);
+            if (this.checked) {
+                paypalButtonContainer.style.display = 'block';
+                // Initialize PayPal button if not already initialized
+                if (!paypalButtonInitialized) {
+                    initializePayPalButton();
+                }
+            } else {
+                paypalButtonContainer.style.display = 'none';
+                // Reset payment status if unchecked
+                hotJobCheckbox.disabled = false;
+            }
+        });
+    }
+
+    // Add error handling for PayPal script loading
+    paypalScript.onerror = function(error) {
+        console.error('PayPal script failed to load:', error);
+        showNotification('Error loading payment system. Please refresh the page.', 'error');
+    };
+
+    // Add success handler for PayPal script loading
+    paypalScript.onload = function() {
+        console.log('PayPal script loaded successfully');
+        // Initialize PayPal button if checkbox is already checked
+        if (hotJobCheckbox && hotJobCheckbox.checked) {
+            initializePayPalButton();
+        }
+    };
 
     // Check authentication on page load
     if(localStorage.getItem("isAuthenticated") === "true") {
@@ -243,6 +329,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 showLoginPopup();
                 return;
             }
+
+            // Check if hot job is selected but not paid
+            if (hotJobCheckbox.checked && !hotJobCheckbox.disabled) {
+                showNotification('Please complete the payment for hot job feature before posting.', 'error');
+                return;
+            }
             
             // Reset previous error messages
             clearErrors();
@@ -273,7 +365,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         postedDate: new Date().toISOString(),
                         status: 'active',
                         applications: [],
-                        savedBy: []
+                        savedBy: [],
+                        isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled // Only true if paid
                     };
 
                     await saveAndRedirect(jobData);
@@ -344,7 +437,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 postedDate: new Date().toISOString(),
                 status: 'active',
                 applications: [],
-                savedBy: []
+                savedBy: [],
+                isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled // Only true if paid
             };
 
             // Add job to Firestore
