@@ -4,7 +4,9 @@ import {
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
-    sendEmailVerification
+    sendEmailVerification,
+    GoogleAuthProvider,
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // Sign Up function
@@ -78,5 +80,61 @@ export function isAuthenticated() {
 export function isEmailVerified() {
     const user = auth.currentUser;
     return user && user.emailVerified;
+}
+
+// Google Sign In function
+export async function signInWithGoogle() {
+    try {
+        const provider = new GoogleAuthProvider();
+        // Add scopes if needed
+        provider.addScope('profile');
+        provider.addScope('email');
+        
+        console.log('Starting Google sign-in process...');
+        
+        // Use popup instead of redirect
+        const result = await signInWithPopup(auth, provider);
+        console.log('Google sign-in successful:', result);
+        
+        if (result.user) {
+            // Set authentication state
+            localStorage.setItem("isAuthenticated", "true");
+            return { success: true, user: result.user };
+        }
+        
+        return { success: false, error: 'No user data received' };
+    } catch (error) {
+        console.error('Google sign-in error details:', {
+            code: error.code,
+            message: error.message,
+            email: error.email,
+            credential: error.credential
+        });
+        
+        // Handle specific error cases
+        if (error.code === 'auth/popup-blocked') {
+            return { 
+                success: false, 
+                error: 'Please allow popups for this website to sign in with Google.' 
+            };
+        } else if (error.code === 'auth/popup-closed-by-user') {
+            return { 
+                success: false, 
+                error: 'Sign-in popup was closed before completing the sign-in.' 
+            };
+        } else if (error.code === 'auth/cancelled-popup-request') {
+            return { 
+                success: false, 
+                error: 'Multiple popup requests were made. Please try again.' 
+            };
+        } else if (error.code === 'auth/unauthorized-domain') {
+            return { 
+                success: false, 
+                error: 'This domain is not authorized for OAuth operations. Please contact support.' 
+            };
+        }
+        
+        return { success: false, error: error.message };
+    }
 }
 
