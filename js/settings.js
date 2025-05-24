@@ -1,7 +1,6 @@
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { doc, getDoc, updateDoc, deleteDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, sendPasswordResetEmail, deleteUser, updateEmail, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -755,21 +754,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // First, delete user data from Firestore
+            // Delete user data from Firestore
             try {
                 const userDocRef = doc(db, 'users', user.uid);
                 await deleteDoc(userDocRef);
             } catch (firestoreError) {
                 console.error('Error deleting Firestore document:', firestoreError);
-            }
-
-            // Delete user's profile picture from Storage if it exists
-            try {
-                const storage = getStorage();
-                const profilePicRef = ref(storage, `profile-pictures/${user.uid}`);
-                await deleteObject(profilePicRef);
-            } catch (storageError) {
-                console.log('No profile picture to delete or error deleting:', storageError);
             }
 
             // Delete user's authentication

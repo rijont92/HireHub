@@ -910,7 +910,7 @@
 
 .apply-btn, .save-btn {
     width: 100%;
-    padding: 1rem;
+    padding: 10px;
     border: none;
     border-radius: 12px;
     font-size: 1.1rem;
@@ -1034,6 +1034,10 @@
     }
 
     #similarJobs {
+        grid-template-columns: 1fr;
+    }
+
+    .similar-jobs-grid-2 {
         grid-template-columns: 1fr;
     }
     
@@ -1317,3 +1321,4 @@
     border-color: #333 transparent transparent transparent;
     margin-bottom: -5px;
 }
+

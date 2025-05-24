@@ -31,11 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
             color: '#2196F3',
             count: 0
         },
-        'Customer Service': {
-            icon: 'fa-headset',
-            color: '#E91E63',
-            count: 0
-        },
         'Finance': {
             icon: 'fa-money-bill-wave',
             color: '#00BCD4',
@@ -49,6 +44,11 @@ document.addEventListener('DOMContentLoaded', function() {
         'Education': {
             icon: 'fa-graduation-cap',
             color: '#3F51B5',
+            count: 0
+        },
+          'Others': {
+            icon: 'fa-ellipsis-h',
+            color: '#E91E63',
             count: 0
         }
     };
@@ -96,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const jobsQuery = query(collection(db, 'jobs'));
             
             const querySnapshot = await getDocs(jobsQuery);
+
             
             // Initialize category counts with default categories
             const categoryCounts = { ...defaultCategories };
@@ -103,8 +104,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Count jobs per category
             querySnapshot.forEach((doc) => {
                 const job = doc.data();
-                if (job.category && defaultCategories[job.category]) {
-                    categoryCounts[job.category].count++;
+                console.log("Job Data:", job);
+                if (job.category) {
+                    if (defaultCategories[job.category]) {
+                        categoryCounts[job.category].count++;
+                    } else {
+                        // Increment Others count for undefined categories
+                        categoryCounts['Others'].count++;
+                    }
                 }
             });
 
@@ -117,7 +124,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon: data.icon,
                     color: data.color
                 }))
-                .sort((a, b) => b.count - a.count);
+                .sort((a, b) => {
+                    // Always put "Others" at the end
+                    if (a.category === 'Others') return 1;
+                    if (b.category === 'Others') return -1;
+                    // Sort other categories by count
+                    return b.count - a.count;
+                });
 
 
             // Clear existing content

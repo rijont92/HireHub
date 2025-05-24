@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-config.js';
-import { collection, addDoc, doc, updateDoc, arrayUnion } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -349,14 +349,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Add job to Firestore
             const jobRef = await addDoc(collection(db, 'jobs'), jobData);
+            console.log('Job created with ID:', jobRef.id);
 
-            // Update user's postedJobs array
+            // Get user document
             const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
+            
+            if (!userDoc.exists()) {
+                console.error('User document does not exist');
+                throw new Error('User document not found');
+            }
+
+            const userData = userDoc.data();
+            console.log('Current user data:', userData);
+
+            // Create jobs map if it doesn't exist
+            const jobs = userData.jobs || {};
+            
+            // Add the new job to the jobs map
+            jobs[jobRef.id] = {
+                jobTitle: jobData.jobTitle,
+                companyName: jobData.companyName,
+                location: jobData.location,
+                jobType: jobData.jobType,
+                salary: jobData.salary,
+                status: 'active',
+                postedDate: jobData.postedDate,
+                applicationDeadline: jobData.applicationDeadline,
+                vacancy: jobData.vacancy
+            };
+
+            // Update user document with both postedJobs array and jobs map
             await updateDoc(userRef, {
-                postedJobs: arrayUnion(jobRef.id)
+                postedJobs: arrayUnion(jobRef.id),
+                jobs: jobs
             });
 
-            // Show success popup
+            console.log('Successfully updated user document with new job');
             showSuccessPopup();
         } catch (error) {
             console.error('Error saving job:', error);

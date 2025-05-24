@@ -823,31 +823,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add this function at the end of DOMContentLoaded:
     async function showPosterInfo(uid) {
-        if (!uid) return;
+        if (!uid) {
+            console.log('No poster ID provided');
+            return;
+        }
+
         const posterInfoDiv = document.getElementById('posterInfo');
         const posterImage = document.getElementById('posterImage');
         const posterName = document.getElementById('posterName');
         const posterEmail = document.getElementById('posterEmail');
+
+        // Check if all required elements exist
+        if (!posterInfoDiv || !posterImage || !posterName || !posterEmail) {
+            console.error('Required poster info elements not found');
+            return;
+        }
+
         try {
+            // Show loading state
+            posterInfoDiv.style.display = 'flex';
+            posterImage.src = '../img/logo.png';
+            posterName.textContent = 'Loading...';
+            posterEmail.textContent = '';
+
             const userRef = doc(db, 'users', uid);
             const userSnap = await getDoc(userRef);
+            
             if (userSnap.exists()) {
                 const user = userSnap.data();
+                
+                // Update poster info with user data
                 posterImage.src = user.profileImage || '../img/logo.png';
-                posterName.textContent = user.name || 'No Name';
-                posterEmail.textContent = user.email || '';
-                posterInfoDiv.style.display = 'flex';
+                posterImage.onerror = () => {
+                    posterImage.src = '../img/logo.png';
+                };
+                
+                posterName.textContent = user.name || user.fullName || 'Anonymous User';
+                posterEmail.textContent = user.email || 'Email not available';
                 
                 // Make the entire poster info div clickable
                 posterInfoDiv.style.cursor = 'pointer';
-                posterInfoDiv.addEventListener('click', () => {
+                posterInfoDiv.title = 'Click to view profile';
+                
+                // Remove any existing click listeners
+                const newPosterInfoDiv = posterInfoDiv.cloneNode(true);
+                posterInfoDiv.parentNode.replaceChild(newPosterInfoDiv, posterInfoDiv);
+                
+                // Add click event listener
+                newPosterInfoDiv.addEventListener('click', () => {
                     window.location.href = `view-profile.html?id=${uid}`;
                 });
-            
             } else {
+                // Handle case where user doesn't exist
                 posterInfoDiv.style.display = 'none';
+                console.log('Poster user not found');
             }
-        } catch (e) {
+        } catch (error) {
+            console.error('Error loading poster info:', error);
             posterInfoDiv.style.display = 'none';
         }
     }

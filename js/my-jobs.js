@@ -35,27 +35,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Invalid user ID');
             }
 
-            // Get user's document to get posted jobs
-            const userRef = doc(db, 'users', userId);
-            const userDoc = await getDoc(userRef);
+            console.log('Fetching jobs for user:', userId);
+
+            // Query jobs posted by the current user
+            const jobsQuery = query(
+                collection(db, 'jobs'),
+                where('postedBy', '==', userId)
+            );
+            const jobsSnapshot = await getDocs(jobsQuery);
             
-            if (!userDoc.exists()) {
-                jobsList.innerHTML = `
-                    <div class="no-jobs-message">
-                        <i class="fas fa-briefcase"></i>
-                        <h3>No Jobs Posted Yet</h3>
-                        <p>You haven't posted any jobs yet. <a href="post-job.html">Post your first job</a> to get started!</p>
-                    </div>
-                `;
-                loadingSpinner.style.display = 'none';
-                jobsList.style.display = 'block';
-                return;
-            }
-
-            const userData = userDoc.data();
-            const postedJobs = userData.postedJobs || [];
-
-            if (postedJobs.length === 0) {
+            if (jobsSnapshot.empty) {
+                console.log('No jobs found for user');
                 jobsList.innerHTML = `
                     <div class="no-jobs-message">
                         <i class="fas fa-briefcase"></i>
@@ -71,27 +61,16 @@ document.addEventListener('DOMContentLoaded', function() {
             allJobs = [];
             const locations = new Set();
 
-            // Fetch each job individually to ensure we get all of them
-            for (const jobId of postedJobs) {
-                if (!jobId || typeof jobId !== 'string') {
-                    console.warn('Invalid job ID found in postedJobs:', jobId);
-                    continue;
-                }
-                
-                const jobRef = doc(db, 'jobs', jobId);
-                const jobDoc = await getDoc(jobRef);
-                
-                if (jobDoc.exists()) {
-                    const job = { 
-                        firestoreId: jobId,  // Store the actual Firestore document ID
-                        ...jobDoc.data() 
-                    };
-                    allJobs.push(job);
-                    if (job.location) locations.add(job.location);
-                } else {
-                    console.warn('Job not found in Firestore:', jobId);
-                }
-            }
+            // Process each job
+            jobsSnapshot.forEach(doc => {
+                const job = { 
+                    firestoreId: doc.id,  // Store the actual Firestore document ID
+                    ...doc.data()
+                };
+                allJobs.push(job);
+                if (job.location) locations.add(job.location);
+                console.log('Successfully fetched job:', job.jobTitle);
+            });
 
             // Populate location filter
             locationFilter.innerHTML = '<option value="">All Locations</option>';

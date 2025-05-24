@@ -100,11 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
 
-                    <div class="featured-bar-container">
-                        <div class="featured-bar">
-                            <div class="featured-bar-color" data-value="${progress}"></div>
-                        </div>
-                    </div>
 
                     <div class="featured-p-number">
                         <p>${job.applications ? job.applications.length : 0} applied <span>of ${job.vacancy} vacancy</span></p>
@@ -112,6 +107,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </a>
         `;
+
+        
+                    // <div class="featured-bar-container">
+                    //     <div class="featured-bar">
+                    //         <div class="featured-bar-color" data-value="${progress}"></div>
+                    //     </div>
+                    // </div>
 
         // Add message button
         const messageButton = document.createElement('button');
