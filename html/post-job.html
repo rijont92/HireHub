@@ -231,32 +231,39 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="benefits">Benefits <span>*</span></label>
-                        <textarea id="benefits" name="benefits" rows="4" placeholder="List any benefits or perks..."></textarea>
+                        <label for="benefits">Benefits</label>
+                        <textarea id="benefits" name="benefits" required></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="applicationDeadline">Application Deadline <span>*</span></label>
-                        <input type="date" id="applicationDeadline" name="applicationDeadline" min="">
+                        <label for="applicationDeadline">Application Deadline</label>
+                        <input type="date" id="applicationDeadline" name="applicationDeadline" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="contactEmail">Contact Email <span>*</span></label>
-                        <input type="email" id="contactEmail" name="contactEmail" placeholder="Enter contact email" >
+                        <label for="contactEmail">Contact Email</label>
+                        <input type="email" id="contactEmail" name="contactEmail" required>
                     </div>
 
                     <div class="form-group">
                         <label for="companyLogo">Company Logo</label>
-                        <div class="logo-upload-container">
-                            <input type="file" id="companyLogo" name="companyLogo" accept="image/jpeg,image/png,image/gif">
-                            <div class="logo-preview">
-                                <img id="logoPreview" src="#" alt="Logo preview" style="display: none;">
-                                <div class="preview-placeholder">
-                                    <i class="fa fa-cloud-upload-alt"></i>
-                                    <span>Upload your company logo (JPEG, PNG, or GIF)</span>
-                                </div>
+                        <input type="file" id="companyLogo" name="companyLogo" accept="image/*" required>
+                        <div class="preview-container">
+                            <div class="preview-placeholder">
+                                <i class="fas fa-image"></i>
+                                <p>Logo Preview</p>
                             </div>
+                            <img id="logoPreview" style="display: none;" alt="Logo Preview">
                         </div>
+                    </div>
+
+                    <div class="form-group hot-job-option">
+                        <div class="hot-job-header">
+                            <input type="checkbox" id="hotJobCheckbox" name="hotJob">
+                            <label for="hotJobCheckbox">Make this a Hot Job (€5)</label>
+                        </div>
+                        <p class="hot-job-description">Hot jobs appear at the top of search results and in the featured section. They get more visibility and attract more applicants.</p>
+                        <div id="paypal-button-container" style="display: none;"></div>
                     </div>
                   </div>
 

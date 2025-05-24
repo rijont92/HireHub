@@ -1,7 +1,7 @@
-import { signIn } from '../js/auth.js';
+import { signIn, signInWithGoogle } from '../js/auth.js';
 import { setupLoginValidation, validateLoginForm } from '../js/validation.js';
 import { db } from './firebase-config.js';
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const loginForm = document.getElementById('loginForm');
 const errorEmail = document.getElementById('error-email');
@@ -9,6 +9,7 @@ const errorPassword = document.getElementById('error-password');
 const generalError = document.getElementById('general-error');
 const passwordInput = document.getElementById('password');
 const icon = document.getElementById('icon');
+const googleSignInBtn = document.querySelector('.google');
 
 import { isAuthenticated } from '../js/auth.js';
 
@@ -31,6 +32,72 @@ window.changeIcon = function() {
 
 // Setup real-time validation
 setupLoginValidation();
+
+// Google Sign In
+if (googleSignInBtn) {
+    googleSignInBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log('Google sign-in button clicked');
+        
+        try {
+            const result = await signInWithGoogle();
+            console.log('Google sign-in result:', result);
+            
+            if (result.success && result.user) {
+                try {
+                    // Get user data from Firestore
+                    const userRef = doc(db, 'users', result.user.uid);
+                    const userDoc = await getDoc(userRef);
+                    
+                    if (userDoc.exists()) {
+                        console.log('Existing user found:', userDoc.data());
+                        // Get the user data
+                        const userData = userDoc.data();
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                    } else {
+                        console.log('Creating new user document...');
+                        // If no user document exists, create a default user data
+                        const defaultUserData = {
+                            name: result.user.displayName || '',
+                            email: result.user.email,
+                            profileImage: result.user.photoURL || '../img/useri.png',
+                            createdAt: new Date().toISOString(),
+                            bio: '',
+                            skills: [],
+                            experience: [],
+                            education: [],
+                            notifications: {
+                                email: true,
+                                push: true,
+                                jobAlerts: true
+                            }
+                        };
+                        
+                        // Create the user document in Firestore
+                        await setDoc(userRef, defaultUserData);
+                        console.log('New user document created:', defaultUserData);
+                        localStorage.setItem('userData', JSON.stringify(defaultUserData));
+                    }
+                    
+                    // Login successful
+                    console.log('Redirecting to home page...');
+                    window.location.href = '../index.html';
+                } catch (error) {
+                    console.error('Error handling user data:', error);
+                    generalError.textContent = 'Error loading user data. Please try again.';
+                }
+            } else {
+                console.error('Google sign-in failed:', result.error);
+                generalError.textContent = result.error || 'Error signing in with Google. Please try again.';
+            }
+        } catch (error) {
+            console.error('Google sign-in error:', error);
+            generalError.textContent = 'Error signing in with Google. Please try again.';
+        }
+    });
+} else {
+    console.error('Google sign-in button not found');
+}
 
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
