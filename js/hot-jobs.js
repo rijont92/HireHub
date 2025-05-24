@@ -10,7 +10,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatDate(dateString) {
         const date = new Date(dateString);
         const now = new Date();
-        const diffTime = Math.abs(now - date);
+        
+        // Reset hours to compare dates only
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const jobDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        
+        const diffTime = Math.abs(today - jobDate);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
         if (diffDays === 0) return 'Today';
@@ -52,6 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         score += jobTypeBonus[job.jobType.toLowerCase()] || 0;
 
+        // Factor 5: Hot Job Feature Bonus (40 points)
+        if (job.isHotJob) {
+            score += 100; // Add 40 points for hot jobs
+        }
+
         return score;
     }
 
@@ -62,6 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const jobCard = document.createElement('div');
         jobCard.className = 'job-card';
+        
+        // Add hot indicator if job is hot
         
         jobCard.innerHTML = `
             <a href="html/single-job.html?id=${job.id}">
@@ -181,8 +193,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 jobs.push(job);
             });
 
-            // Sort jobs by hotness score
-            jobs.sort((a, b) => b.hotnessScore - a.hotnessScore);
+            // Sort jobs by hotness score in descending order (highest first)
+            jobs.sort((a, b) => {
+                // First sort by hotness score
+                const scoreDiff = b.hotnessScore - a.hotnessScore;
+                if (scoreDiff !== 0) return scoreDiff;
+                
+                // If scores are equal, sort by recency
+                const dateA = new Date(a.postedDate);
+                const dateB = new Date(b.postedDate);
+                return dateB - dateA;
+            });
+
+            // Log only hot jobs
+            const hotJobs = jobs.filter(job => job.isHotJob);
+            if (hotJobs.length > 0) {
+                console.log('=== Hot Jobs ===');
+                hotJobs.forEach(job => {
+                    console.log(`\nHot Job: ${job.jobTitle}`);
+                    console.log('Details:', {
+                        company: job.companyName,
+                        hotnessScore: job.hotnessScore,
+                        postedDate: job.postedDate,
+                        applications: job.applications ? job.applications.length : 0,
+                        vacancy: job.vacancy
+                    });
+                });
+            }
 
             // Take top 6 jobs
             const topJobs = jobs.slice(0, 6);
