@@ -12,7 +12,7 @@
 .my-jobs-section {
     padding: 2rem 0;
     min-height: calc(100vh - 200px);
-    background-color: #f8f9fa;
+    background-color: white;
     margin-top: 100px;
 }
 
@@ -144,7 +144,7 @@
     width: 100%;
     background-color: #fff;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     overflow: hidden;
     margin-bottom: 1.5rem;

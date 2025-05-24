@@ -112,6 +112,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+           const status_r = {
+                "full-time":"Full Time",
+                "part-time":"Part Time",
+                "contract":"Contract",
+                "internship":"Internship"
+            }
+
         jobsList.innerHTML = jobs.map(job => `
             <div class="my-job-card" data-id="${job.id}" onclick="window.location.href='single-job.html?id=${job.id}'">
                 <div class="company-logo-wrapper">
@@ -126,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="job-meta-info">
                         <div class="meta-item job-type">
                             <i class="fas fa-briefcase"></i>
-                            <span>${job.jobType}</span>
+                            <span>${status_r[job.jobType]}</span>
                         </div>
                         <div class="meta-item location">
                             <i class="fas fa-map-marker-alt"></i>
@@ -156,6 +163,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         `).join('');
+                jobsList.style.display = "grid";
+
     }
 
     // Filter jobs based on search and filters
@@ -220,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editJobType').value = jobData.jobType;
             document.getElementById('editLocation').value = jobData.location;
             document.getElementById('editSalary').value = jobData.salary;
-            document.getElementById('editJobDescription').value = jobData.jobDescription;
+            document.getElementById('editJobDescription').value = jobData.description;
             document.getElementById('editRequirements').value = jobData.requirements;
             document.getElementById('editBenefits').value = jobData.benefits;
             document.getElementById('editApplicationDeadline').value = jobData.applicationDeadline;

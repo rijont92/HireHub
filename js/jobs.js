@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentJobId = null;
 
     let allJobs = [];
-    let locations = new Set();
     let isFetching = false; // Add loading state flag
 
     // Function to create a job card
@@ -67,6 +66,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
+            const status_r = {
+                "full-time":"Full Time",
+                "part-time":"Part Time",
+                "contract":"Contract",
+                "internship":"Internship"
+            }
         
         return `
             <div class="job-card ${isClosed ? 'closed' : ''} ${isHotJob ? 'hot-job' : ''}" data-job-id="${job.id}">
@@ -85,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="job-meta-info">
                         <div class="meta-item job-type ${jobTypeClass}">
                             <i class="fas fa-briefcase"></i>
-                            <span>${job.jobType}</span>
+                            <span>${status_r[job.jobType]}</span>
                         </div>
                         <div class="meta-item location">
                             <i class="fas fa-map-marker-alt"></i>
@@ -189,9 +194,50 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to populate location filter
     function populateLocationFilter() {
-        const locationOptions = Array.from(locations).sort();
-        locationFilter.innerHTML = '<option value="">All Locations</option>';
-        locationOptions.forEach(location => {
+         const predifinedLocations = [
+        'Prishtina',
+        'Prizren',
+        'Gjakova',
+        'Peja',
+        'Mitrovica',
+        'Ferizaj',
+        'Gjilan',
+        'Vushtrri',
+        'Podujeva',
+        'Suharekë',
+        'Rahovec',
+        'Fushë Kosovë',
+        'Malishevë',
+        'Drenas',
+        'Lipjan',
+        'Obiliq',
+        'Dragash',
+        'Istog',
+        'Kamenicë',
+        'Kaçanik',
+        'Viti',
+        'Deçan',
+        'Skenderaj',
+        'Klinë',
+        'Graçanicë',
+        'Hani i Elezit',
+        'Junik',
+        'Mamushë',
+        'Shtime',
+        'Shtërpcë',
+        'Ranillug',
+        'Kllokot',
+        'Partesh',
+        'Novo Brdo',
+        'Zubin Potok',
+        'Zvečan',
+        'Leposavić',
+        'North Mitrovica'
+        ];
+
+
+          locationFilter.innerHTML = '<option value="">All Locations</option>';
+        predifinedLocations.forEach(location => {
             locationFilter.innerHTML += `<option value="${location}">${location}</option>`;
         });
     }
@@ -269,7 +315,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const querySnapshot = await getDocs(jobsQuery);
             
             allJobs = [];
-            locations.clear();
             
             // Get user's saved jobs if logged in
             let savedJobs = [];
@@ -304,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 allJobs.push(jobData);
-                locations.add(jobData.location);
             }
             
             populateLocationFilter();
@@ -744,6 +788,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 applicationsContainer.innerHTML = '<p>No applications found.</p>';
                 return;
             }
+
+        
 
             applications.forEach(application => {
                 const applicationCard = document.createElement('div');

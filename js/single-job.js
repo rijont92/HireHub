@@ -136,10 +136,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update job details in the UI
     function updateJobDetails(job) {
+          const status_r = {
+                "full-time":"Full Time",
+                "part-time":"Part Time",
+                "contract":"Contract",
+                "internship":"Internship"
+            }
+        
         if (jobTitle) jobTitle.textContent = job.jobTitle;
         if (companyName) companyName.textContent = job.companyName;
         if (companyLogo) companyLogo.src = job.companyLogo || '../img/logo.png';
-        if (jobType) jobType.textContent = job.jobType;
+        if (jobType) jobType.textContent = status_r[job.jobType];
         if (location) location.textContent = job.location;
         if (salary) salary.textContent = job.salary;
         if (deadline) deadline.textContent = formatDate(job.applicationDeadline);
@@ -700,6 +707,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return card;
         }
         
+          const status_r = {
+                "full-time":"Full Time",
+                "part-time":"Part Time",
+                "contract":"Contract",
+                "internship":"Internship"
+            }
+        
         card.innerHTML = `
             <div class="job-card" data-job-id="${jobId}">
                 <div class="job-card-content">
@@ -715,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="job-meta-info">
                             <div class="meta-item job-type ${jobTypeClass}">
                                 <i class="fas fa-briefcase"></i>
-                                <span>${job.jobType}</span>
+                                <span>${status_r[job.jobType]}</span>
                             </div>
                             <div class="meta-item location">
                                 <i class="fas fa-map-marker-alt"></i>

@@ -13,7 +13,7 @@
 .history-container {
     padding: 2rem 0;
     min-height: calc(100vh - 400px);
-    background-color: var(--background-light);
+    background-color: white;
     margin-top: 100px;
 }
 
@@ -80,14 +80,14 @@
     background-color: var(--white);
     border-radius: var(--border-radius);
     padding: 1.5rem;
-    box-shadow: var(--box-shadow);
+    box-shadow: 0 0 8px 1px rgba(0, 0, 0, 0.1);
     transition: var(--transition);
 }
 
-.history-item:hover {
+/* .history-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+} */
 
 .history-item-header {
     display: flex;

@@ -24,6 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const jobItem = document.createElement('div');
         jobItem.className = `job-item ${isClosed ? 'closed' : ''}`;
         jobItem.dataset.jobId = jobId;
+
+           const status_r = {
+                "full-time":"Full Time",
+                "part-time":"Part Time",
+                "contract":"Contract",
+                "internship":"Internship"
+            }
         
         jobItem.innerHTML = `
             <div class="job-item-content">
@@ -37,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="job-meta-info">
                             <div class="meta-item job-type ${jobTypeClass}">
                                 <i class="fas fa-briefcase"></i>
-                                <span>${job.jobType}</span>
+                                <span>${status_r[job.jobType]}</span>
                             </div>
                             <div class="meta-item location">
                                 <i class="fas fa-map-marker-alt"></i>

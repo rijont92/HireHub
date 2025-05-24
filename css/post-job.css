@@ -6,9 +6,8 @@
 
 .post-job-section {
     padding: 4rem 0;
-    background-color: #f8f9fa;
+    background-color: white;
     min-height: calc(100vh - 80px);
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
 }
 
 .post-job-container {
@@ -18,7 +17,6 @@
     padding: 3rem;
     border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    margin-top: 4.5rem;
     position: relative;
     overflow: hidden;
 }

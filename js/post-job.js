@@ -205,13 +205,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 break;
-                
-            case 'location':
-                if (value.length < 2) {
-                    showError(input, 'Please enter a valid location');
+
+                 case 'location':
+                if (!value) {
+                    showError(input, 'Please select a location');
                     return false;
                 }
                 break;
+                
+            // case 'location':
+            //     if (value.length < 2) {
+            //         showError(input, 'Please enter a valid location');
+            //         return false;
+            //     }
+            //     break;
                 
             case 'salary':
                 if (!value) {
@@ -539,11 +546,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Location validation
-        const location = document.getElementById('location');
-        if (!location.value.trim()) {
-            showError(location, 'Location is required');
-            isValid = false;
-        }
+        // const location = document.getElementById('location');
+        // if (!location.value.trim()) {
+        //     showError(location, 'Location is required');
+        //     isValid = false;
+        // }
 
         // Salary validation
         const salary = document.getElementById('salary');
