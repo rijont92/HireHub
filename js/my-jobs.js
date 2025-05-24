@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p>You haven't posted any jobs yet. <a href="post-job.html">Post your first job</a> to get started!</p>
                     </div>
                 `;
+                jobsList.style.display = "block";
                 loadingSpinner.style.display = 'none';
                 return;
             }
