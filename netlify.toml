@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "https://hire-hubb.netlify.app/*"
+  to = "https://myhirehub.online/:splat"
+  status = 301
+  force = true
