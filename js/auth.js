@@ -9,31 +9,25 @@ import {
     signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Sign Up function
 export async function signUp(email, password) {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Send verification email
         await sendEmailVerification(user);
         
-        // Don't set isAuthenticated to true until email is verified
         return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };
     }
 }
 
-// Sign In function
 export async function signIn(email, password) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Check if email is verified
         if (!user.emailVerified) {
-            // Send verification email again if not verified
             await sendEmailVerification(user);
             return { 
                 success: false, 
@@ -49,7 +43,6 @@ export async function signIn(email, password) {
     }
 }
 
-// Sign Out function
 export async function logOut() {
     try {
         await signOut(auth);
@@ -60,7 +53,6 @@ export async function logOut() {
     }
 }
 
-// Check Auth State
 export function checkAuthState(callback) {
     return onAuthStateChanged(auth, (user) => {
         if (user && user.emailVerified) {
@@ -76,28 +68,23 @@ export function isAuthenticated() {
     return localStorage.getItem("isAuthenticated") === "true";
 }
 
-// Check if email is verified
 export function isEmailVerified() {
     const user = auth.currentUser;
     return user && user.emailVerified;
 }
 
-// Google Sign In function
 export async function signInWithGoogle() {
     try {
         const provider = new GoogleAuthProvider();
-        // Add scopes if needed
         provider.addScope('profile');
         provider.addScope('email');
         
         console.log('Starting Google sign-in process...');
         
-        // Use popup instead of redirect
         const result = await signInWithPopup(auth, provider);
         console.log('Google sign-in successful:', result);
         
         if (result.user) {
-            // Set authentication state
             localStorage.setItem("isAuthenticated", "true");
             return { success: true, user: result.user };
         }
@@ -111,7 +98,6 @@ export async function signInWithGoogle() {
             credential: error.credential
         });
         
-        // Handle specific error cases
         if (error.code === 'auth/popup-blocked') {
             return { 
                 success: false, 

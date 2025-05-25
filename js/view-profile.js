@@ -3,7 +3,6 @@ import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp
 import { createNewChat, openChat } from './chat.js';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Get user ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('id');
 
@@ -12,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Get DOM elements
     const loadingSpinner = document.getElementById('loadingSpinner');
     const profileContent = document.querySelector('.profile-content');
     const profileImage = document.getElementById('profileImage');
@@ -30,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const postedJobs = document.getElementById('postedJobs');
     const startChatBtn = document.getElementById('startChatBtn');
 
-    // Handle Start Chatting button click
     startChatBtn.addEventListener('click', async () => {
         if (!auth.currentUser) {
             window.location.href = 'login.html';
@@ -38,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Get the profile user's name and company
             const userRef = doc(db, 'users', userId);
             const userDoc = await getDoc(userRef);
             const userData = userDoc.data();
@@ -46,15 +42,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const displayName = userData.name || 'User';
             const companyName = userData.company || '';
 
-            // Create new chat and open it
             const chatId = await createNewChat(userId, displayName, companyName);
             if (chatId) {
-                // Open the chat widget
                 const chatWidget = document.getElementById('chatWidget');
                 if (chatWidget) {
                     chatWidget.classList.add('active');
                 }
-                // Open the specific chat
                 openChat(chatId, userId);
             }
         } catch (error) {
@@ -63,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Load user profile
     async function loadUserProfile() {
         try {
             const userRef = doc(db, 'users', userId);
@@ -76,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const userData = userDoc.data();
 
-            // Update profile information
             profileImage.src = userData.profileImage || '../img/logo.png';
             userName.textContent = userData.name || 'No Name';
             userEmail.textContent = userData.email || 'No Email';
@@ -87,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
             userProfession.textContent = userData.title || 'Profession not specified';
             userCompany.textContent = userData.company || 'Company not specified';
 
-            // Update skills
             if (userData.skills && userData.skills.length > 0) {
                 skillsList.innerHTML = userData.skills.map(skill => `
                     <div class="skill-tag">${skill}</div>
@@ -96,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 skillsList.innerHTML = '<p>No skills listed</p>';
             }
 
-            // Update experience
             if (userData.experience && userData.experience.length > 0) {
                 experienceList.innerHTML = userData.experience.map(exp => `
                     <div class="experience-item">
@@ -110,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 experienceList.innerHTML = '<p>No experience listed</p>';
             }
 
-            // Update education
             if (userData.education && userData.education.length > 0) {
                 educationList.innerHTML = userData.education.map(edu => `
                     <div class="education-item">
@@ -124,10 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 educationList.innerHTML = '<p>No education listed</p>';
             }
 
-            // Load posted jobs
             await loadPostedJobs();
 
-            // Hide loading spinner and show content
             loadingSpinner.style.display = 'none';
             profileContent.style.display = 'block';
         } catch (error) {
@@ -136,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Load posted jobs
     async function loadPostedJobs() {
         try {
             const jobsQuery = query(
@@ -154,7 +139,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
-            // Clear existing content
             postedJobs.innerHTML = '';
 
             if (jobs.length > 0) {
@@ -179,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Create job card
     function createJobCard(job) {
         const card = document.createElement('div');
         card.className = 'job-card';
@@ -215,7 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // Add click event to the card
         card.addEventListener('click', () => {
             window.location.href = `single-job.html?id=${job.id}`;
         });
@@ -223,7 +205,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return card;
     }
 
-    // Show error message
     function showError(message) {
         loadingSpinner.style.display = 'none';
         profileContent.innerHTML = `
@@ -235,6 +216,5 @@ document.addEventListener('DOMContentLoaded', function() {
         profileContent.style.display = 'block';
     }
 
-    // Initialize
     loadUserProfile();
 }); 

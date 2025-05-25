@@ -1,4 +1,3 @@
-// Function to include HTML content
 function includeHTML() {
     const headerElement = document.querySelector('header');
     const footerElement = document.querySelector('footer');
@@ -8,12 +7,10 @@ function includeHTML() {
             .then(response => response.text())
             .then(data => {
                 headerElement.innerHTML = data;
-                // Load header.js after header is inserted
                 const script = document.createElement('script');
                 script.src = '../js/header.js';
                 document.body.appendChild(script);
 
-                // Add active class to current page
                 const currentPage = window.location.pathname.split('/').pop();
                 const navLinks = document.querySelectorAll('.nav__link');
                 
@@ -35,5 +32,4 @@ function includeHTML() {
     }
 }
 
-// Call the function when the page loads
 document.addEventListener('DOMContentLoaded', includeHTML); 

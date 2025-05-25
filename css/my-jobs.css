@@ -137,7 +137,6 @@
     animation: spin 1s linear infinite;
 }
 
-/* My Jobs Card Styles */
 .my-job-card {
     display: flex;
     flex-direction: column;
@@ -319,7 +318,6 @@
     transform: translateY(-2px);
 }
 
-/* Edit Job Popup Styles */
 .edit-popup-overlay {
     display: none;
     position: fixed;
@@ -499,7 +497,6 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Application Cards */
 .application-card {
     background: white;
     border-radius: 10px;
@@ -542,7 +539,6 @@
     white-space: pre-wrap;
 }
 
-/* Manage Button */
 .manage-application {
     display: inline-flex;
     align-items: center;
@@ -569,7 +565,6 @@
     font-size: 1.1em;
 }
 
-/* No Applications Message */
 .no-applications-message {
     text-align: center;
     padding: 3rem 0;
@@ -587,7 +582,6 @@
     margin-bottom: 0.5rem;
 }
 
-/* Application Management */
 .application-actions {
     display: flex;
     gap: 1rem;
@@ -650,7 +644,6 @@
     box-shadow: 0 0 0 2px rgba(117, 94, 163, 0.1);
 }
 
-/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -701,7 +694,6 @@
     padding: 1rem;
 }
 
-/* Application Status in Job Cards */
 .application-status {
     display: inline-flex;
     align-items: center;
@@ -733,7 +725,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Status Colors */
 .status.pending {
     display: inline-flex;
     align-items: center;
@@ -803,7 +794,6 @@
     font-size: 1.1em;
 }
 
-/* Application Status Pending */
 .application-status.pending {
     display: inline-flex;
     align-items: center;
@@ -835,7 +825,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Responsive Adjustments */
 @media (max-width: 768px) {
     .application-status,
     .status.pending,
@@ -862,7 +851,6 @@
     }
 }
 
-/* Notifications */
 .notification {
     position: fixed;
     bottom: 20px;

@@ -5,27 +5,21 @@ const showMenu = (toggleId, navId) => {
 
     if (toggle && nav) {
         toggle.addEventListener('click', () => {
-            // Toggle the menu
             nav.classList.toggle('show-menu');
             
-            // Toggle the icon
             toggle.classList.toggle('show-icon');
             
-            // Toggle nav-rightt visibility
             if (navRightt) {
                 navRightt.classList.toggle('show');
             }
             
-            // Prevent body scroll when menu is open
             document.body.style.overflow = nav.classList.contains('show-menu') ? 'hidden' : '';
         });
     }
 };
 
-// Initialize the menu
 showMenu('nav-toggle', 'nav-menu');
 
-// Close menu when clicking outside
 document.addEventListener('click', (e) => {
     const nav = document.getElementById('nav-menu');
     const toggle = document.getElementById('nav-toggle');
@@ -41,7 +35,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Handle authentication state changes
 function updateAuthState(isAuthenticated) {
     const navRightt = document.querySelector('.nav-rightt');
     const navLiRight = document.querySelector('.nav-li-right');
@@ -63,9 +56,7 @@ function updateAuthState(isAuthenticated) {
     }
 }
 
-// Initialize the menu state
 document.addEventListener('DOMContentLoaded', () => {
-    // Update all navigation links to use correct paths
     const loginLinks = document.querySelectorAll('a[href*="login.html"]');
     const signupLinks = document.querySelectorAll('a[href*="sign_up.html"]');
     

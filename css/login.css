@@ -20,29 +20,28 @@
 
 }
 
-/* Modal styles */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1000; /* Sit on top */
+    display: none; 
+    position: fixed; 
+    z-index: 1000;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+    width: 100%;
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0, 0, 0, 0.5); 
 }
 
 .modal-content {
-    background-color: #fff; /* White background */
-    margin: auto; /* Center the modal */
+    background-color: #fff; 
+    margin: auto; 
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* Could be more or less, depending on screen size */
-    max-width: 500px; /* Maximum width */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
-    text-align: center; /* Center text */
+    width: 80%; 
+    max-width: 500px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    text-align: center;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -58,14 +57,14 @@
 
 .close:hover,
 .close:focus {
-    color: #000; /* Change color on hover */
+    color: #000; 
     text-decoration: none;
     cursor: pointer;
 }
 
 .modal-content p {
-    font-size: 16px; /* Font size for the message */
-    margin: 10px 0; /* Margin for spacing */
+    font-size: 16px; 
+    margin: 10px 0; 
 }
 
 .container {
@@ -310,7 +309,6 @@ hr {
     opacity: 0.5;
 }
 
-/* Error message animation */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
@@ -357,7 +355,6 @@ hr {
     }
 }
 
-/* Verification Page Styles */
 .verification-content {
     text-align: center;
     padding: 20px;

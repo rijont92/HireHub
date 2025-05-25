@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="../css/settings.css">
     <link rel="stylesheet" href="../css/footer.css">
-    <!-- <link rel="stylesheet" href="css/styles.css"> -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,10 +39,6 @@
                         </div>
                         </a>
                        </li>
-<!--       
-                       <li><a href="#" class="nav__link">
-                        <img src="img/happy-client.png" alt="User" class="user nonee" id="img-profile2">
-                       </a></li>  -->
                   </ul>
                </div>
 
@@ -134,7 +129,6 @@
         </div>
 
         <div class="settings-content">
-            <!-- Profile Section -->
             <div class="settings-section active" id="profile-section">
                 <h2>Profile Settings</h2>
                 <div class="profile-form">
@@ -156,11 +150,9 @@
                 </div>
             </div>
 
-            <!-- Security Section -->
             <div id="security-section" class="settings-section">
                 <h2>Security</h2>
                 
-                <!-- Password Reset Form -->
                 <div class="form">
                     <form id="security-form">
                         <div class="input-container">
@@ -174,7 +166,6 @@
                     </form>
                 </div>
 
-                <!-- Delete Account Section -->
                 <div class="delete-account-section">
                     <h3>Delete Account</h3>
                     <p>Once you delete your account, there is no going back. Please be certain.</p>
@@ -184,7 +175,6 @@
         </div>
     </main>
 
-    <!-- Delete Account Modal -->
     <div id="deleteAccountModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closeDeleteModal">&times;</span>
@@ -197,7 +187,6 @@
         </div>
     </div>
 
-    <!-- Password Reset Success Modal -->
     <div id="passwordResetModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closePasswordModal">&times;</span>
@@ -206,7 +195,6 @@
         </div>
     </div>
 
-    <!-- Account Deletion Success Modal -->
     <div id="accountDeletedModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closeAccountDeletedModal">&times;</span>
@@ -215,7 +203,6 @@
         </div>
     </div>
 
-    <!-- Password Confirmation Modal -->
     <div id="passwordConfirmModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closePasswordConfirmModal">&times;</span>
@@ -295,12 +282,6 @@
                </ul>
             </div>
          </div>
-         <!-- <div class="copyright-wrapper">
-            <p>&copy; 2025 HireHub. All rights reserved.</p>
-            <p>Designed and Developed by
-               <a href="https://www.linkedin.com/in/rijon-tahiri-156169275/" target="_blank">Rijon</a>
-            </p>
-         </div> -->
       </div>
    </footer>
 
@@ -312,16 +293,13 @@
             <button class="minimize-btn" id="minimizeChat">
                 <i class="ri-subtract-line"></i>
             </button>
-            <!-- TEMP ADMIN BUTTON -->
             <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
         </div>
         <div class="chat-body" id="chatBody">
             <div class="chat-list" id="chatList">
-                <!-- Chat conversations will be listed here -->
             </div>
             <div class="chat-messages" id="chatMessages">
                 <div class="messages-container" id="messagesContainer">
-                    <!-- Messages will appear here -->
                 </div>
                 <div class="message-input">
                     <input type="text" id="messageInput" placeholder="Type your message...">

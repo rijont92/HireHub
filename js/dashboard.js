@@ -2,42 +2,33 @@ import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, writeBatch, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-// DOM Elements
 const applicationsList = document.getElementById('applications-list');
 const userNameElement = document.getElementById('user-name');
 const userEmailElement = document.getElementById('user-email');
 const searchInput = document.querySelector('.search-box input');
 const filterSelect = document.querySelector('.filter-dropdown select');
 
-// Application status colors
 const statusColors = {
     pending: 'status-pending',
     approved: 'status-approved',
     rejected: 'status-rejected'
 };
 
-// Tab switching functionality
 const tabLinks = document.querySelectorAll('.sidebar-nav a');
 let contentSections = {};
 
-// Initialize content sections after DOM is loaded
 function initializeContentSections() {
     
-    // Get the main content container
     const mainContent = document.querySelector('.dashboard-content').parentElement;
     
-    // Initialize content sections
     contentSections = {
         'applications': document.querySelector('.dashboard-content'),
         'posted-jobs': document.createElement('div'),
         'my-applications': document.getElementById('my-applications-section')
     };
     
-
-    // Initialize other content sections
     contentSections['posted-jobs'].className = 'dashboard-content';
 
-    // Add content for posted jobs section
     contentSections['posted-jobs'].innerHTML = `
         <div class="content-header">
             <h1>Posted Jobs</h1>
@@ -48,7 +39,6 @@ function initializeContentSections() {
         </div>
     `;
 
-    // Add all sections to the DOM
     Object.values(contentSections).forEach(section => {
         if (section && section !== contentSections['applications']) {
             mainContent.appendChild(section);
@@ -56,7 +46,6 @@ function initializeContentSections() {
         }
     });
 
-    // Make Applications tab active by default
     const applicationsTab = document.querySelector('.sidebar-nav a[href="#applications"]');
     if (applicationsTab) {
         applicationsTab.parentElement.classList.add('active');
@@ -64,35 +53,28 @@ function initializeContentSections() {
     
 }
 
-// Add click event listeners to tab links
 function initializeTabLinks() {
     tabLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             
-            // Remove active class from all tabs
             tabLinks.forEach(tab => {
                 tab.parentElement.classList.remove('active');
             });
             
-            // Add active class to clicked tab
             link.parentElement.classList.add('active');
             
-            // Get the target section
             const target = link.getAttribute('href').substring(1);
             
-            // Hide all content sections
             Object.values(contentSections).forEach(section => {
                 if (section) {
                     section.style.display = 'none';
                 }
             });
             
-            // Show the selected content section
             if (contentSections[target]) {
                 contentSections[target].style.display = 'block';
                 
-                // Load content for the selected section
                 switch (target) {
                     case 'applications':
                         loadApplications(auth.currentUser.uid);
@@ -111,41 +93,33 @@ function initializeTabLinks() {
     });
 }
 
-// Check authentication state
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         try {
-            // Get user data from Firestore
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
             const userData = userDoc.data();
 
-            // Update user info in sidebar
             const userAvatarElement = document.querySelector('.user-avatar');
 
             userNameElement.textContent = userData?.name || user.displayName || 'User';
             userEmailElement.textContent = user.email;
 
-            // Update avatar with profile image if available
             if (userData?.profileImage) {
                 userAvatarElement.innerHTML = `<img src="${userData.profileImage}" alt="Profile" class="profile-image">`;
             } else {
                 userAvatarElement.innerHTML = `<i class="ri-user-line"></i>`;
             }
 
-            // Initialize content sections and tab links
             initializeContentSections();
             initializeTabLinks();
 
-            // Show applications tab by default and load content
             contentSections['applications'].style.display = 'block';
             loadApplications(user.uid);
 
-            // Also load my applications to ensure the empty state is ready
             loadMyApplications(user.uid);
         } catch (error) {
             console.error('Error loading user data:', error);
-            // Fallback to basic user info if Firestore data fails to load
             userNameElement.textContent = user.displayName || 'User';
             userEmailElement.textContent = user.email;
         }
@@ -154,11 +128,9 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// Load applications for the current user
 async function loadApplications(userId) {
     try {
         
-        // Query jobs posted by the current user
         const jobsQuery = query(
             collection(db, 'jobs'),
             where('postedBy', '==', userId)
@@ -166,10 +138,8 @@ async function loadApplications(userId) {
         const jobsSnapshot = await getDocs(jobsQuery);
         
         
-        // Get all job IDs
         const jobIds = jobsSnapshot.docs.map(doc => doc.id);
         
-        // If no jobs are found, show the no jobs message
         if (jobIds.length === 0) {
             applicationsList.innerHTML = `
                 <div class="no-applications">
@@ -182,14 +152,12 @@ async function loadApplications(userId) {
             return;
         }
 
-        // Split jobIds into chunks of 10 to respect Firestore's 'in' operator limit
         const chunkSize = 10;
         const jobIdChunks = [];
         for (let i = 0; i < jobIds.length; i += chunkSize) {
             jobIdChunks.push(jobIds.slice(i, i + chunkSize));
         }
 
-        // Query applications for each chunk of job IDs
         let allApplications = [];
         for (const chunk of jobIdChunks) {
             const applicationsQuery = query(
@@ -200,7 +168,6 @@ async function loadApplications(userId) {
             allApplications = allApplications.concat(applicationsSnapshot.docs);
         }
         
-        // Sort all applications by appliedAt date (newest first)
         allApplications.sort((a, b) => {
             const dateA = new Date(a.data().appliedAt || 0);
             const dateB = new Date(b.data().appliedAt || 0);
@@ -208,10 +175,8 @@ async function loadApplications(userId) {
         });
         
         
-        // Clear existing applications
         applicationsList.innerHTML = '';
         
-        // If no applications are found, show a message
         if (allApplications.length === 0) {
             applicationsList.innerHTML = `
                 <div class="no-applications">
@@ -223,24 +188,20 @@ async function loadApplications(userId) {
             return;
         }
         
-        // Display applications
         for (const applicationDoc of allApplications) {
             const application = applicationDoc.data();
             
             try {
-                // Get the job details
                 const jobDocRef = doc(db, 'jobs', application.jobId);
                 const jobDoc = await getDoc(jobDocRef);
                 const jobData = jobDoc.data();
                 
-                // Initialize userData with default values
                 let userData = {
                     name: application.fullName || 'Anonymous Applicant',
                     email: application.email,
                     phone: application.phone
                 };
 
-                // Only try to fetch user data if userId exists
                 if (application.userId) {
                     try {
                         const userDocRef = doc(db, 'users', application.userId);
@@ -251,7 +212,6 @@ async function loadApplications(userId) {
                         }
                     } catch (userError) {
                         console.error('Error fetching user data:', userError);
-                        // Continue with default user data
                     }
                 }
                 
@@ -259,7 +219,6 @@ async function loadApplications(userId) {
             } catch (error) {
                 console.error('Error processing application:', error);
                 console.error('Application data:', application);
-                // Continue with next application even if one fails
                 continue;
             }
         }
@@ -276,7 +235,6 @@ async function loadApplications(userId) {
     }
 }
 
-// Helper function to get initials from full name
 function getInitials(name) {
     return name
         .split(' ')
@@ -286,7 +244,6 @@ function getInitials(name) {
         .slice(0, 2);
 }
 
-// Display a single application
 function displayApplication(applicationId, application, jobData, userData) {
     
     const applicationCard = document.createElement('div');
@@ -346,7 +303,6 @@ function displayApplication(applicationId, application, jobData, userData) {
         </div>
     `;
     
-    // Add event listeners after the element is added to the DOM
     const approveBtn = applicationCard.querySelector('.approve-btn');
     const rejectBtn = applicationCard.querySelector('.reject-btn');
     const deleteBtn = applicationCard.querySelector('.delete-btn');
@@ -371,7 +327,6 @@ function displayApplication(applicationId, application, jobData, userData) {
     applicationsList.appendChild(applicationCard);
 }
 
-// Function to show status update modal
 function showStatusUpdateModal(applicationId, newStatus) {
     const modal = document.createElement('div');
     modal.className = 'status-update-modal';
@@ -391,12 +346,10 @@ function showStatusUpdateModal(applicationId, newStatus) {
 
     document.body.appendChild(modal);
 
-    // Handle cancel button
     modal.querySelector('.cancel-btn').addEventListener('click', () => {
         modal.remove();
     });
 
-    // Handle confirm button
     modal.querySelector('.confirm-btn').addEventListener('click', async () => {
         const message = modal.querySelector('#status-message').value.trim();
         if (!message) {
@@ -408,7 +361,6 @@ function showStatusUpdateModal(applicationId, newStatus) {
     });
 }
 
-// Notification helper function
 function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
@@ -424,11 +376,9 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// Update application status
 async function updateApplicationStatus(applicationId, newStatus, message = '') {
     try {
      
-        // Get the application document
         const applicationRef = doc(db, 'applications', applicationId);
         const applicationDoc = await getDoc(applicationRef);
         const application = applicationDoc.data();
@@ -438,7 +388,6 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
         }
 
 
-        // Get the job document
         const jobRef = doc(db, 'jobs', application.jobId);
         const jobDoc = await getDoc(jobRef);
         const jobData = jobDoc.data();
@@ -448,43 +397,35 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
         }
 
 
-        // Get the job poster's details for the notification
         const jobPosterRef = doc(db, 'users', auth.currentUser.uid);
         const jobPosterDoc = await getDoc(jobPosterRef);
         const jobPosterData = jobPosterDoc.data();
         const jobPosterName = jobPosterData.fullName || jobPosterData.name || 'The employer';
 
-        // Get the applicant's details
         const applicantRef = doc(db, 'users', application.userId);
         const applicantDoc = await getDoc(applicantRef);
         const applicantData = applicantDoc.data();
 
-        // Start a batch write
         const batch = writeBatch(db);
 
-        // Update application status and message
         batch.update(applicationRef, {
             status: newStatus,
             message: message,
             updatedAt: new Date().toISOString()
         });
 
-        // Update job's applications array
         let applications = jobData.applications || [];
         if (newStatus === 'approved') {
-            // Add to approved applications if not already there
             if (!applications.includes(application.userId)) {
                 applications.push(application.userId);
             }
         }
 
-        // Update job document
         batch.update(jobRef, {
             applications: applications,
             updatedAt: new Date().toISOString()
         });
 
-        // Create notification for the applicant
         const notificationData = {
             type: 'status',
             status: newStatus,
@@ -495,36 +436,30 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
                 : `${jobPosterName} has rejected your application for <strong>${jobData.jobTitle || 'Untitled Job'}</strong>.`,
             timestamp: new Date().toISOString(),
             read: false,
-            userId: application.userId, // This is the applicant's ID
+            userId: application.userId, 
             applicantId: application.userId,
             applicantName: applicantData?.fullName || applicantData?.name || 'Applicant',
             applicantImage: applicantData?.profileImage || '../img/useri.png'
         };
 
-        // Add notification to batch
         const notificationRef = doc(collection(db, 'notifications'));
         batch.set(notificationRef, notificationData);
 
-        // Commit the batch
         await batch.commit();
 
 
-        // Show success message
         const statusMessage = newStatus === 'approved' ? 'approved' : 'rejected';
         showNotification(`Application has been ${statusMessage} successfully!`);
 
-        // Reload applications to show updated status
         await loadApplications(auth.currentUser.uid);
 
-        // If we're on the jobs page, force a reload to ensure UI is in sync
         if (window.location.pathname.includes('jobs.html')) {
             setTimeout(() => {
                 window.location.reload();
-            }, 2000); // Delay reload by 2 seconds
+            }, 2000); 
             return;
         }
 
-        // Update the status in the profile page if it's open
         if (window.location.pathname.includes('profile.html')) {
             const jobCard = document.querySelector(`[data-job-id="${application.jobId}"]`);
             if (jobCard) {
@@ -536,23 +471,19 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             }
         }
 
-        // Force a reload of the page to ensure notifications are updated
         setTimeout(() => {
             window.location.reload();
-        }, 2000); // Delay reload by 2 seconds
+        }, 2000); 
     } catch (error) {
         console.error('❌ Error updating application status:', error);
         showNotification('Failed to update application status. Please try again.', 'error');
     }
 }
 
-// Send message to applicant
 function sendMessage(applicantId, applicantName) {
-    // TODO: Implement messaging functionality
     alert(`Messaging ${applicantName}...`);
 }
 
-// Search and filter applications
 searchInput.addEventListener('input', filterApplications);
 filterSelect.addEventListener('change', filterApplications);
 
@@ -583,7 +514,6 @@ function filterApplications() {
         }
     });
 
-    // Show no results message if needed
     const applicationsList = document.getElementById('applications-list');
     const noResultsMessage = applicationsList.querySelector('.no-results-message');
     
@@ -603,7 +533,6 @@ function filterApplications() {
     }
 }
 
-// Function to load posted jobs
 async function loadPostedJobs(userId) {
     try {
         
@@ -670,7 +599,6 @@ async function loadPostedJobs(userId) {
     }
 }
 
-// Add this new function at the end of the file
 async function deleteApplication(applicationId) {
     try {
         const applicationRef = doc(db, 'applications', applicationId);
@@ -681,7 +609,6 @@ async function deleteApplication(applicationId) {
             throw new Error('Application not found');
         }
 
-        // Get the job document
         const jobRef = doc(db, 'jobs', application.jobId);
         const jobDoc = await getDoc(jobRef);
         const jobData = jobDoc.data();
@@ -690,29 +617,22 @@ async function deleteApplication(applicationId) {
             throw new Error('Job not found');
         }
 
-        // Start a batch write
         const batch = writeBatch(db);
 
-        // Delete the application
         batch.delete(applicationRef);
 
-        // Update job's applications array to remove the user
         let applications = jobData.applications || [];
         applications = applications.filter(id => id !== application.userId);
 
-        // Update job document
         batch.update(jobRef, {
             applications: applications,
             updatedAt: new Date().toISOString()
         });
 
-        // Commit the batch
         await batch.commit();
 
-        // Show success message
         showNotification('Application deleted successfully!');
 
-        // Reload applications to update the display
         await loadApplications(auth.currentUser.uid);
     } catch (error) {
         console.error('Error deleting application:', error);
@@ -720,10 +640,8 @@ async function deleteApplication(applicationId) {
     }
 }
 
-// Function to edit a job
 async function editJob(jobId) {
     try {
-        // Get the job document
         const jobRef = doc(db, 'jobs', jobId);
         const jobDoc = await getDoc(jobRef);
         const jobData = jobDoc.data();
@@ -732,7 +650,6 @@ async function editJob(jobId) {
             throw new Error('Job not found');
         }
 
-        // Fill the form with job data
         document.getElementById('editJobTitle').value = jobData.jobTitle;
         document.getElementById('editCompanyName').value = jobData.companyName;
         document.getElementById('editJobType').value = jobData.jobType;
@@ -745,10 +662,8 @@ async function editJob(jobId) {
         document.getElementById('editContactEmail').value = jobData.contactEmail;
         document.getElementById('editStatus').value = jobData.status || 'active';
 
-        // Store the job ID for later use
         document.getElementById('editJobForm').dataset.jobId = jobId;
 
-        // Show the popup
         document.getElementById('editPopupOverlay').style.display = 'block';
         document.body.style.overflow = 'hidden';
     } catch (error) {
@@ -757,13 +672,11 @@ async function editJob(jobId) {
     }
 }
 
-// Function to close the edit popup
 function closeEditPopup() {
     document.getElementById('editPopupOverlay').style.display = 'none';
     document.body.style.overflow = 'auto';
 }
 
-// Handle form submission
 document.getElementById('editJobForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -774,7 +687,6 @@ document.getElementById('editJobForm').addEventListener('submit', async function
     }
 
     try {
-        // Get form data
         const formData = {
             jobTitle: document.getElementById('editJobTitle').value,
             companyName: document.getElementById('editCompanyName').value,
@@ -790,16 +702,12 @@ document.getElementById('editJobForm').addEventListener('submit', async function
             lastUpdated: new Date().toISOString()
         };
 
-        // Update the job in Firestore
         await updateDoc(doc(db, 'jobs', jobId), formData);
 
-        // Close the popup
         closeEditPopup();
 
-        // Refresh the jobs list
         loadPostedJobs(auth.currentUser.uid);
 
-        // Show success notification
         showNotification('Job updated successfully!');
     } catch (error) {
         console.error('Error updating job:', error);
@@ -807,18 +715,15 @@ document.getElementById('editJobForm').addEventListener('submit', async function
     }
 });
 
-// Close popup when clicking outside
 document.getElementById('editPopupOverlay').addEventListener('click', function(e) {
     if (e.target === this) {
         closeEditPopup();
     }
 });
 
-// Make functions available globally
 window.editJob = editJob;
 window.closeEditPopup = closeEditPopup;
 
-// Function to show confirmation modal
 function showConfirmationModal(message, onConfirm) {
     const modal = document.createElement('div');
     modal.className = 'confirmation-modal';
@@ -835,19 +740,16 @@ function showConfirmationModal(message, onConfirm) {
 
     document.body.appendChild(modal);
 
-    // Handle cancel button
     modal.querySelector('.cancel-btn').addEventListener('click', () => {
         modal.remove();
     });
 
-    // Handle confirm button
     modal.querySelector('.confirm-btn').addEventListener('click', () => {
         modal.remove();
         onConfirm();
     });
 }
 
-// Function to load my applications
 async function loadMyApplications(userId) {
     try {
         const applicationsRef = collection(db, 'applications');
@@ -861,7 +763,6 @@ async function loadMyApplications(userId) {
             return;
         }
         
-        // Clear existing content
         myApplicationsList.innerHTML = '';
         
         if (querySnapshot.empty) {
@@ -881,12 +782,10 @@ async function loadMyApplications(userId) {
 
         let validApplications = 0;
         
-        // Process each application
         for (const docSnapshot of querySnapshot.docs) {
             const application = docSnapshot.data();
             
             try {
-                // Get the job details
                 const jobRef = doc(db, 'jobs', application.jobId);
                 const jobDoc = await getDoc(jobRef);
                 
@@ -897,7 +796,6 @@ async function loadMyApplications(userId) {
                 
                 const jobData = jobDoc.data();
                 
-                // Create application card
                 const applicationCard = document.createElement('div');
                 applicationCard.className = 'application-card';
                 applicationCard.innerHTML = `
@@ -944,7 +842,6 @@ async function loadMyApplications(userId) {
             }
         }
 
-        // If no valid applications were found (all jobs were deleted)
         if (validApplications === 0) {
             myApplicationsList.innerHTML = `
                 <div class="no-applications">
@@ -959,7 +856,6 @@ async function loadMyApplications(userId) {
             `;
         }
         
-        // Initialize search and filter functionality
         initializeMyApplicationsSearch();
     } catch (error) {
         console.error('Error loading my applications:', error);
@@ -976,23 +872,19 @@ async function loadMyApplications(userId) {
     }
 }
 
-// Function to initialize search and filter for My Applications
 function initializeMyApplicationsSearch() {
     const searchInput = document.getElementById('my-applications-search');
     const statusFilter = document.getElementById('my-applications-filter');
     
     if (searchInput && statusFilter) {
-        // Remove existing event listeners if any
         searchInput.removeEventListener('input', filterMyApplications);
         statusFilter.removeEventListener('change', filterMyApplications);
         
-        // Add new event listeners
         searchInput.addEventListener('input', filterMyApplications);
         statusFilter.addEventListener('change', filterMyApplications);
     }
 }
 
-// Function to filter my applications
 function filterMyApplications() {
     const searchInput = document.getElementById('my-applications-search');
     const statusFilter = document.getElementById('my-applications-filter');
@@ -1020,7 +912,6 @@ function filterMyApplications() {
         }
     });
 
-    // Show no results message if needed
     const myApplicationsList = document.getElementById('my-applications-list');
     const noResultsMessage = myApplicationsList.querySelector('.no-results-message');
     

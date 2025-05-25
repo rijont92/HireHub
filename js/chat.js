@@ -17,12 +17,10 @@ import {
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { firebaseConfig } from './firebase-config.js';
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// DOM Elements
 const chatWidget = document.getElementById('chatWidget');
 const chatToggle = document.getElementById('chatToggle');
 const minimizeChat = document.getElementById('minimizeChat');
@@ -47,7 +45,6 @@ function setLastRead(chatId, timestamp) {
     localStorage.setItem('chat_last_read_' + chatId, timestamp);
 }
 
-// Helper to update the notification bell count
 function updateBellCount(count) {
     const bellCounts = document.querySelectorAll('.notification-count');
     bellCounts.forEach(el => {
@@ -55,7 +52,6 @@ function updateBellCount(count) {
         el.style.display = count > 0 ? 'flex' : 'none';
     });
 
-    // Update message icon notification
     const messageIcons = document.querySelectorAll('.chat-toggle, .ri-message-2-line');
     messageIcons.forEach(icon => {
         let notificationDot = icon.querySelector('.message-notification-dot');
@@ -92,7 +88,6 @@ function listenForUnread(chatId, chatItem) {
             if (message.senderId !== currentUser.uid) {
                 if (!lastRead || (message.timestamp && message.timestamp.toMillis && message.timestamp.toMillis() > Number(lastRead))) {
                     unread++;
-                    // If chat widget is closed, count for bell
                     if (!chatWidget.classList.contains('active')) {
                         newForBell = true;
                     }
@@ -100,7 +95,6 @@ function listenForUnread(chatId, chatItem) {
             }
         });
         
-        // Remove old badge if exists
         const oldBadge = chatItem.querySelector('.unread-badge');
         if (oldBadge) oldBadge.remove();
         
@@ -111,7 +105,6 @@ function listenForUnread(chatId, chatItem) {
             chatItem.appendChild(badge);
         }
         
-        // Update bell count
         if (newForBell) {
             chatBellCount++;
             updateBellCount(chatBellCount);
@@ -119,13 +112,11 @@ function listenForUnread(chatId, chatItem) {
     });
 }
 
-// When chat widget is opened, clear bell count
 function clearChatBellCount() {
     chatBellCount = 0;
     updateBellCount(0);
 }
 
-// Toggle chat widget
 function toggleChat() {
     chatWidget.classList.toggle('active');
     if (chatWidget.classList.contains('active')) {
@@ -134,11 +125,9 @@ function toggleChat() {
     }
 }
 
-// Initialize event listeners when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     if (chatToggle) {
         chatToggle.addEventListener('click', toggleChat);
-        // Add notification dot to chat toggle button
         const notificationDot = document.createElement('span');
         notificationDot.className = 'message-notification-dot';
         chatToggle.appendChild(notificationDot);
@@ -166,33 +155,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Function to clear all chat data
 function clearChatData() {
-    // Clear chat list
     if (chatList) {
         chatList.innerHTML = '';
     }
     
-    // Clear messages
     if (messagesContainer) {
         messagesContainer.innerHTML = '';
     }
     
-    // Clear current chat
     currentChat = null;
     
-    // Clear participant names
     participantNames = {};
     
-    // Clear unread counts
     unreadCounts = {};
     
-    // Clear message input
     if (messageInput) {
         messageInput.value = '';
     }
     
-    // Remove listeners
     if (chatListener) {
         chatListener();
         chatListener = null;
@@ -203,11 +184,9 @@ function clearChatData() {
     }
 }
 
-// Load user's chats
 async function loadChats() {
     if (!currentUser) return;
 
-    // Remove existing listener if any
     if (chatListener) {
         chatListener();
     }
@@ -218,7 +197,6 @@ async function loadChats() {
         where('participants', 'array-contains', currentUser.uid)
     );
 
-    // Store the listener so we can remove it later
     chatListener = onSnapshot(q, (snapshot) => {
         chatList.innerHTML = '';
         if (snapshot.empty) {
@@ -233,13 +211,11 @@ async function loadChats() {
             const otherUserId = chat.participants.find(id => id !== currentUser.uid);
             const otherUserName = chat.participantNames?.[otherUserId] || 'User';
 
-            // Create chat item
             const chatItem = document.createElement('div');
             chatItem.className = 'chat-item';
             chatItem.dataset.chatId = chatId;
             chatItem.dataset.otherUserId = otherUserId;
             
-            // Create chat item content with avatar and name
             chatItem.innerHTML = `
                 <div class="chat-item-avatar">
                     <i class="ri-user-line"></i>
@@ -249,7 +225,6 @@ async function loadChats() {
                 </div>
             `;
 
-            // Listen for unread messages in this chat
             listenForUnread(chatId, chatItem);
 
             chatItem.addEventListener('click', () => openChat(chatId, otherUserId));
@@ -258,17 +233,14 @@ async function loadChats() {
     });
 }
 
-// Open a specific chat
 async function openChat(chatId, otherUserId) {
     if (!currentUser) return;
 
-    // Remove existing message listener if any
     if (messageListener) {
         messageListener();
         messageListener = null;
     }
 
-    // Verify this chat belongs to the current user
     const chatRef = doc(db, 'chats', chatId);
     const chatDoc = await getDoc(chatRef);
     
@@ -278,11 +250,9 @@ async function openChat(chatId, otherUserId) {
     }
 
     currentChat = chatId;
-    // Set last read to now
     setLastRead(chatId, Date.now());
     unreadCounts[chatId] = 0;
     
-    // Update active chat in list
     document.querySelectorAll('.chat-item').forEach(item => {
         item.classList.remove('active');
         if (item.dataset.chatId === chatId) {
@@ -290,7 +260,6 @@ async function openChat(chatId, otherUserId) {
         }
     });
 
-    // Fetch participant names for this chat
     participantNames = {};
     try {
         const chatData = chatDoc.data();
@@ -301,7 +270,6 @@ async function openChat(chatId, otherUserId) {
         participantNames = {};
     }
 
-    // Load messages
     const messagesRef = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesRef, orderBy('timestamp', 'asc'));
 
@@ -309,7 +277,6 @@ async function openChat(chatId, otherUserId) {
         messagesContainer.innerHTML = '';
         snapshot.forEach((doc) => {
             const message = doc.data();
-            // Only show messages from this chat's participants
             if (chatDoc.data().participants.includes(message.senderId)) {
                 const messageElement = createMessageElement(message);
                 messagesContainer.appendChild(messageElement);
@@ -318,7 +285,6 @@ async function openChat(chatId, otherUserId) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
 
-    // Show 'Chatting with ${user}' above the message input
     const chatMessages = document.getElementById('chatMessages');
     let chatWithBanner = document.getElementById('chatWithBanner');
     if (!chatWithBanner) {
@@ -336,19 +302,16 @@ async function openChat(chatId, otherUserId) {
     chatWithBanner.textContent = `Chatting with ${otherUserName}`;
 }
 
-// Create message element
 function createMessageElement(message) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${message.senderId === currentUser.uid ? 'sent' : 'received'}`;
     
-    // Sender name
     const senderName = participantNames[message.senderId] || 'User';
     const nameDiv = document.createElement('div');
     nameDiv.className = 'message-sender';
     nameDiv.textContent = senderName;
     messageDiv.appendChild(nameDiv);
 
-    // Message content
     const content = document.createElement('div');
     content.className = 'message-content';
     content.textContent = message.text;
@@ -356,12 +319,10 @@ function createMessageElement(message) {
     return messageDiv;
 }
 
-// Send message
 async function sendNewMessage() {
     if (!currentUser || !currentChat || !messageInput.value.trim()) return;
 
     try {
-        // Verify this chat belongs to the current user
         const chatRef = doc(db, 'chats', currentChat);
         const chatDoc = await getDoc(chatRef);
         
@@ -379,7 +340,6 @@ async function sendNewMessage() {
         await addDoc(collection(db, 'chats', currentChat, 'messages'), message);
         messageInput.value = '';
 
-        // Also create a notification for the recipient
         const chatData = chatDoc.data();
         const recipientId = chatData.participants.find(id => id !== currentUser.uid);
         if (recipientId) {
@@ -399,16 +359,13 @@ async function sendNewMessage() {
     }
 }
 
-// Initialize chat when user is authenticated
 onAuthStateChanged(auth, (user) => {
     console.log('Auth state changed:', user ? 'User logged in' : 'No user');
     if (user) {
-        // Clear previous chat data before loading new user's chats
         clearChatData();
         
         currentUser = user;
         console.log('Current user set:', user.uid);
-        // Load chats immediately when user is authenticated
         loadChats();
         if (chatWidget.classList.contains('active')) {
             clearChatBellCount();
@@ -417,17 +374,14 @@ onAuthStateChanged(auth, (user) => {
         console.log('No user, resetting chat state');
         currentUser = null;
         chatWidget.classList.remove('active');
-        // Clear all chat data when user logs out
         clearChatData();
     }
 });
 
-// Create a new chat
 async function createNewChat(otherUserId, otherUserName, companyName = null) {
     if (!currentUser) return null;
 
     try {
-        // Check if chat already exists
         const chatsRef = collection(db, 'chats');
         const q = query(
             chatsRef,
@@ -448,7 +402,6 @@ async function createNewChat(otherUserId, otherUserName, companyName = null) {
             return existingChat;
         }
 
-        // Always fetch the latest displayName/companyName for both participants
         let currentUserName = 'User';
         let otherUserDisplayName = otherUserName;
         
@@ -463,12 +416,10 @@ async function createNewChat(otherUserId, otherUserName, companyName = null) {
             console.error('Error fetching current user details:', e);
         }
 
-        // If companyName is provided, use it to enhance the display name
         if (companyName) {
             otherUserDisplayName = `${otherUserName} (${companyName})`;
         }
 
-        // Create new chat
         const chatData = {
             participants: [currentUser.uid, otherUserId],
             participantNames: {
@@ -482,7 +433,6 @@ async function createNewChat(otherUserId, otherUserName, companyName = null) {
         const chatRef = await addDoc(chatsRef, chatData);
         const chatId = chatRef.id;
 
-        // Reload chats to update the list
         await loadChats();
 
         return chatId;
@@ -492,7 +442,6 @@ async function createNewChat(otherUserId, otherUserName, companyName = null) {
     }
 }
 
-// ADMIN/DEV: Update all chats to use correct display names for all participants
 async function updateAllChatParticipantNames() {
     const chatsRef = collection(db, 'chats');
     const chatsSnapshot = await getDocs(chatsRef);
@@ -513,17 +462,14 @@ async function updateAllChatParticipantNames() {
             } catch (e) {}
             participantNames[uid] = displayName;
         }
-        // Update the chat document
         await updateDoc(chatDoc.ref, { participantNames });
         console.log(`Updated chat ${chatDoc.id} participantNames:`, participantNames);
     }
     alert('All chats updated with correct participant names!');
 }
 
-// Export functions for use in other files
 export { createNewChat, openChat };
 
-// Expose the updateAllChatParticipantNames function to the global window object
 window.updateAllChatParticipantNames = updateAllChatParticipantNames; 
 
 

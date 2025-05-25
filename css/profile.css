@@ -305,7 +305,6 @@ body {
         height: 32px;
     }
     
-    /* Ensure the file input is properly positioned on mobile */
     input[type="file"] {
         position: absolute;
         top: 0;
@@ -318,7 +317,6 @@ body {
     }
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -604,7 +602,6 @@ body {
     max-width: 100%;
 }
 
-/* Profile image container and upload button */
 .profile-image-container {
     position: relative;
     width: 150px;
@@ -622,7 +619,6 @@ body {
     object-position: center;
 }
 
-/* Loading indicator for profile image upload */
 .loading-indicator {
     position: fixed;
     top: 50%;
@@ -637,7 +633,6 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Custom Popup Notification */
 .popup-notification {
     position: fixed;
     top: 20px;
@@ -697,7 +692,6 @@ body {
     }
 }
 
-/* Applied Jobs Section */
 .job-card {
     background: white;
     border-radius: 8px;

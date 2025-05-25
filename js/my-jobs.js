@@ -10,34 +10,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusFilter = document.getElementById('statusFilter');
     const loadingSpinner = document.getElementById('loadingSpinner');
 
-    // Store jobs globally to use in filtering
     let allJobs = [];
 
-    // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // User is signed in, fetch their jobs
             fetchUserJobs(user.uid);
         } else {
-            // User is not signed in, redirect to login
             window.location.href = 'login.html';
         }
     });
 
-    // Fetch and display user's jobs
     async function fetchUserJobs(userId) {
         try {
             loadingSpinner.style.display = 'flex';
             jobsList.innerHTML = '';
 
-            // Validate userId
             if (!userId || typeof userId !== 'string') {
                 throw new Error('Invalid user ID');
             }
 
             console.log('Fetching jobs for user:', userId);
 
-            // Query jobs posted by the current user
             const jobsQuery = query(
                 collection(db, 'jobs'),
                 where('postedBy', '==', userId)
@@ -58,14 +51,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Fetch all jobs posted by the user
             allJobs = [];
             const locations = new Set();
 
-            // Process each job
             jobsSnapshot.forEach(doc => {
                 const job = { 
-                    firestoreId: doc.id,  // Store the actual Firestore document ID
+                    firestoreId: doc.id, 
                     ...doc.data()
                 };
                 allJobs.push(job);
@@ -73,13 +64,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Successfully fetched job:', job.jobTitle);
             });
 
-            // Populate location filter
             locationFilter.innerHTML = '<option value="">All Locations</option>';
             locations.forEach(location => {
                 locationFilter.innerHTML += `<option value="${location}">${location}</option>`;
             });
 
-            // Display filtered jobs
             const filteredJobs = filterJobs(allJobs);
             displayJobs(filteredJobs);
             loadingSpinner.style.display = 'none';
@@ -97,7 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Display jobs in the UI
     function displayJobs(jobs) {
         if (jobs.length === 0) {
             jobsList.innerHTML = `
@@ -167,7 +155,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 
-    // Filter jobs based on search and filters
     function filterJobs(jobs) {
         const searchTerm = searchInput.value.toLowerCase();
         const selectedJobType = jobTypeFilter.value;
@@ -187,7 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Event listeners for filters
     searchInput.addEventListener('input', () => {
         const filteredJobs = filterJobs(allJobs);
         displayJobs(filteredJobs);
@@ -208,10 +194,8 @@ document.addEventListener('DOMContentLoaded', function() {
         displayJobs(filteredJobs);
     });
 
-    // Make functions available globally
     window.editJob = async function(jobId) {
         try {
-            // Get the job data using the Firestore document ID
             const jobRef = doc(db, 'jobs', jobId);
             const jobDoc = await getDoc(jobRef);
             
@@ -223,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const jobData = jobDoc.data();
 
-            // Fill the form with job data
             document.getElementById('editJobTitle').value = jobData.jobTitle;
             document.getElementById('editCompanyName').value = jobData.companyName;
             document.getElementById('editJobType').value = jobData.jobType;
@@ -236,10 +219,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editContactEmail').value = jobData.contactEmail;
             document.getElementById('editStatus').value = jobData.status || 'active';
 
-            // Store the job ID for later use
             document.getElementById('editJobForm').dataset.jobId = jobId;
 
-            // Show the popup
             document.getElementById('editPopupOverlay').style.display = 'block';
             document.body.style.overflow = 'hidden';
         } catch (error) {
@@ -253,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = 'auto';
     };
 
-    // Handle form submission
     document.getElementById('editJobForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
@@ -264,7 +244,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Get form data
             const formData = {
                 jobTitle: document.getElementById('editJobTitle').value,
                 companyName: document.getElementById('editCompanyName').value,
@@ -280,16 +259,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastUpdated: new Date().toISOString()
             };
 
-            // Update the job in Firestore
             await updateDoc(doc(db, 'jobs', jobId), formData);
 
-            // Close the popup
             closeEditPopup();
 
-            // Refresh the jobs list
             fetchUserJobs(auth.currentUser.uid);
 
-            // Show success notification
             showNotification('Job updated successfully!');
         } catch (error) {
             console.error('Error updating job:', error);
@@ -297,7 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Close popup when clicking outside
     document.getElementById('editPopupOverlay').addEventListener('click', function(e) {
         if (e.target === this) {
             closeEditPopup();
@@ -307,19 +281,15 @@ document.addEventListener('DOMContentLoaded', function() {
     window.deleteJob = async function(jobId) {
         if (confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
             try {
-                // Delete the job from the jobs collection
                 await deleteDoc(doc(db, 'jobs', jobId));
 
-                // Remove the job ID from user's postedJobs array
                 const userRef = doc(db, 'users', auth.currentUser.uid);
                 await updateDoc(userRef, {
                     postedJobs: arrayRemove(jobId)
                 });
 
-                // Show success notification
                 showNotification('Job deleted successfully!');
 
-                // Refresh the jobs list
                 fetchUserJobs(auth.currentUser.uid);
             } catch (error) {
                 console.error('Error deleting job:', error);
@@ -328,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Application Management
     function showApplicationModal(applicationId) {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
@@ -373,22 +342,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!response.ok) throw new Error('Failed to update application');
 
-            // Update UI
             const applicationCard = document.querySelector(`[data-application-id="${applicationId}"]`);
             if (applicationCard) {
                 const statusElement = applicationCard.querySelector('.status');
                 statusElement.className = `status ${action}ed`;
                 statusElement.textContent = action === 'accept' ? 'Accepted' : 'Rejected';
                 
-                // Remove action buttons
                 const actionsContainer = applicationCard.querySelector('.application-actions');
                 if (actionsContainer) actionsContainer.remove();
             }
 
-            // Show success message
             showNotification(`${action === 'accept' ? 'Accepted' : 'Rejected'} application successfully!`);
             
-            // Close modal
             modal.remove();
         } catch (error) {
             console.error('Error:', error);
@@ -396,7 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Notification helper
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -409,7 +373,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Display applications in the UI
     function displayApplications(applications) {
         const applicationsContainer = document.getElementById('applicationsList');
         if (!applicationsContainer) return;
@@ -450,7 +413,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `).join('');
 
-        // Initialize application management
         document.querySelectorAll('.manage-application').forEach(button => {
             button.onclick = (e) => {
                 e.preventDefault();

@@ -10,6 +10,10 @@ const generalError = document.getElementById('general-error');
 const passwordInput = document.getElementById('password');
 const icon = document.getElementById('icon');
 const googleSignInBtn = document.querySelector('.google');
+const date = document.getElementById("date");
+
+const yearDate = new Date().getFullYear();
+date.innerHTML = yearDate;
 
 import { isAuthenticated } from '../js/auth.js';
 

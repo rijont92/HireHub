@@ -15,7 +15,6 @@ body {
 
 }
 
-/* Saved Jobs Page Styles */
 .saved-jobs-container {
     padding: 2rem 0;
     min-height: calc(100vh - 400px);
@@ -36,7 +35,6 @@ body {
     padding: 1rem;
 }
 
-/* Job Item Styles */
 .job-item {
     background: var(--white);
     border-radius: var(--border-radius);
@@ -118,7 +116,6 @@ body {
     color: var(--light-text);
 }
 
-/* Job Type Specific Styles */
 .meta-item.full-time {
     background: rgba(117, 94, 163, 0.1);
     color: var(--primary-color);
@@ -201,7 +198,6 @@ body {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Loading Spinner */
 .loading-spinner {
     display: none;
     justify-content: center;
@@ -223,7 +219,6 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* No Jobs Message */
 .no-jobs {
     text-align: center;
     padding: 2rem;
@@ -231,7 +226,6 @@ body {
     font-size: 1.1rem;
 }
 
-/* Error Message */
 .error {
     text-align: center;
     padding: 2rem;
@@ -239,7 +233,6 @@ body {
     font-size: 1.1rem;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .job-item-header {
         flex-direction: column;
@@ -279,7 +272,6 @@ body {
     }
 }
 
-/* Notification Styles */
 .notification {
     position: fixed;
     top: 20px;
@@ -347,7 +339,6 @@ body {
     }
 }
 
-/* Apply Modal Styles */
 .apply-modal-overlay {
     display: none;
     position: fixed;

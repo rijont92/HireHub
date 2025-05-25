@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Default categories with their icons and colors
     const defaultCategories = {
         'IT & Software': {
             icon: 'fa-laptop-code',
@@ -53,17 +52,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Function to get category icon
     function getCategoryIcon(category) {
         return defaultCategories[category]?.icon || 'fa-briefcase';
     }
 
-    // Function to get category color
     function getCategoryColor(category) {
         return defaultCategories[category]?.color || '#757575';
     }
 
-    // Function to create category card HTML
     function createCategoryCard(category, count) {
         const icon = getCategoryIcon(category);
         const color = getCategoryColor(category);
@@ -82,11 +78,9 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Function to load popular categories
     async function loadPopularCategories() {
         try {
             
-            // Show loading spinner
             categoriesContainer.innerHTML = `
                 <div class="loading-spinner">
                     <div class="spinner"></div>
@@ -98,10 +92,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const querySnapshot = await getDocs(jobsQuery);
 
             
-            // Initialize category counts with default categories
             const categoryCounts = { ...defaultCategories };
             
-            // Count jobs per category
             querySnapshot.forEach((doc) => {
                 const job = doc.data();
                 console.log("Job Data:", job);
@@ -109,14 +101,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (defaultCategories[job.category]) {
                         categoryCounts[job.category].count++;
                     } else {
-                        // Increment Others count for undefined categories
                         categoryCounts['Others'].count++;
                     }
                 }
             });
 
 
-            // Convert to array and sort by count
             const categories = Object.entries(categoryCounts)
                 .map(([category, data]) => ({ 
                     category, 
@@ -125,18 +115,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     color: data.color
                 }))
                 .sort((a, b) => {
-                    // Always put "Others" at the end
                     if (a.category === 'Others') return 1;
                     if (b.category === 'Others') return -1;
-                    // Sort other categories by count
                     return b.count - a.count;
                 });
 
 
-            // Clear existing content
             categoriesContainer.innerHTML = '';
 
-            // Add each category to the container
             categories.forEach(({ category, count }) => {
                 const categoryCard = createCategoryCard(category, count);
                 categoriesContainer.innerHTML += categoryCard;
@@ -156,6 +142,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Load popular categories when the page loads
     loadPopularCategories();
 }); 

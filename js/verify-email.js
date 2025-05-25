@@ -6,20 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkVerificationBtn = document.getElementById('checkVerification');
     const verificationMessage = document.getElementById('verification-message');
 
-    // Check if user is logged in
     onAuthStateChanged(auth, (user) => {
         if (!user) {
             window.location.href = 'login.html';
             return;
         }
 
-        // If email is already verified, redirect to home
         if (user.emailVerified) {
             window.location.href = '../index.html';
         }
     });
 
-    // Handle resend verification email
     resendEmailBtn.addEventListener('click', async () => {
         try {
             const user = auth.currentUser;
@@ -34,12 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle verification check
     checkVerificationBtn.addEventListener('click', async () => {
         try {
             const user = auth.currentUser;
             if (user) {
-                // Reload user to get latest email verification status
                 await user.reload();
                 
                 if (user.emailVerified) {

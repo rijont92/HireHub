@@ -15,55 +15,14 @@ if(isAuthenticated() && window.location.pathname.endsWith("html/login.html")) {
  
 }
 
-
-// function updateUI() {
-
-
-
-//     if (tahiri) {
-
-      
-//     if (storedImage) {
-//       document.getElementById('img-profile').src = storedImage;
-//       document.getElementById('img-profile2').src = storedImage;
-//     }else {
-//       document.getElementById('img-profile').src = "../img/useri.png";
-//       document.getElementById('img-profile2').src = "../img/useri.png";
-//     }
-     
-//         removeItems.forEach(item => {
-//             item.style.display = "initial !important"; 
-//         });
-//         signUp.style.display = "none"; 
-//         profile_notification.forEach(item => {
-//           item.style.display = "initial";
-//         })
-//         login.innerHTML = '<i class="ri-logout-box-line"></i> Log Out'; 
-//         login.href = "html/login.html"; 
-//         login.onclick = logOut; 
-//     } else {
-//         // User is logged out
-//         removeItems.forEach(item => {
-//             item.style.display = "none"; 
-//         });
-//         signUp.style.display = "block"; 
-//         login.innerHTML = '<i class="ri-login-box-line"></i> Log In'; 
-//         login.href = "html/login.html"; 
-//         login.onclick = null; 
-//     }
-// }
-
-
 function logOut(event) {
     event.preventDefault();
     tahiri = false; 
     localStorage.setItem('tahiri', 'false');
     localStorage.setItem('profileImage', "img/useri.png")
     window.location.href = "html/login.html";
-    // updateUI();
 }
 
-// updateUI();
 
 document.addEventListener('scroll', function () {
     const boxes = document.querySelectorAll('.featured-bar-color');
@@ -74,9 +33,8 @@ document.addEventListener('scroll', function () {
       const rect = container.getBoundingClientRect();
       const boxTop = rect.top;
   
-      // Check if the bar is in the viewport
       if (boxTop < windowHeight - 200 && !box.classList.contains('animated')) {
-        box.classList.add('animated'); // Mark the bar as animated
+        box.classList.add('animated'); 
         let i = 0;
   
         function updateBar() {

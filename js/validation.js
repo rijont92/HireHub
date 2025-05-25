@@ -1,4 +1,3 @@
-// Email validation
 function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -10,7 +9,6 @@ function validateEmail(email) {
     return { isValid: true, message: '' };
 }
 
-// Name validation
 function validateName(name) {
     if (!name) {
         return { isValid: false, message: 'Name is required' };
@@ -24,7 +22,6 @@ function validateName(name) {
     return { isValid: true, message: '' };
 }
 
-// Password validation for login
 function validateLoginPassword(password) {
     if (!password) {
         return { isValid: false, message: 'Password is required' };
@@ -32,7 +29,6 @@ function validateLoginPassword(password) {
     return { isValid: true, message: '' };
 }
 
-// Password validation for signup with detailed requirements
 function validateSignupPassword(password) {
     if (!password) {
         return { isValid: false, message: 'Password is required' };
@@ -69,7 +65,6 @@ function validateSignupPassword(password) {
     return { isValid: true, message: '' };
 }
 
-// Confirm password validation
 function validateConfirmPassword(password, confirmPassword) {
     if (!confirmPassword) {
         return { isValid: false, message: 'Please confirm your password' };
@@ -80,7 +75,6 @@ function validateConfirmPassword(password, confirmPassword) {
     return { isValid: true, message: '' };
 }
 
-// Form validation for login
 function validateLoginForm(email, password) {
     const emailValidation = validateEmail(email);
     const passwordValidation = validateLoginPassword(password);
@@ -94,7 +88,6 @@ function validateLoginForm(email, password) {
     };
 }
 
-// Form validation for signup
 function validateSignupForm(name, email, password, confirmPassword) {
     const nameValidation = validateName(name);
     const emailValidation = validateEmail(email);
@@ -112,7 +105,6 @@ function validateSignupForm(name, email, password, confirmPassword) {
     };
 }
 
-// Real-time validation for login form
 function setupLoginValidation() {
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -128,7 +120,6 @@ function setupLoginValidation() {
         submitButton.style.opacity = submitButton.disabled ? '0.5' : '1';
     }
 
-    // Email validation
     emailInput.addEventListener('input', () => {
         const result = validateEmail(emailInput.value);
         errorEmail.textContent = result.message;
@@ -137,7 +128,6 @@ function setupLoginValidation() {
         updateSubmitButton();
     });
 
-    // Password validation
     passwordInput.addEventListener('input', () => {
         const result = validateLoginPassword(passwordInput.value);
         errorPassword.textContent = result.message;
@@ -146,7 +136,6 @@ function setupLoginValidation() {
         updateSubmitButton();
     });
 
-    // Clear error messages when input is focused
     emailInput.addEventListener('focus', () => {
         errorEmail.textContent = '';
     });
@@ -156,7 +145,6 @@ function setupLoginValidation() {
     });
 }
 
-// Real-time validation for signup form
 function setupSignupValidation() {
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
@@ -178,7 +166,6 @@ function setupSignupValidation() {
         submitButton.style.opacity = submitButton.disabled ? '0.5' : '1';
     }
 
-    // Name validation
     nameInput.addEventListener('input', () => {
         const result = validateName(nameInput.value);
         errorName.textContent = result.message;
@@ -187,7 +174,6 @@ function setupSignupValidation() {
         updateSubmitButton();
     });
 
-    // Email validation
     emailInput.addEventListener('input', () => {
         const result = validateEmail(emailInput.value);
         errorEmail.textContent = result.message;
@@ -196,14 +182,12 @@ function setupSignupValidation() {
         updateSubmitButton();
     });
 
-    // Password validation
     passwordInput.addEventListener('input', () => {
         const result = validateSignupPassword(passwordInput.value);
         errorPassword.textContent = result.message;
         errorPassword.style.color = result.isValid ? 'green' : 'red';
         isPasswordValid = result.isValid;
 
-        // Revalidate confirm password when password changes
         if (password2Input.value) {
             const confirmResult = validateConfirmPassword(passwordInput.value, password2Input.value);
             errorPassword2.textContent = confirmResult.message;
@@ -213,7 +197,6 @@ function setupSignupValidation() {
         updateSubmitButton();
     });
 
-    // Confirm password validation
     password2Input.addEventListener('input', () => {
         const result = validateConfirmPassword(passwordInput.value, password2Input.value);
         errorPassword2.textContent = result.message;
@@ -222,7 +205,6 @@ function setupSignupValidation() {
         updateSubmitButton();
     });
 
-    // Clear error messages when input is focused
     nameInput.addEventListener('focus', () => {
         errorName.textContent = '';
     });

@@ -78,7 +78,6 @@
     align-items: start;
 }
 
-/* Make Job Description, Requirements, and Benefits take full width */
 .form-group.full-width,
 .form-group:has(textarea[id="jobDescription"]),
 .form-group:has(textarea[id="requirements"]),
@@ -150,7 +149,6 @@
     overflow-y: auto;
 }
 
-/* Remove the previous rule that was putting Benefits and Application Deadline in the same row */
 .form-group:has(textarea[placeholder*="benefits"]),
 .form-group:has(input[type="date"]) {
     margin-top: 0.8rem;
@@ -228,7 +226,6 @@
     z-index: 2;
 }
 
-/* Remove previous file input styles */
 .form-group input[type="file"]::before {
     display: none;
 }
@@ -295,13 +292,11 @@
     opacity: 1;
 }
 
-/* Remove the span styling since we don't need it anymore */
 .submit-btn span {
     position: relative;
     z-index: 1;
 }
 
-/* Responsive styles */
 @media (max-width: 1400px) {
     .post-job-container {
         max-width: 95%;
@@ -435,7 +430,6 @@
     }
 }
 
-/* Custom select styling */
 .form-group select {
     appearance: none;
     -webkit-appearance: none;
@@ -471,7 +465,6 @@
     text-align: center;
 }
 
-/* Form Validation Styles */
 .error-message {
     color: #dc3545;
     font-size: 0.875rem;
@@ -493,14 +486,12 @@ textarea.error:focus {
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
-/* Logo Upload Error Styles */
 .logo-upload-container .error-message {
     position: relative;
     bottom: auto;
     margin-top: 0.5rem;
 }
 
-/* Success Popup Styles */
 .success-popup {
     position: fixed;
     top: 50%;
@@ -552,7 +543,6 @@ textarea.error:focus {
     transform: translateY(-2px);
 }
 
-/* Updated popup overlay styles */
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -567,7 +557,6 @@ textarea.error:focus {
     backdrop-filter: blur(5px);
 }
 
-/* Updated login popup styles */
 .login-popup {
     background-color: #fff;
     border-radius: 12px;
@@ -673,7 +662,6 @@ textarea.error:focus {
     }
 }
 
-/* Responsive styles for login popup */
 @media (max-width: 480px) {
     .login-popup {
         padding: 1.5rem;
@@ -718,7 +706,6 @@ textarea.error:focus {
     }
 }
 
-/* Disabled form input styles */
 .form-group input:disabled,
 .form-group select:disabled,
 .form-group textarea:disabled {
@@ -728,7 +715,6 @@ textarea.error:focus {
     color: #666;
 }
 
-/* Blurred form effect */
 .blured.blurred {
     opacity: 0.5;
     pointer-events: none;
@@ -739,7 +725,6 @@ textarea.error:focus {
     opacity: 0 !important;
 }
 
-/* Notification Styles */
 .notification {
     position: fixed;
     top: 20px;
@@ -771,12 +756,10 @@ textarea.error:focus {
     }
 }
 
-/* Hot Job Option Styles */
 .hot-job-option {
     background-color: #f8f9fa;
     padding: 20px;
     border-radius: 10px;
-    /* margin-top: 20px; */
 }
 
 .hot-job-header {
@@ -814,7 +797,6 @@ textarea.error:focus {
     margin-bottom: 15px;
 }
 
-/* PayPal Button Custom Styling */
 #paypal-button-container {
     margin-top: 15px;
     max-width: 300px;
@@ -853,7 +835,6 @@ textarea.error:focus {
     transform: translateY(0) !important;
 }
 
-/* Override PayPal's default styles */
 .paypal-button-container {
     background-color: var(--primary-color) !important;
 }
@@ -891,7 +872,6 @@ textarea.error:focus {
     position: relative;
 }
 
-/* Optionally, ensure the hot job/paypal section is below header */
 .hot-job-option, #paypal-button-container {
     z-index: 1;
     position: relative;

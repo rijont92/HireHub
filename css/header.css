@@ -549,7 +549,6 @@ a,li {
     }
 }
 
-/* Update display rules for authentication-dependent elements */
 .nonee {
     display: none;
 }
@@ -558,7 +557,6 @@ a,li {
     display: none;
 }
 
-/* Only show these elements when authenticated */
 .nav-rightt.show {
     display: flex;
 }

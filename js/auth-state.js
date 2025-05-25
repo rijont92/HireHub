@@ -2,22 +2,18 @@ import { auth } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 function setActiveDropdownLink() {
-    const currentPath = window.location.pathname; // Get the current page path
-    const dropdownLinks = document.querySelectorAll('.dropdown__link'); // Select all dropdown links
+    const currentPath = window.location.pathname; 
+    const dropdownLinks = document.querySelectorAll('.dropdown__link'); 
 
     dropdownLinks.forEach(link => {
-        // Remove 'active' class from all links
         link.classList.remove('active');
 
-        // Get the href attribute and normalize it
         const linkHref = link.getAttribute('href');
         if (!linkHref) return;
 
-        // Get the filename from both paths
         const currentPage = currentPath.split('/').pop();
         const linkPage = linkHref.split('/').pop();
 
-        // Check if the link's page matches the current page
         if (linkPage === currentPage && !link.id.includes('logout-btn')) {
             link.classList.add('active');
         }
@@ -25,7 +21,7 @@ function setActiveDropdownLink() {
 }
 
 function setDropdownLinks() {
-    const currentPath = window.location.pathname; // Get the current page path
+    const currentPath = window.location.pathname;
     const dropdownLinks = [
         { selector: 'a[href*="profile.html"]', path: 'profile.html' },
         { selector: 'a[href*="settings.html"]', path: 'settings.html' },
@@ -37,7 +33,6 @@ function setDropdownLinks() {
     dropdownLinks.forEach(link => {
         const element = document.querySelector(link.selector);
         if (element) {
-            // Check if we're in the html directory or root
             const isInHtmlDir = currentPath.includes('/html/');
             const isRoot = currentPath === '/' || currentPath.endsWith('index.html');
             
@@ -52,13 +47,11 @@ function setDropdownLinks() {
     });
 }
 
-// Function to update header based on auth state
 function updateHeader(user) {
     const dropdownMenu = document.querySelector('.dropdown__menu');
-    const currentPath = window.location.pathname; // Get the current page path
+    const currentPath = window.location.pathname;
 
     if (user || localStorage.getItem('token')) {
-        // User is logged in - show full menu
         dropdownMenu.innerHTML = `
             <li>
                 <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/profile.html' : 'profile.html'}" class="dropdown__link">
@@ -97,7 +90,6 @@ function updateHeader(user) {
             </li>
         `;
 
-        // Add logout functionality
         document.getElementById('logout-btn').addEventListener('click', async (e) => {
             e.preventDefault();
             try {
@@ -112,10 +104,8 @@ function updateHeader(user) {
             }
         });
 
-        // Set the correct href paths for dropdown links
         setDropdownLinks();
     } else {
-        // User is not logged in - show login/signup menu
         dropdownMenu.innerHTML = `
             <li>
                 <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/login.html' : 'login.html'}" class="dropdown__link">
@@ -130,25 +120,19 @@ function updateHeader(user) {
         `;
     }
 
-    // Call the function to set the active class
     setActiveDropdownLink();
 }
 
-// Listen for auth state changes
 function initAuthState() {
-    // Initial check
     updateHeader(auth.currentUser);
 
-    // Listen for auth state changes
     onAuthStateChanged(auth, (user) => {
         updateHeader(user);
     });
 }
 
-// Initialize auth state
 initAuthState();
 
-// Export functions if needed
 window.logOut = () => {
     localStorage.removeItem('token');
     updateHeader(null);

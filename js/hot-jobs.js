@@ -6,12 +6,10 @@ import { createNewChat, openChat } from './chat.js';
 document.addEventListener('DOMContentLoaded', function() {
     const featuredContainer = document.getElementById('featured-container');
     
-    // Function to format date
     function formatDate(dateString) {
         const date = new Date(dateString);
         const now = new Date();
         
-        // Reset hours to compare dates only
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const jobDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         
@@ -25,30 +23,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${Math.floor(diffDays / 30)} months ago`;
     }
 
-    // Function to calculate application progress
     function calculateProgress(applications, vacancy) {
         if (!applications || !vacancy) return 0;
         return Math.min(Math.round((applications.length / vacancy) * 100), 100);
     }
 
-    // Function to calculate job hotness score
     function calculateHotnessScore(job) {
         let score = 0;
         
-        // Factor 1: Recency (max 40 points)
         const postedDate = new Date(job.postedDate);
         const now = new Date();
         const daysOld = Math.floor((now - postedDate) / (1000 * 60 * 60 * 24));
-        score += Math.max(0, 40 - (daysOld * 2)); // 40 points for today, decreasing by 2 points per day
+        score += Math.max(0, 40 - (daysOld * 2)); 
 
-        // Factor 2: Application Rate (max 30 points)
         const applicationRate = job.applications ? job.applications.length / job.vacancy : 0;
-        score += Math.min(30, applicationRate * 30); // Up to 30 points based on application rate
+        score += Math.min(30, applicationRate * 30); 
 
-        // Factor 3: Vacancy Size (max 15 points)
-        score += Math.min(15, job.vacancy * 1.5); // More vacancies = higher score, max 15 points
+        score += Math.min(15, job.vacancy * 1.5); 
 
-        // Factor 4: Job Type Bonus (max 15 points)
         const jobTypeBonus = {
             'full-time': 15,
             'part-time': 10,
@@ -57,15 +49,13 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         score += jobTypeBonus[job.jobType.toLowerCase()] || 0;
 
-        // Factor 5: Hot Job Feature Bonus (40 points)
         if (job.isHotJob) {
-            score += 100; // Add 40 points for hot jobs
+            score += 100; 
         }
 
         return score;
     }
 
-    // Function to create job card HTML
     function createJobCard(job) {
         const progress = calculateProgress(job.applications, job.vacancy);
         const timeAgo = formatDate(job.postedDate);
@@ -73,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const jobCard = document.createElement('div');
         jobCard.className = 'job-card';
         
-        // Add hot indicator if job is hot
         
         jobCard.innerHTML = `
             <a href="html/single-job.html?id=${job.id}">
@@ -119,22 +108,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </a>
         `;
-
-        
-                    // <div class="featured-bar-container">
-                    //     <div class="featured-bar">
-                    //         <div class="featured-bar-color" data-value="${progress}"></div>
-                    //     </div>
-                    // </div>
-
-        // Add message button
         const messageButton = document.createElement('button');
         messageButton.className = 'message-job-poster';
         messageButton.innerHTML = '<i class="ri-message-2-line"></i> Message';
         messageButton.addEventListener('click', async (e) => {
             e.preventDefault();
             if (!job.postedBy) return;
-            // Fetch the real display name from users collection
             let otherUserName = 'User';
             try {
                 const userDoc = await getDocs(query(collection(db, 'users'), where('uid', '==', job.postedBy)));
@@ -145,25 +124,21 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (e) {}
             const chatId = await createNewChat(job.postedBy, otherUserName, job.companyName);
             if (chatId) {
-                // Show chat widget and open the chat
                 document.getElementById('chatWidget').classList.add('active');
                 openChat(chatId, job.postedBy);
             }
         });
         
-        // Add the message button to the job card
         
         return jobCard;
     }
 
-    // Function to load hot jobs
     async function loadHotJobs() {
         try {
-            // Query active jobs
             const jobsQuery = query(
                 collection(db, 'jobs'),
                 where('status', '==', 'active'),
-                limit(20) // Fetch more jobs to select the best ones
+                limit(20)
             );
 
             const querySnapshot = await getDocs(jobsQuery);
@@ -179,10 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Clear existing content
             featuredContainer.innerHTML = '';
 
-            // Convert to array and calculate hotness scores
             const jobs = [];
             querySnapshot.forEach((doc) => {
                 const job = {
@@ -193,19 +166,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 jobs.push(job);
             });
 
-            // Sort jobs by hotness score in descending order (highest first)
             jobs.sort((a, b) => {
-                // First sort by hotness score
                 const scoreDiff = b.hotnessScore - a.hotnessScore;
                 if (scoreDiff !== 0) return scoreDiff;
                 
-                // If scores are equal, sort by recency
                 const dateA = new Date(a.postedDate);
                 const dateB = new Date(b.postedDate);
                 return dateB - dateA;
             });
 
-            // Log only hot jobs
             const hotJobs = jobs.filter(job => job.isHotJob);
             if (hotJobs.length > 0) {
                 console.log('=== Hot Jobs ===');
@@ -221,16 +190,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            // Take top 6 jobs
             const topJobs = jobs.slice(0, 6);
 
-            // Add each job to the container
             topJobs.forEach(job => {
                 const jobCard = createJobCard(job);
                 featuredContainer.appendChild(jobCard);
             });
 
-            // Initialize progress bars
             const progressBars = document.querySelectorAll('.featured-bar-color');
             progressBars.forEach(bar => {
                 const value = bar.getAttribute('data-value');
@@ -249,10 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Load hot jobs when the page loads
     loadHotJobs();
 
-    // Reload hot jobs when user authentication state changes
     onAuthStateChanged(auth, () => {
         loadHotJobs();
     });

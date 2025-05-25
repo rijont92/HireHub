@@ -83,7 +83,6 @@ class NotificationCenter {
 
     setupAuthListener() {
         
-        // Clean up existing listeners
         this.cleanupListeners();
         
         const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -114,7 +113,6 @@ class NotificationCenter {
 
     setupJobApplicationListeners(userId) {
         
-        // Listen for jobs posted by the user
         const jobsQuery = query(
             collection(db, 'jobs'),
             where('postedBy', '==', userId)
@@ -122,14 +120,12 @@ class NotificationCenter {
 
         const unsubscribeJobs = onSnapshot(jobsQuery, async (jobsSnapshot) => {
             
-            // Clean up any existing application listeners
             this.cleanupApplicationListeners();
             
             jobsSnapshot.forEach(async (jobDoc) => {
                 const jobId = jobDoc.id;
                 const jobData = jobDoc.data();
 
-                // Listen for applications to this job
                 const applicationsQuery = query(
                     collection(db, 'applications'),
                     where('jobId', '==', jobId)
@@ -143,16 +139,14 @@ class NotificationCenter {
                             try {
                                 const application = change.doc.data();
                                 
-                                // Check if the application is new (within last 5 seconds)
                                 const appliedAt = new Date(application.appliedAt || application.timestamp);
                                 const now = new Date();
-                                const isNewApplication = (now - appliedAt) < 5000; // 5 seconds
+                                const isNewApplication = (now - appliedAt) < 5000; 
 
                                 if (!isNewApplication) {
                                     continue;
                                 }
 
-                                // Get the applicant's user data
                                 const userDoc = await getDoc(doc(db, 'users', application.userId));
                                 if (!userDoc.exists()) {
                                     console.error('DEBUG: User document not found for applicant:', application.userId);
@@ -165,7 +159,6 @@ class NotificationCenter {
                                     continue;
                                 }
 
-                                // Create notification for the job poster
                                 await this.createApplicationNotification({
                                     ...application,
                                     fullName: userData.fullName || userData.name || 'Unknown Applicant',
@@ -184,7 +177,6 @@ class NotificationCenter {
     }
 
     cleanupApplicationListeners() {
-        // Remove only application-related listeners
         this.unsubscribers = this.unsubscribers.filter(unsubscribe => {
             try {
                 unsubscribe();
@@ -277,7 +269,6 @@ class NotificationCenter {
             }
 
           
-            // Validate required data
             if (!application || !job || !application.userId || !application.jobId) {
                 console.error('DEBUG: Missing required data:', {
                     hasApplication: !!application,
@@ -288,7 +279,6 @@ class NotificationCenter {
                 return;
             }
 
-            // Check if notification already exists within the last 5 minutes
             const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
             const existingNotificationsQuery = query(
                 collection(db, 'notifications'),
@@ -306,7 +296,6 @@ class NotificationCenter {
                 return;
             }
 
-            // Ensure all required fields are present with fallbacks
             const notificationData = {
                 type: 'application',
                 jobId: application.jobId,
@@ -320,7 +309,6 @@ class NotificationCenter {
             };
 
 
-            // Validate all required fields are defined
             if (Object.values(notificationData).some(value => value === undefined)) {
                 console.error('DEBUG: Invalid notification data:', notificationData);
                 return;
@@ -409,7 +397,6 @@ class NotificationCenter {
             }
 
 
-            // Get all notifications for the current user
             const notificationsQuery = query(
                 collection(db, 'notifications'),
                 where('userId', '==', user.uid)
@@ -421,24 +408,19 @@ class NotificationCenter {
                 return;
             }
 
-            // Create a batch write
             const batch = writeBatch(db);
 
-            // Add each notification to the batch
             snapshot.forEach((doc) => {
                 batch.delete(doc.ref);
             });
 
-            // Commit the batch
             await batch.commit();
 
-            // Update local state
             this.notifications = [];
             this.unreadCount = 0;
             this.updateCount(0);
             this.renderNotifications();
 
-            // Clean up and reinitialize listeners
             this.cleanupListeners();
             this.setupAuthListener();
         } catch (error) {
@@ -562,7 +544,6 @@ class NotificationCenter {
     }
 }
 
-// Initialize notification center when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new NotificationCenter();
 }); 

@@ -76,7 +76,6 @@
     color: var(--text-color);
 }
 
-/* Profile Section Styles */
 .profile-form {
     max-width: 600px;
 }
@@ -139,7 +138,6 @@
     resize: vertical;
 }
 
-/* Appearance Section Styles */
 .color-scheme,
 .theme-options {
     margin-bottom: 30px;
@@ -193,7 +191,6 @@
     border-color: var(--primary-color);
 }
 
-/* Notification Section Styles */
 .notification-option {
     display: flex;
     align-items: center;
@@ -208,7 +205,6 @@
     color: var(--text-color);
 }
 
-/* Notification Toggle Styles */
 .toggle-container {
     display: flex;
     align-items: center;
@@ -299,7 +295,6 @@ input:focus + .toggle-slider {
     box-shadow: 0 0 3px var(--primary-color);
 }
 
-/* Dark theme adjustments */
 [data-theme="dark"] .toggle-container {
     background: var(--dark-background-color);
     border-color: var(--dark-border-color);
@@ -321,7 +316,6 @@ input:focus + .toggle-slider {
     background-color: #666;
 }
 
-/* Security Section Styles */
 #security-section {
     max-width: 100%;
     padding: 0;
@@ -414,7 +408,6 @@ input:focus + .toggle-slider {
     display: block;
 }
 
-/* Dark theme adjustments */
 [data-theme="dark"] #security-section {
     background: transparent;
     box-shadow: none;
@@ -431,7 +424,6 @@ input:focus + .toggle-slider {
     box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -488,13 +480,11 @@ input:focus + .toggle-slider {
     color: var(--primary-color);
 }
 
-/* Dark theme adjustments */
 [data-theme="dark"] .modal-content {
     background-color: var(--dark-background-color);
     color: var(--dark-text-color);
 }
 
-/* Common Button Styles */
 .save-btn {
     background: var(--primary-color);
     color: white;
@@ -510,7 +500,6 @@ input:focus + .toggle-slider {
     background-color: var(--hover);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .settings-container {
         flex-direction: column;
@@ -539,7 +528,6 @@ input:focus + .toggle-slider {
 
 }
 
-/* Delete Account Section */
 .delete-account-section {
     margin-top: 40px;
     padding-top: 20px;
@@ -597,7 +585,6 @@ input:focus + .toggle-slider {
     background-color: #BDC3C7;
 }
 
-/* Delete Account Modal */
 #deleteAccountModal .modal-content {
     background-color: white;
     color: #333;
@@ -626,7 +613,6 @@ input:focus + .toggle-slider {
     gap: 10px;
 }
 
-/* Dark theme adjustments */
 [data-theme="dark"] .delete-account-section {
     border-top-color: var(--dark-border-color);
 }
@@ -693,7 +679,6 @@ input:focus + .toggle-slider {
     color: #666;
 }
 
-/* Password Confirmation Modal Styles */
 #passwordConfirmModal .modal-content {
     max-width: 400px;
     padding: 2rem;
@@ -772,7 +757,6 @@ input:focus + .toggle-slider {
     background-color: #e9ecef;
 }
 
-/* Modal Overlay */
 .modal {
     display: none;
     position: fixed;
@@ -819,7 +803,6 @@ input:focus + .toggle-slider {
     color: #333;
 }
 
-/* Loading indicator for profile image upload */
 .loading-indicator {
     position: fixed;
     top: 50%;

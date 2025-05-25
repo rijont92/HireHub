@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBy4bVUtUwSUSijmr0Rvjiwu9rlbWBhOG8",
   authDomain: "hirehub-218fb.firebaseapp.com",
@@ -12,7 +11,6 @@ const firebaseConfig = {
   appId: "1:415486449267:web:142dfe1371a01f7a02bc06"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -25,7 +23,6 @@ const dateFilter = document.getElementById('dateFilter');
 let currentUser = null;
 let jobHistory = [];
 
-// Check authentication state
 auth.onAuthStateChanged((user) => {
     if (user) {
         currentUser = user;
@@ -35,7 +32,6 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
-// Load job history from Firestore
 async function loadJobHistory() {
     try {
         if (!currentUser) {
@@ -43,7 +39,6 @@ async function loadJobHistory() {
             return;
         }
 
-        // First get all job history entries for the user
         const q = query(
             collection(db, 'jobHistory'),
             where('userId', '==', currentUser.uid)
@@ -54,7 +49,6 @@ async function loadJobHistory() {
         
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            // Ensure all required fields exist
             if (data.jobTitle && data.companyName && data.viewedAt) {
                 jobHistory.push({
                     id: doc.id,
@@ -68,7 +62,6 @@ async function loadJobHistory() {
             }
         });
 
-        // Sort the array by viewedAt in descending order (most recent first)
         jobHistory.sort((a, b) => {
             const dateA = a.viewedAt.toDate();
             const dateB = b.viewedAt.toDate();
@@ -78,7 +71,6 @@ async function loadJobHistory() {
         displayJobHistory(jobHistory);
     } catch (error) {
         console.error('Error loading job history:', error);
-        // Show error message to user
         historyList.innerHTML = `
             <div class="error-message">
                 <i class="ri-error-warning-line"></i>
@@ -88,7 +80,6 @@ async function loadJobHistory() {
     }
 }
 
-// Display job history items
 function displayJobHistory(history) {
     historyList.innerHTML = '';
     
@@ -130,7 +121,6 @@ function displayJobHistory(history) {
     });
 }
 
-// Format date
 function formatDate(timestamp) {
     const date = timestamp.toDate();
     return date.toLocaleDateString('en-US', {
@@ -140,12 +130,10 @@ function formatDate(timestamp) {
     });
 }
 
-// View job details
 window.viewJob = function(jobId) {
     window.location.href = `/html/single-job.html?id=${jobId}`;
 };
 
-// Remove job from history
 window.removeFromHistory = async function(historyId) {
     try {
         await deleteDoc(doc(db, 'jobHistory', historyId));
@@ -156,7 +144,6 @@ window.removeFromHistory = async function(historyId) {
     }
 };
 
-// Search functionality
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const filteredHistory = jobHistory.filter(job => 
@@ -167,7 +154,6 @@ searchInput.addEventListener('input', (e) => {
     displayJobHistory(filteredHistory);
 });
 
-// Helper function to compare dates without time
 function compareDates(date1, date2) {
     const d1 = new Date(date1);
     const d2 = new Date(date2);
@@ -176,11 +162,10 @@ function compareDates(date1, date2) {
     return d1.getTime() === d2.getTime();
 }
 
-// Date filter functionality
 dateFilter.addEventListener('change', (e) => {
     const filterValue = e.target.value;
     const now = new Date();
-    now.setHours(0, 0, 0, 0); // Set to start of day
+    now.setHours(0, 0, 0, 0); 
     let filteredHistory = [...jobHistory];
     
     
@@ -193,7 +178,6 @@ dateFilter.addEventListener('change', (e) => {
             filteredHistory = jobHistory.filter(job => {
                 const jobDate = job.viewedAt.toDate();
                 jobDate.setHours(0, 0, 0, 0);
-                // Only show jobs from last week, excluding today
                 return jobDate >= lastWeek && !compareDates(jobDate, now);
             });
             break;
@@ -206,7 +190,6 @@ dateFilter.addEventListener('change', (e) => {
             filteredHistory = jobHistory.filter(job => {
                 const jobDate = job.viewedAt.toDate();
                 jobDate.setHours(0, 0, 0, 0);
-                // Only show jobs from last month, excluding today
                 return jobDate >= lastMonth && !compareDates(jobDate, now);
             });
             break;
@@ -217,7 +200,6 @@ dateFilter.addEventListener('change', (e) => {
             filteredHistory = jobHistory.filter(job => {
                 const jobDate = job.viewedAt.toDate();
                 const jobYear = jobDate.getFullYear();
-                // Only show jobs from last year
                 return jobYear === currentYear - 1;
             });
             break;

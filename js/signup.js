@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const fileInput = document.getElementById('file-input');
     let profileImageBase64 = '../img/useri.png';
 
+    const yearDate = new Date().getFullYear();
+    date.innerHTML = yearDate;
+
     if (isAuthenticated()) {
         window.location.replace("../index.html"); 
     }

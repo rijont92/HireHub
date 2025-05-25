@@ -6,17 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedJobsContainer = document.getElementById('savedJobsContainer');
     const loadingSpinner = document.getElementById('loadingSpinner');
 
-    // Apply modal elements
     const applyModalOverlay = document.getElementById('applyModalOverlay');
     const closeApplyModal = document.getElementById('closeApplyModal');
     const cancelApply = document.getElementById('cancelApply');
     const applyForm = document.getElementById('applyForm');
     const applyJobTitle = document.getElementById('applyJobTitle');
     
-    // Store current job ID when applying
     let currentJobId = null;
 
-    // Function to create job card
     function createJobCard(job, jobId) {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isClosed = job.status === 'closed';
@@ -84,23 +81,19 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // Add click event to the entire job item
         jobItem.addEventListener('click', (e) => {
-            // Don't navigate if clicking on buttons
             if (e.target.closest('.job-actions')) {
                 return;
             }
             window.location.href = `../html/single-job.html?id=${jobId}`;
         });
 
-        // Add event listener to the save button
         const saveBtn = jobItem.querySelector('.save-btn');
         saveBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             await toggleSaveJob(jobId);
         });
 
-        // Add event listener to the apply button
         const applyBtn = jobItem.querySelector('.apply-btn');
         if (applyBtn && !applyBtn.disabled) {
             applyBtn.addEventListener('click', (e) => {
@@ -112,13 +105,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return jobItem;
     }
 
-    // Function to format date
     function formatDate(dateString) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
     }
 
-    // Function to load saved jobs
     async function loadSavedJobs() {
         try {
             const user = auth.currentUser;
@@ -127,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Get user's saved jobs array
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
             const savedJobs = userDoc.data()?.savedJobs || [];
@@ -140,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Fetch each saved job document
             for (const jobId of savedJobs) {
                 const jobRef = doc(db, 'jobs', jobId);
                 const jobDoc = await getDoc(jobRef);
@@ -153,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Check if any jobs were actually displayed
             if (jobsContainer.children.length === 0) {
                 showEmptyState();
             }
@@ -163,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to show empty state UI
     function showEmptyState() {
         const jobsContainer = document.getElementById('savedJobsContainer');
         jobsContainer.innerHTML = `
@@ -181,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Function to toggle save job
     async function toggleSaveJob(jobId) {
         try {
             const user = auth.currentUser;
@@ -195,18 +181,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const savedJobs = userDoc.data()?.savedJobs || [];
 
             if (savedJobs.includes(jobId)) {
-                // Remove job from saved jobs array
                 await updateDoc(userRef, {
                     savedJobs: arrayRemove(jobId)
                 });
                 
-                // Remove job card from UI
                 const jobCard = document.querySelector(`.job-item[data-job-id="${jobId}"]`);
                 if (jobCard) {
                     jobCard.remove();
                 }
 
-                // Update no jobs message if needed
                 const savedJobsContainer = document.getElementById('savedJobsContainer');
                 const remainingJobs = document.querySelectorAll('.job-item');
                 if (remainingJobs.length === 0) {
@@ -231,7 +214,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to show notification
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -242,14 +224,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.appendChild(notification);
 
-        // Remove notification after 3 seconds
         setTimeout(() => {
             notification.classList.add('fade-out');
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
 
-    // Show apply modal
     function showApplyModal(jobId, jobTitle) {
         currentJobId = jobId;
         applyJobTitle.textContent = jobTitle;
@@ -257,7 +237,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = 'hidden';
     }
 
-    // Hide apply modal
     function hideApplyModal() {
         applyModalOverlay.style.display = 'none';
         document.body.style.overflow = 'auto';
@@ -265,22 +244,18 @@ document.addEventListener('DOMContentLoaded', function() {
         currentJobId = null;
     }
 
-    // Close modal when clicking outside
     applyModalOverlay.addEventListener('click', (e) => {
         if (e.target === applyModalOverlay) {
             hideApplyModal();
         }
     });
 
-    // Close modal when clicking close button
     closeApplyModal.addEventListener('click', hideApplyModal);
     cancelApply.addEventListener('click', hideApplyModal);
 
-    // Handle form submission
     applyForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Check if user is logged in
         const user = auth.currentUser;
         if (!user) {
             window.location.href = '../html/login.html';
@@ -288,30 +263,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Get form data
             const formData = new FormData(applyForm);
             const resumeFile = formData.get('resume');
             
-            // Validate file
             if (!resumeFile || resumeFile.size === 0) {
                 alert('Please upload your resume');
                 return;
             }
 
-            // Check file size (max 5MB)
             if (resumeFile.size > 5 * 1024 * 1024) {
                 alert('Resume file size should be less than 5MB');
                 return;
             }
 
-            // Check file type
             const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!allowedTypes.includes(resumeFile.type)) {
                 alert('Please upload a PDF or Word document');
                 return;
             }
 
-            // Create application data without the CV
             const applicationData = {
                 fullName: formData.get('fullName'),
                 email: formData.get('email'),
@@ -323,21 +293,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 appliedAt: new Date().toISOString()
             };
 
-            // Add application to Firestore
             const applicationsRef = collection(db, 'applications');
             await addDoc(applicationsRef, applicationData);
 
-            // Update job's applications count
             const jobRef = doc(db, 'jobs', currentJobId);
             await updateDoc(jobRef, {
                 applications: arrayUnion(user.uid)
             });
 
-            // Show success message
             alert('Application submitted successfully!');
             hideApplyModal();
             
-            // Refresh the page to update the UI
             window.location.reload();
         } catch (error) {
             console.error('Error submitting application:', error);
@@ -345,7 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Check auth state and load saved jobs
     onAuthStateChanged(auth, (user) => {
         if (user) {
             loadSavedJobs();

@@ -20,9 +20,7 @@
     <link rel="stylesheet" href="../css/chat.css">
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
-        <!-- Same header as other pages -->
         <nav class="nav container">
             <div class="nav__data">
                 <a href="../index.html" class="nav__logo">
@@ -123,15 +121,12 @@
     <main>
         <div class="container">
             <div class="profile-container">
-                <!-- Loading Spinner -->
                 <div id="loadingSpinner" class="loading-spinner">
                     <div class="spinner"></div>
                     <p>Loading profile...</p>
                 </div>
 
-                <!-- Profile Content -->
                 <div class="profile-content" style="display: none;">
-                    <!-- Profile Banner -->
                      <div class="profile-header">
                     <div class="profile-banner">
                         <div class="profile-picture">
@@ -140,7 +135,6 @@
                     </div>
                     </div>
 
-                    <!-- Profile Info -->
                     <div class="profile-info">
                         <h1 id="userName">Loading...</h1>
                         <p class="title" id="userProfession">Loading...</p>
@@ -156,9 +150,7 @@
                         </button>
                     </div>
 
-                    <!-- Profile Sections -->
                     <div class="profile-content">
-                        <!-- About Section -->
                         <div class="profile-section">
                             <div class="section-header">
                                 <h2>About</h2>
@@ -166,43 +158,35 @@
                             <p id="userBio">Loading...</p>
                         </div>
 
-                        <!-- Skills Section -->
                         <div class="profile-section">
                             <div class="section-header">
                                 <h2>Skills</h2>
                             </div>
                             <div class="skills-container" id="skillsList">
-                                <!-- Skills will be dynamically added here -->
                             </div>
                         </div>
 
-                        <!-- Experience Section -->
                         <div class="profile-section">
                             <div class="section-header">
                                 <h2>Experience</h2>
                             </div>
                             <div id="experienceList">
-                                <!-- Experience items will be dynamically added here -->
                             </div>
                         </div>
 
-                        <!-- Education Section -->
                         <div class="profile-section">
                             <div class="section-header">
                                 <h2>Education</h2>
                             </div>
                             <div id="educationList">
-                                <!-- Education items will be dynamically added here -->
                             </div>
                         </div>
 
-                        <!-- Posted Jobs Section -->
                         <div class="profile-section">
                             <div class="section-header">
                                 <h2>Posted Jobs</h2>
                             </div>
                             <div id="postedJobs" class="posted-jobs-grid">
-                                <!-- Posted jobs will be dynamically inserted here -->
                             </div>
                         </div>
                     </div>
@@ -211,7 +195,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="wrapper">
@@ -268,16 +251,13 @@
             <button class="minimize-btn" id="minimizeChat">
                 <i class="ri-subtract-line"></i>
             </button>
-            <!-- TEMP ADMIN BUTTON -->
             <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
         </div>
         <div class="chat-body" id="chatBody">
             <div class="chat-list" id="chatList">
-                <!-- Chat conversations will be listed here -->
             </div>
             <div class="chat-messages" id="chatMessages">
                 <div class="messages-container" id="messagesContainer">
-                    <!-- Messages will appear here -->
                 </div>
                 <div class="message-input">
                     <input type="text" id="messageInput" placeholder="Type your message...">

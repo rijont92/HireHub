@@ -193,7 +193,6 @@ body {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* Success message styles */
 .success-message {
     display: none;
     position: fixed;
@@ -260,7 +259,6 @@ body {
     transform: translateY(-2px);
 }
 
-/* Add styles for the contact popup buttons */
 .contact-popup-btn {
     background-color: #755ea3;
     color: white;

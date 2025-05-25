@@ -45,14 +45,11 @@
     text-align: center;
 }
 
-/* box */
 .job-card {
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* background-color: #fff; */
     border-radius: 10px;
-    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); */
     transition: transform 0.3s ease;
     overflow: hidden;
     margin-bottom: 1.5rem;
@@ -306,7 +303,6 @@
     }
 }
 
-/* Hero Section */
 .job-hero {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     padding: 4rem 0;
@@ -401,7 +397,6 @@
     width: 100%;
 }
 
-/* Left Column - Job Details */
 .job-details {
     background: var(--card-bg);
     border-radius: 20px;
@@ -559,7 +554,6 @@
     width: 100%;
 }
 
-/* Job Description Section */
 .description-section {
     background: linear-gradient(135deg, rgba(33, 150, 243, 0.03), rgba(33, 150, 243, 0.01));
     border: 1px solid rgba(33, 150, 243, 0.1);
@@ -604,7 +598,6 @@
     box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
 }
 
-/* Job Description Section h2 */
 .description-section h2 {
     font-size: 2.4rem;
     color: var(--primary-color);
@@ -647,7 +640,6 @@
     transform: scaleX(1);
 }
 
-/* Job Requirements Section */
 .requirements-section {
     background: linear-gradient(135deg, rgba(25, 118, 210, 0.03), rgba(25, 118, 210, 0.01));
     border: 1px solid rgba(25, 118, 210, 0.1);
@@ -709,7 +701,6 @@
     box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
 }
 
-/* Job Requirements Section h2 */
 .requirements-section h2 {
     font-size: 2.4rem;
     color: var(--text-color);
@@ -753,7 +744,6 @@
     transform: scaleX(1);
 }
 
-/* Job Benefits Section */
 .benefits-section {
     background: linear-gradient(135deg, rgba(255, 64, 129, 0.03), rgba(255, 64, 129, 0.01));
     border: 1px solid rgba(255, 64, 129, 0.1);
@@ -813,7 +803,6 @@
     box-shadow: 0 4px 12px rgba(255, 64, 129, 0.2);
 }
 
-/* Job Benefits Section h2 */
 .benefits-section h2 {
     font-size: 2.4rem;
     color: var(--text-color);
@@ -857,7 +846,6 @@
     transform: scaleX(1);
 }
 
-/* Add decorative elements */
 .description-section h2::before,
 .requirements-section h2::before,
 .benefits-section h2::before {
@@ -878,7 +866,6 @@
     opacity: 1;
 }
 
-/* Add hover effect for the entire title */
 .description-section h2,
 .requirements-section h2,
 .benefits-section h2 {
@@ -892,7 +879,6 @@
     color: var(--hover);
 }
 
-/* Right Column - Actions & Similar Jobs */
 .job-sidebar {
     display: flex;
     flex-direction: column;
@@ -962,7 +948,6 @@
     width: 100%;
 }
 
-/* Loading Spinner */
 .loading-spinner {
     display: flex;
     flex-direction: column;
@@ -1076,7 +1061,6 @@
     background-color: #999;
 }
 
-/* Apply Modal Styles */
 .apply-modal-overlay {
     display: none;
     position: fixed;
@@ -1199,7 +1183,6 @@
     background-color: #d32f2f;
 }
 
-/* Notification Styles */
 .notification {
     position: fixed;
     top: 20px;
@@ -1249,7 +1232,6 @@
     }
 }
 
-/* Application Status Styles */
 .application-status {
     display: inline-flex;
     align-items: center;

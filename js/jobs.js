@@ -13,20 +13,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const noJobsMessage = document.getElementById('noJobsMessage');
     const loadingSpinner = document.getElementById('loadingSpinner');
 
-    // Apply modal elements
     const applyModalOverlay = document.getElementById('applyModalOverlay');
     const closeApplyModal = document.getElementById('closeApplyModal');
     const cancelApply = document.getElementById('cancelApply');
     const applyForm = document.getElementById('applyForm');
     const applyJobTitle = document.getElementById('applyJobTitle');
 
-    // Store current job ID when applying
     let currentJobId = null;
 
     let allJobs = [];
-    let isFetching = false; // Add loading state flag
+    let isFetching = false;
 
-    // Function to create a job card
     function createJobCard(job) {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
@@ -34,13 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const isSaved = job.isSaved || false;
         const isHotJob = job.isHotJob;
         
-        // Get application status if applied
         let applicationStatus = 'pending';
         let statusClass = 'status-pending';
         let applicationMessage = '';
         
         if (isApplied) {
-            // Query the applications collection to get the status
             const applicationsRef = collection(db, 'applications');
             const q = query(
                 applicationsRef,
@@ -135,7 +130,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Function to filter jobs
     function filterJobs() {
         const searchTerm = searchInput.value.toLowerCase();
         const selectedJobType = jobTypeFilter.value.toLowerCase();
@@ -143,7 +137,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedCategory = categoryFilter.value;
 
         const filteredJobs = allJobs.filter(job => {
-            // Check if job and its properties exist before accessing them
             if (!job) return false;
 
             const jobTitle = (job.jobTitle || '').toLowerCase();
@@ -167,7 +160,6 @@ document.addEventListener('DOMContentLoaded', function() {
         displayJobs(filteredJobs);
     }
 
-    // Function to display jobs
     function displayJobs(jobs) {
         jobsContainer.innerHTML = '';
         
@@ -176,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             noJobsMessage.style.display = 'none';
             
-            // Sort jobs: hot jobs first, then by date
             jobs.sort((a, b) => {
                 if (a.isHotJob && !b.isHotJob) return -1;
                 if (!a.isHotJob && b.isHotJob) return 1;
@@ -192,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to populate location filter
     function populateLocationFilter() {
          const predifinedLocations = [
         'Prishtina',
@@ -242,7 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to populate category filter
     function populateCategoryFilter() {
         const predefinedCategories = [
             'IT & Software',
@@ -296,13 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Event listeners for filters
     searchInput.addEventListener('input', filterJobs);
     jobTypeFilter.addEventListener('change', filterJobs);
     locationFilter.addEventListener('change', filterJobs);
     categoryFilter.addEventListener('change', filterJobs);
 
-    // Function to fetch jobs from Firestore
     async function fetchJobs() {
         if (isFetching) return;
         isFetching = true;
@@ -316,7 +303,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             allJobs = [];
             
-            // Get user's saved jobs if logged in
             let savedJobs = [];
             if (auth.currentUser) {
                 const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -326,13 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Process each job
             for (const doc of querySnapshot.docs) {
                 const jobData = doc.data();
                 jobData.id = doc.id;
                 jobData.isSaved = savedJobs.includes(doc.id);
                 
-                // Check application status for each job
                 if (auth.currentUser && jobData.applications && jobData.applications.includes(auth.currentUser.uid)) {
                     const applicationsRef = collection(db, 'applications');
                     const q = query(
@@ -368,38 +352,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initial load
     fetchJobs();
 
-    // Add event delegation for job card clicks
     jobsContainer.addEventListener('click', function(e) {
         const jobCard = e.target.closest('.job-card');
         const applyBtn = e.target.closest('.apply-btn');
         const saveBtn = e.target.closest('.save-btn');
 
-        // Prevent navigation if "Apply Now" or "Save Job" buttons are clicked
         if (applyBtn) {
-            e.stopPropagation(); // Prevent card click
+            e.stopPropagation();
             const jobId = applyBtn.dataset.jobId;
             showApplyModal(jobId, allJobs.find(job => job.id === jobId).jobTitle);
-            return; // Stop further execution
+            return;
         }
 
         if (saveBtn) {
-            e.stopPropagation(); // Prevent card click
+            e.stopPropagation();
             const jobId = saveBtn.dataset.jobId;
             saveJob(jobId);
-            return; // Stop further execution
+            return; 
         }
 
-        // Navigate to the single job page if the card itself is clicked
         if (jobCard) {
             const jobId = jobCard.dataset.jobId;
             window.location.href = `single-job.html?id=${jobId}`;
         }
     });
 
-    // Show apply modal
     function showApplyModal(jobId, jobTitle) {
         const user = auth.currentUser;
         if (!user) {
@@ -412,7 +391,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = 'hidden';
     }
 
-    // Hide apply modal
     function hideApplyModal() {
         applyModalOverlay.style.display = 'none';
         document.body.style.overflow = 'auto';
@@ -420,22 +398,18 @@ document.addEventListener('DOMContentLoaded', function() {
         currentJobId = null;
     }
 
-    // Close modal when clicking outside
     applyModalOverlay.addEventListener('click', (e) => {
         if (e.target === applyModalOverlay) {
             hideApplyModal();
         }
     });
 
-    // Close modal when clicking close button
     closeApplyModal.addEventListener('click', hideApplyModal);
     cancelApply.addEventListener('click', hideApplyModal);
 
-    // Handle form submission
     applyForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Check if user is logged in
         const user = auth.currentUser;
         if (!user) {
             window.location.href = 'login.html';
@@ -443,30 +417,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Get form data
             const formData = new FormData(applyForm);
             const resumeFile = formData.get('resume');
             
-            // Validate file
             if (!resumeFile || resumeFile.size === 0) {
                 alert('Please upload your resume');
                 return;
             }
 
-            // Check file size (max 5MB)
             if (resumeFile.size > 5 * 1024 * 1024) {
                 alert('Resume file size should be less than 5MB');
                 return;
             }
 
-            // Check file type
             const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!allowedTypes.includes(resumeFile.type)) {
                 alert('Please upload a PDF or Word document');
                 return;
             }
 
-            // Create application data without the CV
             const applicationData = {
                 fullName: formData.get('fullName'),
                 email: formData.get('email'),
@@ -478,33 +447,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 appliedAt: new Date().toISOString()
             };
 
-            // Add application to Firestore
             const applicationsRef = collection(db, 'applications');
             await addDoc(applicationsRef, applicationData);
 
-            // Update job's applications count
             const jobRef = doc(db, 'jobs', currentJobId);
             await updateDoc(jobRef, {
                 applications: arrayUnion(user.uid)
             });
 
-            // Show success notification
             const successNotification = document.getElementById('successNotification');
             successNotification.classList.add('show');
 
-            // Hide notification after 5 seconds
             setTimeout(() => {
                 successNotification.classList.remove('show');
             }, 5000);
 
-            // Close notification when clicking close button
             document.getElementById('closeNotification').addEventListener('click', () => {
                 successNotification.classList.remove('show');
             });
 
             hideApplyModal();
             
-            // Wait for 2 seconds before reloading to show the notification
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
@@ -514,7 +477,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Function to save/unsave a job
     async function saveJob(jobId) {
         const user = auth.currentUser;
         if (!user) {
@@ -529,7 +491,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const job = allJobs.find(j => j.id === jobId);
             
             if (!userDoc.exists()) {
-                // Create new user document with saved jobs array
                 await setDoc(userRef, {
                     email: user.email,
                     savedJobs: [jobId],
@@ -546,7 +507,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const savedJobs = userData.savedJobs || [];
             
             if (savedJobs.includes(jobId)) {
-                // Remove job from saved jobs array
                 await updateDoc(userRef, {
                     savedJobs: arrayRemove(jobId),
                     updatedAt: new Date().toISOString()
@@ -555,7 +515,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Job';
                 saveBtn.classList.remove('saved');
             } else {
-                // Add job to saved jobs array
                 await updateDoc(userRef, {
                     savedJobs: arrayUnion(jobId),
                     updatedAt: new Date().toISOString()
@@ -570,7 +529,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to check and update saved job status
     async function checkSavedJobs() {
         const user = auth.currentUser;
         if (!user) return;
@@ -596,36 +554,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Check saved jobs when auth state changes
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Only fetch jobs if we haven't already loaded them
             if (allJobs.length === 0) {
                 fetchJobs();
             } else {
-                // Just update the saved status of existing jobs
                 checkSavedJobs();
             }
             
-            // Set up real-time listener for new jobs
             const jobsRef = collection(db, 'jobs');
             const q = query(jobsRef, where('status', '==', 'active'));
             
             onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
-                        // New job added, fetch all jobs again to update the display
                         fetchJobs();
                     }
                 });
             });
         } else {
-            // If user logs out, just refresh the display to update saved status
             displayJobs(allJobs);
         }
     });
 
-    // Function to fetch user's applications
     async function fetchUserApplications() {
         try {
             const user = auth.currentUser;
@@ -647,10 +598,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to update application status
     async function updateApplicationStatus(applicationId, status, message = '') {
         try {
-            // Get the application document
             const applicationRef = doc(db, 'applications', applicationId);
             const applicationDoc = await getDoc(applicationRef);
             const application = applicationDoc.data();
@@ -659,7 +608,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Application not found');
             }
 
-            // Get the job document
             const jobRef = doc(db, 'jobs', application.jobId);
             const jobDoc = await getDoc(jobRef);
             const jobData = jobDoc.data();
@@ -668,42 +616,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Job not found');
             }
 
-            // Start a batch write
             const batch = writeBatch(db);
 
-            // Update application status and message
             batch.update(applicationRef, {
                 status: status,
                 message: message,
                 updatedAt: new Date().toISOString()
             });
 
-            // Update job's applications array
             let applications = jobData.applications || [];
             if (status === 'approved') {
-                // Add to approved applications if not already there
                 if (!applications.includes(application.userId)) {
                     applications.push(application.userId);
                 }
             } else if (status === 'rejected') {
-                // Remove from applications if rejected
                 applications = applications.filter(id => id !== application.userId);
             }
 
-            // Update job document
             batch.update(jobRef, {
                 applications: applications,
                 updatedAt: new Date().toISOString()
             });
 
-            // Commit the batch
             await batch.commit();
 
-            // Show success message
             const statusMessage = status === 'approved' ? 'approved' : 'rejected';
             alert(`Application has been ${statusMessage} successfully!`);
 
-            // Force a reload of the jobs to update the UI
             window.location.reload();
 
             return true;
@@ -714,7 +653,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to show application management modal
     function showApplicationManagementModal(application) {
         
         const modal = document.createElement('div');
@@ -750,12 +688,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.body.appendChild(modal);
 
-        // Handle close button
         modal.querySelector('.close-modal').addEventListener('click', () => {
             modal.remove();
         });
 
-        // Handle accept button
         modal.querySelector('.accept-btn').addEventListener('click', async () => {
             const message = modal.querySelector('.message-input').value;
             const success = await updateApplicationStatus(application.id, 'accepted', message);
@@ -766,7 +702,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Handle reject button
         modal.querySelector('.reject-btn').addEventListener('click', async () => {
             const message = modal.querySelector('.message-input').value;
             const success = await updateApplicationStatus(application.id, 'rejected', message);
@@ -778,7 +713,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add event listener for my-jobs page
     if (window.location.pathname.includes('my-jobs.html')) {
         document.addEventListener('DOMContentLoaded', async () => {
             const applications = await fetchUserApplications();
@@ -787,9 +721,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (applications.length === 0) {
                 applicationsContainer.innerHTML = '<p>No applications found.</p>';
                 return;
-            }
-
-        
+            }        
 
             applications.forEach(application => {
                 const applicationCard = document.createElement('div');
@@ -821,7 +753,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add this new function to check application status
     async function checkApplicationStatus(jobId) {
         try {
             const applicationsRef = collection(db, 'applications');

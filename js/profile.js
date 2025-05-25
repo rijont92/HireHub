@@ -33,57 +33,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelButtons = document.querySelectorAll('.cancel-btn');
     const themeColorInput = document.getElementById('themeColor');
 
-    // Default theme color (matching other pages)
     const defaultThemeColor = '#755ea3';
 
-    // Check if user is authenticated
     if (localStorage.getItem('isAuthenticated') !== 'true') {
         window.location.href = '/html/login.html';
         return;
     }
 
-    // Get user data from localStorage
     let userData = JSON.parse(localStorage.getItem('userData') || '{}');
     
-    // Set up auth state listener and Firestore real-time listener
     let unsubscribeFirestore;
     
     onAuthStateChanged(auth, (user) => {
         if (user) {
             
-            // Set up real-time listener for Firestore changes
             const userRef = doc(db, 'users', user.uid);
             
-            // First, get the latest data from Firestore
             getDoc(userRef).then((docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const firestoreData = docSnapshot.data();
                     
-                    // Update userData with Firestore data
                     userData = { ...userData, ...firestoreData };
                     
-                    // Update localStorage
                     localStorage.setItem('userData', JSON.stringify(userData));
                     
-                    // Update UI
                     updateProfileDisplay();
                 }
             }).catch(error => {
                 console.error("Error fetching initial user data:", error);
             });
             
-            // Set up real-time listener
             unsubscribeFirestore = onSnapshot(userRef, (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const firestoreData = docSnapshot.data();
                     
-                    // Update userData with Firestore data
                     userData = { ...userData, ...firestoreData };
                     
-                    // Update localStorage
                     localStorage.setItem('userData', JSON.stringify(userData));
                     
-                    // Update UI
                     updateProfileDisplay();
                 }
             }, (error) => {
@@ -94,34 +81,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Function to update theme color
     function updateThemeColor(color) {
-        // If no color is provided, use the default color #755ea3
         const themeColor = color || '#755ea3';
         
-        // Update CSS variable
         document.documentElement.style.setProperty('--primary-color', themeColor);
         
-        // Update profile banner
         const profileBanner = document.querySelector('.profile-banner');
         if (profileBanner) {
             profileBanner.style.background = `var(--primary-color)`;
             profileBanner.style.backgroundColor = `var(--primary-color)`;
         }
 
-        // Update user name
         const userName = document.getElementById('userName');
         if (userName) {
             userName.style.color = `var(--primary-color)`;
         }
 
-        // Update profile section headings
         const profileHeadings = document.querySelectorAll('.profile-section h2');
         profileHeadings.forEach(heading => {
             heading.style.color = `var(--primary-color)`;
         });
 
-        // Update other profile-specific elements with specific colors
         const profileElements = document.querySelectorAll(`
             .profile-info .title,
             .profile-info .location,
@@ -155,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Update modal elements
         const modalElements = document.querySelectorAll(`
             .modal-content h2,
             .modal-content .save-btn,
@@ -175,12 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Function to open modal
     function openModal(modalType) {
         const modal = modals[modalType];
         if (!modal) return;
 
-        // Populate form with current data
         switch (modalType) {
             case 'profile':
                 const editName = document.getElementById('editName');
@@ -252,7 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'block';
     }
 
-    // Function to close modal
     function closeModal(modalType) {
         const modal = modals[modalType];
         if (modal) {
@@ -260,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to close all modals
     function closeAllModals() {
         Object.values(modals).forEach(modal => {
             if (modal) {
@@ -269,24 +244,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add event listeners for edit buttons
     editProfileBtn.addEventListener('click', () => openModal('profile'));
     editAboutBtn.addEventListener('click', () => openModal('about'));
     editSkillsBtn.addEventListener('click', () => openModal('skills'));
     editExperienceBtn.addEventListener('click', () => openModal('experience'));
     editEducationBtn.addEventListener('click', () => openModal('education'));
 
-    // Add event listeners for close buttons
     closeButtons.forEach(button => {
         button.addEventListener('click', closeAllModals);
     });
 
-    // Add event listeners for cancel buttons
     cancelButtons.forEach(button => {
         button.addEventListener('click', closeAllModals);
     });
 
-    // Add event listener for clicking outside modals
     window.addEventListener('click', (e) => {
         Object.values(modals).forEach(modal => {
             if (e.target === modal) {
@@ -295,7 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Handle form submissions
     const editProfileForm = document.getElementById('editProfileForm');
     const editAboutForm = document.getElementById('editAboutForm');
     const editSkillsForm = document.getElementById('editSkillsForm');
@@ -314,7 +284,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const phone = document.getElementById('editPhone').value;
             const website = document.getElementById('editWebsite').value;
 
-            // Update userData object
             userData.name = name;
             userData.title = title;
             userData.location = location;
@@ -324,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userData.website = website || 'Website not specified';
 
             try {
-                // Update Firestore
                 const userRef = doc(db, 'users', auth.currentUser.uid);
                 await updateDoc(userRef, {
                     name: name,
@@ -336,10 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     website: website || 'Website not specified'
                 });
 
-                // Update localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Update UI
                 updateProfileDisplay();
                 closeModal('profile');
             } catch (error) {
@@ -355,20 +321,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const bio = document.getElementById('editBio').value;
 
-            // Update userData object
             userData.bio = bio;
 
             try {
-                // Update Firestore
                 const userRef = doc(db, 'users', auth.currentUser.uid);
                 await updateDoc(userRef, {
                     bio: bio
                 });
 
-                // Update localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Update UI
                 updateProfileDisplay();
                 closeModal('about');
             } catch (error) {
@@ -386,20 +348,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 .map(input => input.value)
                 .filter(skill => skill.trim() !== '');
 
-            // Update userData object
             userData.skills = skills;
 
             try {
-                // Update Firestore
                 const userRef = doc(db, 'users', auth.currentUser.uid);
                 await updateDoc(userRef, {
                     skills: skills
                 });
 
-                // Update localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Update UI
                 updateProfileDisplay();
                 closeModal('skills');
             } catch (error) {
@@ -424,22 +382,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     endDate: currentJob ? null : entry.querySelector('[name="endDate"]').value,
                     description: entry.querySelector('[name="jobDescription"]').value
                 };
-            }).filter(exp => exp.title && exp.company); // Only include entries with at least title and company
+            }).filter(exp => exp.title && exp.company);
 
-            // Update userData object
             userData.experience = experience;
 
             try {
-                // Update Firestore
                 const userRef = doc(db, 'users', auth.currentUser.uid);
                 await updateDoc(userRef, {
                     experience: experience
                 });
 
-                // Update localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Update UI
                 updateProfileDisplay();
                 closeModal('experience');
             } catch (error) {
@@ -464,22 +418,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     endDate: currentlyStudying ? null : entry.querySelector('[name="eduEndDate"]').value,
                     description: entry.querySelector('[name="eduDescription"]').value
                 };
-            }).filter(edu => edu.school && edu.degree); // Only include entries with at least school and degree
+            }).filter(edu => edu.school && edu.degree); 
 
-            // Update userData object
             userData.education = education;
 
             try {
-                // Update Firestore
                 const userRef = doc(db, 'users', auth.currentUser.uid);
                 await updateDoc(userRef, {
                     education: education
                 });
 
-                // Update localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Update UI
                 updateProfileDisplay();
                 closeModal('education');
             } catch (error) {
@@ -489,9 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Function to update profile information
     function updateProfileDisplay() {
-        // Update profile information
         document.getElementById('userName').textContent = userData.name || 'User Name';
         document.getElementById('userTitle').textContent = userData.title || 'Professional Title';
         document.getElementById('userLocation').textContent = userData.location || 'Location';
@@ -500,12 +448,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userPhone').textContent = userData.phone || 'Phone not specified';
         document.getElementById('userWebsite').textContent = userData.website || 'Website not specified';
 
-        // Update profile picture if exists
         if (userData.profileImage) {
             document.getElementById('profileImage').src = userData.profileImage;
         }
 
-        // Update skills
         const skillsList = document.getElementById('skillsList');
         if (userData.skills && userData.skills.length > 0) {
             skillsList.innerHTML = userData.skills
@@ -515,7 +461,6 @@ document.addEventListener('DOMContentLoaded', () => {
             skillsList.innerHTML = '<p>No skills added yet</p>';
         }
 
-        // Update experience
         const experienceList = document.getElementById('experienceList');
         if (userData.experience && userData.experience.length > 0) {
             experienceList.innerHTML = userData.experience
@@ -532,7 +477,6 @@ document.addEventListener('DOMContentLoaded', () => {
             experienceList.innerHTML = '<p>No experience added yet</p>';
         }
 
-        // Update education
         const educationList = document.getElementById('educationList');
         if (userData.education && userData.education.length > 0) {
             educationList.innerHTML = userData.education
@@ -548,15 +492,12 @@ document.addEventListener('DOMContentLoaded', () => {
             educationList.innerHTML = '<p>No education added yet</p>';
         }
 
-        // Update theme color
         const themeColor = userData.themeColor || defaultThemeColor;
         updateThemeColor(themeColor);
 
-        // Fetch and display applied jobs
         fetchAppliedJobs();
     }
 
-    // Function to fetch and display applied jobs
     async function fetchAppliedJobs() {
         try {
             const user = auth.currentUser;
@@ -571,7 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 applications.push({ id: doc.id, ...doc.data() });
             });
 
-            // Get the jobs list container
             const appliedJobsContainer = document.getElementById('appliedJobs');
             if (!appliedJobsContainer) return;
 
@@ -586,7 +526,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Fetch job details for each application
             const jobsPromises = applications.map(async (application) => {
                 const jobRef = doc(db, 'jobs', application.jobId);
                 const jobDoc = await getDoc(jobRef);
@@ -603,7 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const jobs = (await Promise.all(jobsPromises)).filter(job => job !== null);
 
-            // Display the jobs
             appliedJobsContainer.innerHTML = jobs.map(job => `
                 <div class="job-card">
                     <div class="job-header">
@@ -635,7 +573,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to fetch and display saved jobs
     async function fetchSavedJobs() {
         try {
             const user = auth.currentUser;
@@ -661,7 +598,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Fetch job details for each saved job
             const jobsPromises = savedJobs.map(async (jobId) => {
                 const jobRef = doc(db, 'jobs', jobId);
                 const jobDoc = await getDoc(jobRef);
@@ -676,7 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const jobs = (await Promise.all(jobsPromises)).filter(job => job !== null);
 
-            // Display the jobs
             savedJobsContainer.innerHTML = jobs.map(job => `
                 <div class="job-card">
                     <div class="job-header">
@@ -698,14 +633,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `).join('');
 
-            // Add event listeners to unsave buttons
             const unsaveButtons = savedJobsContainer.querySelectorAll('.unsave-btn');
             unsaveButtons.forEach(button => {
                 button.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     const jobId = button.dataset.jobId;
                     await toggleSaveJob(jobId);
-                    // Refresh the saved jobs list
                     fetchSavedJobs();
                 });
             });
@@ -724,7 +657,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Function to toggle save job
     async function toggleSaveJob(jobId) {
         const user = auth.currentUser;
         if (!user) return;
@@ -752,17 +684,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Add tab switching functionality
     const tabButtons = document.querySelectorAll('.tab-btn');
     const jobLists = document.querySelectorAll('.jobs-list');
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Update active tab
             tabButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            // Show/hide job lists
             const tab = button.dataset.tab;
             jobLists.forEach(list => {
                 if (list.id === `${tab}Jobs`) {
@@ -772,7 +701,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Load appropriate jobs
             if (tab === 'applied') {
                 fetchAppliedJobs();
             } else if (tab === 'saved') {
@@ -781,32 +709,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Initialize profile display
     updateProfileDisplay();
 
-    // Initialize theme color
     function initializeThemeColor() {
         const userData = JSON.parse(localStorage.getItem('userData') || '{}');
         const themeColor = userData.themeColor || '#755ea3';
         updateThemeColor(themeColor);
     }
 
-    // Call initializeThemeColor when the page loads
     initializeThemeColor();
 
-    // Update theme color when user changes it
     document.getElementById('themeColor')?.addEventListener('input', async (e) => {
         const color = e.target.value;
         updateThemeColor(color);
 
         try {
-            // Update Firestore
             const userRef = doc(db, 'users', auth.currentUser.uid);
             await updateDoc(userRef, {
                 themeColor: color
             });
 
-            // Update localStorage
             userData.themeColor = color;
             localStorage.setItem('userData', JSON.stringify(userData));
         } catch (error) {
@@ -814,7 +736,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add experience entry
     function addExperienceEntry(data = {}) {
         const container = document.getElementById('experienceContainer');
         const entry = document.createElement('div');
@@ -845,7 +766,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <button type="button" class="remove-experience">Remove</button>
         `;
 
-        // Add event listener for current job checkbox
         const currentJobCheckbox = entry.querySelector('.current-job');
         const endDateInput = entry.querySelector('[name="endDate"]');
         
@@ -856,7 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Add event listener for remove button
         entry.querySelector('.remove-experience').addEventListener('click', () => {
             entry.remove();
         });
@@ -864,7 +783,6 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(entry);
     }
 
-    // Add education entry
     function addEducationEntry(data = {}) {
         const container = document.getElementById('educationContainer');
         const entry = document.createElement('div');
@@ -895,7 +813,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <button type="button" class="remove-education">Remove</button>
         `;
 
-        // Add event listener for currently studying checkbox
         const currentStudyCheckbox = entry.querySelector('.current-study');
         const endDateInput = entry.querySelector('[name="eduEndDate"]');
         
@@ -906,7 +823,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Add event listener for remove button
         entry.querySelector('.remove-education').addEventListener('click', () => {
             entry.remove();
         });
@@ -914,7 +830,6 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(entry);
     }
 
-    // Add event listeners for add buttons
     document.querySelector('.add-experience')?.addEventListener('click', () => {
         addExperienceEntry();
     });
@@ -923,19 +838,15 @@ document.addEventListener('DOMContentLoaded', () => {
         addEducationEntry();
     });
 
-    // Function to show popup notification
     function showNotification(message, type = 'success') {
-        // Remove any existing notifications
         const existingNotification = document.querySelector('.popup-notification');
         if (existingNotification) {
             existingNotification.remove();
         }
 
-        // Create notification element
         const notification = document.createElement('div');
         notification.className = `popup-notification ${type}`;
         
-        // Add icon based on type
         const icon = type === 'success' ? '✓' : '✕';
         
         notification.innerHTML = `
@@ -943,15 +854,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="message">${message}</span>
         `;
 
-        // Add to document
         document.body.appendChild(notification);
 
-        // Trigger animation
         setTimeout(() => {
             notification.classList.add('show');
         }, 100);
 
-        // Remove after 3 seconds
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -960,19 +868,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // Profile picture upload functionality
     editProfilePic.addEventListener('click', () => {
-        // Create a file input element
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
         
-        // For mobile devices, use the camera
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             input.capture = 'environment';
         }
         
-        // Hide the input but keep it in the DOM
         input.style.display = 'none';
         input.style.position = 'absolute';
         input.style.opacity = '0';
@@ -982,26 +886,21 @@ document.addEventListener('DOMContentLoaded', () => {
         input.style.left = '0';
         input.style.cursor = 'pointer';
         
-        // Add the input to the document
         document.body.appendChild(input);
         
-        // Trigger the file input click
         setTimeout(() => {
             input.click();
         }, 100);
         
-        // Handle file selection
         input.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
                 try {
-                    // Show loading indicator
                     const loadingIndicator = document.createElement('div');
                     loadingIndicator.className = 'loading-indicator';
                     loadingIndicator.innerHTML = 'Uploading image...';
                     document.body.appendChild(loadingIndicator);
                     
-                    // Check file size and type
                     if (file.size > 10 * 1024 * 1024) {
                         throw new Error('File size too large. Please select an image under 10MB.');
                     }
@@ -1010,25 +909,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         throw new Error('Please select an image file.');
                     }
                     
-                    // Convert file to base64 with compression
                     const reader = new FileReader();
                     
                     reader.onload = async (e) => {
                         try {
-                            // Create an image element to get dimensions
                             const img = new Image();
                             img.src = e.target.result;
                             
                             img.onload = async () => {
-                                // Create a canvas to compress the image
                                 const canvas = document.createElement('canvas');
                                 const ctx = canvas.getContext('2d');
                                 
-                                // Calculate new dimensions while maintaining aspect ratio
                                 let width = img.width;
                                 let height = img.height;
                                 
-                                // Max dimensions for profile image
                                 const maxDimension = 800;
                                 
                                 if (width > height && width > maxDimension) {
@@ -1039,40 +933,31 @@ document.addEventListener('DOMContentLoaded', () => {
                                     height = maxDimension;
                                 }
                                 
-                                // Set canvas dimensions
                                 canvas.width = width;
                                 canvas.height = height;
                                 
-                                // Draw the image on the canvas
                                 ctx.drawImage(img, 0, 0, width, height);
                                 
-                                // Get the compressed image as base64
                                 const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                                 
-                                // Check if the compressed image is still too large
                                 const estimatedSize = Math.ceil(compressedBase64.length * 0.75);
                                 
                                 if (estimatedSize > 900000) {
                                     throw new Error('Image is still too large after compression. Please try a smaller image.');
                                 }
                                 
-                                // Update profile image in UI
                                 profileImage.src = compressedBase64;
                                 
-                                // Update userData in localStorage
                                 userData.profileImage = compressedBase64;
                                 localStorage.setItem('userData', JSON.stringify(userData));
                                 
-                                // Update Firestore
                                 const userRef = doc(db, 'users', auth.currentUser.uid);
                                 await updateDoc(userRef, {
                                     profileImage: compressedBase64
                                 });
                                 
-                                // Remove loading indicator
                                 loadingIndicator.remove();
                                 
-                                // Show success notification
                                 showNotification('Profile picture updated successfully!', 'success');
                             };
                             
@@ -1092,7 +977,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         showNotification('Error reading file. Please try again.', 'error');
                     };
                     
-                    // Read the file as data URL
                     reader.readAsDataURL(file);
                 } catch (error) {
                     console.error('Error handling file selection:', error);
@@ -1100,7 +984,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Clean up the input element
             setTimeout(() => {
                 if (document.body.contains(input)) {
                     document.body.removeChild(input);
@@ -1109,17 +992,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Add a fallback method for Safari on iOS
     document.addEventListener('DOMContentLoaded', () => {
-        // Check if the device is iOS
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         
         if (isIOS) {
-            // Add a direct click handler to the profile image container for iOS
             const profileImageContainer = document.querySelector('.profile-image-container');
             if (profileImageContainer) {
                 profileImageContainer.addEventListener('click', (e) => {
-                    // Only trigger if the click is not on the edit button
                     if (!e.target.closest('.edit-profile-pic')) {
                         const editProfilePic = document.querySelector('.edit-profile-pic');
                         if (editProfilePic) {
@@ -1131,7 +1010,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle responsive design
     function handleResponsive() {
         const profileInfo = document.querySelector('.profile-info');
         if (window.innerWidth <= 768) {
@@ -1148,7 +1026,6 @@ document.addEventListener('DOMContentLoaded', () => {
     handleResponsive();
     window.addEventListener('resize', handleResponsive);
 
-    // Experience and Education entry templates
     const experienceTemplate = `
         <div class="experience-entry">
             <div class="form-group">
@@ -1209,7 +1086,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `;
 
-    // Skills entry template
     const skillTemplate = `
         <div class="skill-entry">
             <div class="form-group">
@@ -1219,45 +1095,38 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     `;
 
-    // Add Skill button functionality
     document.querySelector('.add-skill')?.addEventListener('click', () => {
         const container = document.getElementById('skillsContainer');
         const entry = document.createElement('div');
         entry.innerHTML = skillTemplate;
         container.appendChild(entry);
         
-        // Add remove functionality to the new entry
         entry.querySelector('.remove-skill').addEventListener('click', () => {
             entry.remove();
         });
     });
 
-    // Load existing skills when opening modal
     document.querySelector('.edit-skills-btn')?.addEventListener('click', () => {
         const container = document.getElementById('skillsContainer');
-        container.innerHTML = ''; // Clear existing entries
+        container.innerHTML = '';
         
         const userData = JSON.parse(localStorage.getItem('userData') || '{}');
         const skills = userData.skills || [];
         
         if (skills.length === 0) {
-            // Add one empty entry if no skills exist
             const entry = document.createElement('div');
             entry.innerHTML = skillTemplate;
             container.appendChild(entry);
         } else {
-            // Add existing skills
             skills.forEach(skill => {
                 const entry = document.createElement('div');
                 entry.innerHTML = skillTemplate;
                 container.appendChild(entry);
                 
-                // Fill in the value
                 entry.querySelector('[name="skill"]').value = skill;
             });
         }
         
-        // Add remove functionality to all entries
         container.querySelectorAll('.remove-skill').forEach(button => {
             button.addEventListener('click', () => {
                 button.closest('.skill-entry').remove();
@@ -1265,21 +1134,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Update the updateUserData function
     function updateUserData(newData) {
-        // Get current user data from localStorage
         const currentData = JSON.parse(localStorage.getItem('userData') || '{}');
         
-        // Merge new data with current data
         const updatedData = { ...currentData, ...newData };
         
-        // Save to localStorage
         localStorage.setItem('userData', JSON.stringify(updatedData));
         
-        // Update the global userData variable
         userData = updatedData;
         
-        // Update the profile display
         updateProfileDisplay();
     }
 });

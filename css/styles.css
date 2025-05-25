@@ -12,7 +12,6 @@
 }
 
 
-/* Notification Bell */
 .notification-bell {
     position: relative;
     cursor: pointer;
@@ -64,7 +63,6 @@
     transform: translate(25%, -25%);
 }
 
-/* Notification Panel */
 .notification-panel {
     position: fixed;
     top: 60px;
@@ -283,7 +281,6 @@
     }
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
     .notification-panel {
         width: 100% !important;
