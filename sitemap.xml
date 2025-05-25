@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+
+<url>
+  <loc>https://myhirehub.online/</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://myhirehub.online/html/jobs</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://myhirehub.online/html/post-job</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://myhirehub.online/html/login</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://myhirehub.online/html/sign_up</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://myhirehub.online/html/about</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://myhirehub.online/html/contact</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://myhirehub.online/html/forgot</loc>
+  <lastmod>2025-05-25T09:23:46+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+
+
+</urlset>
