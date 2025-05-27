@@ -21,7 +21,6 @@ if (isAuthenticated()) {
     window.location.replace("../index.html"); 
 }
 
-// Password visibility toggle
 window.changeIcon = function() {
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -34,10 +33,8 @@ window.changeIcon = function() {
     }
 };
 
-// Setup real-time validation
 setupLoginValidation();
 
-// Google Sign In
 if (googleSignInBtn) {
     googleSignInBtn.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -49,18 +46,15 @@ if (googleSignInBtn) {
             
             if (result.success && result.user) {
                 try {
-                    // Get user data from Firestore
                     const userRef = doc(db, 'users', result.user.uid);
                     const userDoc = await getDoc(userRef);
                     
                     if (userDoc.exists()) {
                         console.log('Existing user found:', userDoc.data());
-                        // Get the user data
                         const userData = userDoc.data();
                         localStorage.setItem('userData', JSON.stringify(userData));
                     } else {
                         console.log('Creating new user document...');
-                        // If no user document exists, create a default user data
                         const defaultUserData = {
                             name: result.user.displayName || '',
                             email: result.user.email,
@@ -77,13 +71,11 @@ if (googleSignInBtn) {
                             }
                         };
                         
-                        // Create the user document in Firestore
                         await setDoc(userRef, defaultUserData);
                         console.log('New user document created:', defaultUserData);
                         localStorage.setItem('userData', JSON.stringify(defaultUserData));
                     }
                     
-                    // Login successful
                     console.log('Redirecting to home page...');
                     window.location.href = '../index.html';
                 } catch (error) {
@@ -109,15 +101,12 @@ loginForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    // Clear previous errors
     errorEmail.textContent = '';
     errorPassword.textContent = '';
     generalError.textContent = '';
 
-    // Validate form before submission
     const validation = validateLoginForm(email, password);
     if (!validation.isValid) {
-        // Display validation errors
         if (!email || !password) {
             generalError.textContent = 'Please fill in all fields';
         } else {
@@ -130,18 +119,13 @@ loginForm.addEventListener('submit', async (e) => {
 
     if (result.success) {
         try {
-            // Get user data from Firestore
             const userRef = doc(db, 'users', result.user.uid);
             const userDoc = await getDoc(userRef);
             
             if (userDoc.exists()) {
-                // Get the user data
                 const userData = userDoc.data();
                 
-                // Store user data in localStorage
-                // localStorage.setItem('userData', JSON.stringify(userData));
             } else {
-                // If no user document exists, create a default user data
                 const defaultUserData = {
                     name: result.user.displayName || '',
                     email: result.user.email,
@@ -160,14 +144,12 @@ loginForm.addEventListener('submit', async (e) => {
                 localStorage.setItem('userData', JSON.stringify(defaultUserData));
             }
             
-            // Login successful
             window.location.href = '../index.html';
         } catch (error) {
             console.error('Error fetching user data:', error);
             generalError.textContent = 'Error loading user data. Please try again.';
         }
     } else {
-        // Handle error
         if (result.needsVerification) {
             generalError.innerHTML = `
                 <div style="text-align: center; color: #755ea3; margin-bottom: 10px;">

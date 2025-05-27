@@ -197,11 +197,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 featuredContainer.appendChild(jobCard);
             });
 
-            const progressBars = document.querySelectorAll('.featured-bar-color');
-            progressBars.forEach(bar => {
-                const value = bar.getAttribute('data-value');
-                bar.style.width = `${value}%`;
-            });
 
         } catch (error) {
             console.error('Error loading hot jobs:', error);

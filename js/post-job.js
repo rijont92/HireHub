@@ -2,7 +2,6 @@ import { auth, db } from './firebase-config.js';
 import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-// Add PayPal SDK
 const paypalScript = document.createElement('script');
 paypalScript.src = 'https://www.paypal.com/sdk/js?client-id=ATvGyJEjEo_vMlTxeh53DRbuP7Arcz6pomm3ZsrduW-BAy8oCo_w-djwWjEx4DGI44UFSy95ZG3tsgym&currency=EUR';
 document.head.appendChild(paypalScript);
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const hotJobCheckbox = document.getElementById('hotJobCheckbox');
     const paypalButtonContainer = document.getElementById('paypal-button-container');
 
-    // Initialize PayPal button
     let paypalButtonInitialized = false;
 
     function initializePayPalButton() {
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         paypal.Buttons({
             style: {
-                color: 'silver', // options: 'gold', 'blue', 'silver', 'white', 'black'
+                color: 'silver',
                 shape: 'rect',
                 label: 'paypal',
                 height: 45
@@ -42,7 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             onApprove: function(data, actions) {
                 return actions.order.capture().then(function(details) {
-                    // Payment successful
                     hotJobCheckbox.checked = true;
                     hotJobCheckbox.disabled = true;
                     paypalButtonContainer.style.display = 'none';
@@ -64,40 +61,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle hot job checkbox change
     if (hotJobCheckbox) {
         hotJobCheckbox.addEventListener('change', function() {
             console.log('Hot job checkbox changed:', this.checked);
             if (this.checked) {
                 paypalButtonContainer.style.display = 'block';
-                // Initialize PayPal button if not already initialized
                 if (!paypalButtonInitialized) {
                     initializePayPalButton();
                 }
             } else {
                 paypalButtonContainer.style.display = 'none';
-                // Reset payment status if unchecked
                 hotJobCheckbox.disabled = false;
             }
         });
     }
 
-    // Add error handling for PayPal script loading
     paypalScript.onerror = function(error) {
         console.error('PayPal script failed to load:', error);
         showNotification('Error loading payment system. Please refresh the page.', 'error');
     };
 
-    // Add success handler for PayPal script loading
     paypalScript.onload = function() {
         console.log('PayPal script loaded successfully');
-        // Initialize PayPal button if checkbox is already checked
         if (hotJobCheckbox && hotJobCheckbox.checked) {
             initializePayPalButton();
         }
     };
 
-    // Check authentication on page load
     if(localStorage.getItem("isAuthenticated") === "true") {
         btn.innerHTML = "Post Job";
         postJobContainer.classList.remove('blurred');
@@ -109,12 +99,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    // Set minimum date to today
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     applicationDeadline.min = formattedDate;
 
-    // Add error message display
     function showError(input, message) {
         const formGroup = input.closest('.form-group');
         const existingError = formGroup.querySelector('.error-message');
@@ -133,7 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
         input.style.backgroundColor = '#fff8f8';
     }
 
-    // Remove error message
     function removeError(input) {
         const formGroup = input.closest('.form-group');
         const errorDiv = formGroup.querySelector('.error-message');
@@ -144,12 +131,10 @@ document.addEventListener('DOMContentLoaded', function() {
         input.style.backgroundColor = '#f8f9fa';
     }
 
-    // Validate email format
     function isValidEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    // Validate date format and ensure it's not in the past
     function isValidDate(date) {
         const selectedDate = new Date(date);
         const today = new Date();
@@ -157,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return selectedDate >= today;
     }
 
-    // Real-time validation for inputs
     const inputs = postJobForm.querySelectorAll(
         'input:not([type="file"]), select, textarea'    
       );
@@ -173,7 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Validate individual field
     function validateField(input) {
         const value = input.value.trim();
         
@@ -212,13 +195,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 break;
-                
-            // case 'location':
-            //     if (value.length < 2) {
-            //         showError(input, 'Please enter a valid location');
-            //         return false;
-            //     }
-            //     break;
                 
             case 'salary':
                 if (!value) {
@@ -296,7 +272,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    // Handle company logo preview
     if (logoInput) {
         logoInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -326,32 +301,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle form submission
     if (postJobForm) {
         postJobForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Check if user is authenticated
             if (localStorage.getItem("isAuthenticated") === "false") {
                 showLoginPopup();
                 return;
             }
 
-            // Check if hot job is selected but not paid
             if (hotJobCheckbox.checked && !hotJobCheckbox.disabled) {
                 showNotification('Please complete the payment for hot job feature before posting.', 'error');
                 return;
             }
             
-            // Reset previous error messages
             clearErrors();
 
-            // Validate all fields
             const isValid = validateForm();
             
             if (isValid) {
                 try {
-                    // Collect form data
                     const formData = new FormData(postJobForm);
                     const jobData = {
                         jobTitle: formData.get('jobTitle'),
@@ -373,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         status: 'active',
                         applications: [],
                         savedBy: [],
-                        isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled // Only true if paid
+                        isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled 
                     };
 
                     await saveAndRedirect(jobData);
@@ -385,7 +354,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add notification function
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
@@ -393,7 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.appendChild(notification);
         
-        // Remove notification after 3 seconds
         setTimeout(() => {
             notification.remove();
         }, 3000);
@@ -401,21 +368,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function saveAndRedirect(jobData) {
         try {
-            // Get current user
             const user = auth.currentUser;
             if (!user) {
                 throw new Error('User not authenticated');
             }
 
-            // Get form data
             const formData = new FormData(postJobForm);
             
-            // Handle company logo file
-            let companyLogoUrl = 'img/logo.png'; // Default logo
+            let companyLogoUrl = 'img/logo.png'; 
             const logoFile = formData.get('companyLogo');
             
             if (logoFile && logoFile instanceof File) {
-                // Convert file to base64 string
                 const reader = new FileReader();
                 companyLogoUrl = await new Promise((resolve, reject) => {
                     reader.onload = () => resolve(reader.result);
@@ -424,7 +387,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // Create job data object with all fields
             const jobData = {
                 jobTitle: formData.get('jobTitle'),
                 companyName: formData.get('companyName'),
@@ -445,14 +407,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 status: 'active',
                 applications: [],
                 savedBy: [],
-                isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled // Only true if paid
+                isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled 
             };
 
-            // Add job to Firestore
             const jobRef = await addDoc(collection(db, 'jobs'), jobData);
             console.log('Job created with ID:', jobRef.id);
 
-            // Get user document
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
             
@@ -464,10 +424,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const userData = userDoc.data();
             console.log('Current user data:', userData);
 
-            // Create jobs map if it doesn't exist
             const jobs = userData.jobs || {};
             
-            // Add the new job to the jobs map
             jobs[jobRef.id] = {
                 jobTitle: jobData.jobTitle,
                 companyName: jobData.companyName,
@@ -480,7 +438,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 vacancy: jobData.vacancy
             };
 
-            // Update user document with both postedJobs array and jobs map
             await updateDoc(userRef, {
                 postedJobs: arrayUnion(jobRef.id),
                 jobs: jobs
@@ -498,7 +455,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const popupOverlay = document.getElementById('popupOverlay');
         popupOverlay.style.display = 'block';
         
-        // Prevent scrolling when popup is shown
         document.body.style.overflow = 'hidden';
     }
 
@@ -506,22 +462,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const popupOverlay = document.getElementById('popupOverlay');
         popupOverlay.style.display = 'none';
         
-        // Restore scrolling
         document.body.style.overflow = 'auto';
         
-        // Redirect to jobs page after a short delay
         setTimeout(() => {
             window.location.href = 'jobs.html';
         }, 300);
     }
 
-    // Make closePopup function available globally
     window.closePopup = closePopup;
 
     function validateForm() {
         let isValid = true;
 
-        // Job Title validation
         const jobTitle = document.getElementById('jobTitle');
         if (!jobTitle.value.trim()) {
             showError(jobTitle, 'Job title is required');
@@ -531,28 +483,17 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Company Name validation
         const companyName = document.getElementById('companyName');
         if (!companyName.value.trim()) {
             showError(companyName, 'Company name is required');
             isValid = false;
         }
 
-        // Job Type validation
         const jobType = document.getElementById('jobType');
         if (!jobType.value) {
             showError(jobType, 'Please select a job type');
             isValid = false;
         }
-
-        // Location validation
-        // const location = document.getElementById('location');
-        // if (!location.value.trim()) {
-        //     showError(location, 'Location is required');
-        //     isValid = false;
-        // }
-
-        // Salary validation
         const salary = document.getElementById('salary');
         if (!salary.value.trim()) {
             showError(salary, 'Salary range is required');
@@ -562,7 +503,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Vacancy validation
         const vacancy = document.getElementById('vacancy');
         if (!vacancy.value) {
             showError(vacancy, 'Number of vacancies is required');
@@ -572,7 +512,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Job Description validation
         const jobDescription = document.getElementById('jobDescription');
         if (!jobDescription.value.trim()) {
             showError(jobDescription, 'Job description is required');
@@ -582,7 +521,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Requirements validation
         const requirements = document.getElementById('requirements');
         if (!requirements.value.trim()) {
             showError(requirements, 'Requirements are required');
@@ -592,7 +530,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Benefits validation
         const benefits = document.getElementById('benefits');
         if (!benefits.value.trim()) {
             showError(benefits, 'Benefits are required');
@@ -602,7 +539,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Application Deadline validation
         if (!applicationDeadline.value) {
             showError(applicationDeadline, 'Application deadline is required');
             isValid = false;
@@ -617,7 +553,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Contact Email validation
         const contactEmail = document.getElementById('contactEmail');
         if (!contactEmail.value.trim()) {
             showError(contactEmail, 'Contact email is required');
@@ -627,7 +562,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // Company Logo validation
         const companyLogo = document.getElementById('companyLogo');
         if (!companyLogo.files || companyLogo.files.length === 0) {
             showError(companyLogo, 'Company logo is required');
@@ -652,13 +586,11 @@ document.addEventListener('DOMContentLoaded', function() {
         errorInputs.forEach(input => input.classList.remove('error'));
     }
 
-    // Function to show login popup
     function showLoginPopup() {
         const loginPopupOverlay = document.getElementById('loginPopupOverlay');
         loginPopupOverlay.style.display = 'block';
         document.body.style.overflow = 'hidden';
         
-        // Enable all form inputs
         const formInputs = postJobForm.querySelectorAll('input, select, textarea');
         formInputs.forEach(input => {
             input.disabled = false;
@@ -672,20 +604,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to close login popup
     function closeLoginPopup() {
         const loginPopupOverlay = document.getElementById('loginPopupOverlay');
         loginPopupOverlay.style.display = 'none';
         document.body.style.overflow = 'auto';
         
-        // Disable all form inputs except the submit button
         const formInputs = postJobForm.querySelectorAll('input,select, textarea');
         formInputs.forEach(input => {
             input.disabled = true;
             input.style.opacity = '1';
         });
         
-        // Keep submit button enabled and full opacity
         const submitBtn = document.getElementById("btn");
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -693,6 +622,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Make closeLoginPopup function available globally
     window.closeLoginPopup = closeLoginPopup;
 }); 

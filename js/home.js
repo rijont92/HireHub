@@ -1,29 +1,3 @@
- 
-let tahiri = localStorage.getItem('tahiri') === "true";
-const storedImage = localStorage.getItem('profileImage');
-
-const removeItems = document.querySelectorAll(".remove"); 
-const signUp = document.getElementById("sign__up");
-const login = document.getElementById("login"); 
-const profile_notification = document.querySelectorAll(".nonee");
-
-import { isAuthenticated } from "./auth.js";
-
-
-if(isAuthenticated() && window.location.pathname.endsWith("html/login.html")) {
-  window.location.href = "index.html";
- 
-}
-
-function logOut(event) {
-    event.preventDefault();
-    tahiri = false; 
-    localStorage.setItem('tahiri', 'false');
-    localStorage.setItem('profileImage', "img/useri.png")
-    window.location.href = "html/login.html";
-}
-
-
 document.addEventListener('scroll', function () {
     const boxes = document.querySelectorAll('.featured-bar-color');
     const windowHeight = window.innerHeight;

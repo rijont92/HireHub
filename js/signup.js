@@ -1,8 +1,9 @@
-import { signUp } from '../js/auth.js';
+import { signUp,signIn, signInWithGoogle } from '../js/auth.js';
 import { setupSignupValidation, validateSignupForm } from '../js/validation.js';
 import { isAuthenticated } from '../js/auth.js';
-import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { db } from './firebase-config.js';
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const signupForm = document.getElementById('signupForm');
@@ -18,6 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const fileInput = document.getElementById('file-input');
     let profileImageBase64 = '../img/useri.png';
 
+
+
     const yearDate = new Date().getFullYear();
     date.innerHTML = yearDate;
 
@@ -25,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.replace("../index.html"); 
     }
     
-    // Password visibility toggle for first password
     if (icon) {
         icon.addEventListener('click', function() {
         if (passwordInput.type === 'password') {
@@ -40,7 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Password visibility toggle for second password
     if (icon2) {
         icon2.addEventListener('click', function() {
         if (password2Input.type === 'password') {
@@ -55,10 +56,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Setup real-time validation
     setupSignupValidation();
 
-    // Handle file selection
     if (fileInput) {
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
@@ -66,10 +65,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    // Store the base64 image data
                     profileImageBase64 = e.target.result;
                     
-                    // Update the preview image
                     const previewImg = document.getElementById('preview-img');
                         if (previewImg) {
                     previewImg.src = profileImageBase64;
@@ -85,7 +82,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     }
 
-    // Handle form submission
     if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -95,16 +91,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
 
-        // Clear previous errors
         errorEmail.textContent = '';
         errorPassword.textContent = '';
         errorPassword2.textContent = '';
         errorName.textContent = '';
 
-        // Validate form before submission
         const validation = validateSignupForm(name, email, password, password2);
         if (!validation.isValid) {
-            // Display validation errors
             errorName.textContent = validation.errors.name;
             errorName.style.color = 'red';
             errorEmail.textContent = validation.errors.email;
@@ -120,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const result = await signUp(email, password);
 
             if (result.success) {
-                // Create user document in Firestore
                 const userData = {
                     name: name,
                     displayName: name,
@@ -138,16 +130,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 };
                 
-                // Save to Firestore
                 await setDoc(doc(db, 'users', result.user.uid), userData);
                 
-                // Save to localStorage
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
-                // Redirect to verification page
                 window.location.href = 'verify-email.html';
             } else {
-                // Handle error
                 if (result.error.includes('email-already-in-use')) {
                     errorEmail.textContent = 'An account with this email already exists';
                     errorEmail.style.color = 'red';
@@ -173,7 +161,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     }
 
-    // Handle profile image click
     if (useriImg) {
     useriImg.addEventListener('click', () => {
         fileInput.click();
@@ -181,29 +168,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Function to trigger file input click
 function triggerFileInput() {
     document.getElementById('file-input').click();
 }
 
-// Function to handle image upload and preview
 function handleImageUpload(event) {
-    const file = event.target.files[0]; // Get the selected file
+    const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
 
-        // Check if the selected file is an image
         if (file.type.startsWith('image/')) {
             reader.onload = function (e) {
-                const base64Image = e.target.result; // Get base64 encoded image data
-                // Set the preview image src to the base64 image data
+                const base64Image = e.target.result; 
                 const previewImg = document.getElementById('preview-img');
                 previewImg.src = base64Image;
-                previewImg.alt = "Uploaded Image"; // Update alt text for accessibility
-                // Save the image to localStorage
+                previewImg.alt = "Uploaded Image";
                 localStorage.setItem('profileImage', base64Image);
             };
-            reader.readAsDataURL(file); // Convert the image file to base64
+            reader.readAsDataURL(file); 
         } else {
             alert('Please upload a valid image file (e.g., .jpg, .png).');
         }
@@ -213,7 +195,73 @@ function handleImageUpload(event) {
 }
 
 
+const googleSignInBtn = document.querySelector('.google');
+const generalError = document.getElementById('general-error');
 
-
-
-
+if (googleSignInBtn) {
+    googleSignInBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log('Google sign-in button clicked');
+        
+        try {
+            const result = await signInWithGoogle();
+            console.log('Google sign-in result:', result);
+            
+            if (result.success && result.user) {
+                try {
+                    const userRef = doc(db, 'users', result.user.uid);
+                    const userDoc = await getDoc(userRef);
+                    
+                    if (userDoc.exists()) {
+                        console.log('Existing user found:', userDoc.data());
+                        const userData = userDoc.data();
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                        window.location.href = '../index.html';
+                    } else {
+                        console.log('Creating new user document...');
+                        const defaultUserData = {
+                            name: result.user.displayName || '',
+                            email: result.user.email,
+                            profileImage: result.user.photoURL || '../img/useri.png',
+                            createdAt: new Date().toISOString(),
+                            bio: '',
+                            skills: [],
+                            experience: [],
+                            education: [],
+                            notifications: {
+                                email: true,
+                                push: true,
+                                jobAlerts: true
+                            }
+                        };
+                        
+                        await setDoc(userRef, defaultUserData);
+                        console.log('New user document created:', defaultUserData);
+                        localStorage.setItem('userData', JSON.stringify(defaultUserData));
+                        window.location.href = '../index.html';
+                    }
+                } catch (error) {
+                    console.error('Error handling user data:', error);
+                    if (generalError) {
+                        generalError.textContent = 'Error loading user data. Please try again.';
+                        generalError.style.color = 'red';
+                    }
+                }
+            } else {
+                console.error('Google sign-in failed:', result.error);
+                if (generalError) {
+                    generalError.textContent = result.error || 'Error signing in with Google. Please try again.';
+                    generalError.style.color = 'red';
+                }
+            }
+        } catch (error) {
+            console.error('Google sign-in error:', error);
+            if (generalError) {
+                generalError.textContent = 'Error signing in with Google. Please try again.';
+                generalError.style.color = 'red';
+            }
+        }
+    });
+} else {
+    console.error('Google sign-in button not found');
+}
