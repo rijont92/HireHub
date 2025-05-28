@@ -79,10 +79,8 @@ export async function signInWithGoogle() {
         provider.addScope('profile');
         provider.addScope('email');
         
-        console.log('Starting Google sign-in process...');
         
         const result = await signInWithPopup(auth, provider);
-        console.log('Google sign-in successful:', result);
         
         if (result.user) {
             localStorage.setItem("isAuthenticated", "true");

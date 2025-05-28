@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }).render('#paypal-button-container')
         .then(() => {
             paypalButtonInitialized = true;
-            console.log('PayPal button rendered successfully');
         })
         .catch(err => {
             console.error('PayPal button render error:', err);
@@ -63,7 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (hotJobCheckbox) {
         hotJobCheckbox.addEventListener('change', function() {
-            console.log('Hot job checkbox changed:', this.checked);
             if (this.checked) {
                 paypalButtonContainer.style.display = 'block';
                 if (!paypalButtonInitialized) {
@@ -82,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     paypalScript.onload = function() {
-        console.log('PayPal script loaded successfully');
         if (hotJobCheckbox && hotJobCheckbox.checked) {
             initializePayPalButton();
         }
@@ -411,7 +408,6 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             const jobRef = await addDoc(collection(db, 'jobs'), jobData);
-            console.log('Job created with ID:', jobRef.id);
 
             const userRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userRef);
@@ -422,7 +418,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const userData = userDoc.data();
-            console.log('Current user data:', userData);
 
             const jobs = userData.jobs || {};
             
@@ -443,7 +438,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 jobs: jobs
             });
 
-            console.log('Successfully updated user document with new job');
             showSuccessPopup();
         } catch (error) {
             console.error('Error saving job:', error);

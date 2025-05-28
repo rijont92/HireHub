@@ -98,16 +98,18 @@ function listenForUnread(chatId, chatItem) {
         const oldBadge = chatItem.querySelector('.unread-badge');
         if (oldBadge) oldBadge.remove();
         
-        if (unread > 0) {
+        if (unread > 0 && !chatWidget.classList.contains('active')) {
             const badge = document.createElement('span');
             badge.className = 'unread-badge';
             badge.textContent = unread > 9 ? '9+' : unread;
             chatItem.appendChild(badge);
         }
         
-        if (newForBell) {
+        if (newForBell && !chatWidget.classList.contains('active')) {
             chatBellCount++;
             updateBellCount(chatBellCount);
+        } else if (chatWidget.classList.contains('active')) {
+            clearChatBellCount();
         }
     });
 }
@@ -115,6 +117,9 @@ function listenForUnread(chatId, chatItem) {
 function clearChatBellCount() {
     chatBellCount = 0;
     updateBellCount(0);
+    document.querySelectorAll('.message-notification-dot').forEach(dot => {
+        dot.style.display = 'none';
+    });
 }
 
 function toggleChat() {
@@ -122,6 +127,9 @@ function toggleChat() {
     if (chatWidget.classList.contains('active')) {
         loadChats();
         clearChatBellCount();
+        document.querySelectorAll('.message-notification-dot').forEach(dot => {
+            dot.style.display = 'none';
+        });
     }
 }
 
@@ -165,9 +173,7 @@ function clearChatData() {
     }
     
     currentChat = null;
-    
     participantNames = {};
-    
     unreadCounts = {};
     
     if (messageInput) {
@@ -197,19 +203,48 @@ async function loadChats() {
         where('participants', 'array-contains', currentUser.uid)
     );
 
-    chatListener = onSnapshot(q, (snapshot) => {
+    chatListener = onSnapshot(q, async (snapshot) => {
         chatList.innerHTML = '';
         if (snapshot.empty) {
-            
             messagesContainer.innerHTML = '<div style="padding:20px;color:#888;text-align:center; display:flex; justify-content:center; align-items:center; height:100%;">No active chats. Start a conversation from a user\'s profile!</div>';
             return;
         }
         
-        snapshot.forEach((doc) => {
+        for (const doc of snapshot.docs) {
             const chat = doc.data();
             const chatId = doc.id;
             const otherUserId = chat.participants.find(id => id !== currentUser.uid);
-            const otherUserName = chat.participantNames?.[otherUserId] || 'User';
+            
+            if (!otherUserId) {
+                console.error('Invalid chat data - missing other participant:', chatId);
+                continue;
+            }
+
+            let otherUserName = chat.participantNames?.[otherUserId];
+            
+            if (!otherUserName) {
+                try {
+                    const userDocRef = doc(db, 'users', otherUserId);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        const userData = userDocSnap.data();
+                        otherUserName = userData.displayName || userData.name || 'User';
+                        
+                        await updateDoc(doc.ref, {
+                            participantNames: {
+                                ...chat.participantNames,
+                                [otherUserId]: otherUserName
+                            }
+                        });
+                    } else {
+                        console.error('User document not found:', otherUserId);
+                        continue;
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                    continue;
+                }
+            }
 
             const chatItem = document.createElement('div');
             chatItem.className = 'chat-item';
@@ -229,7 +264,7 @@ async function loadChats() {
 
             chatItem.addEventListener('click', () => openChat(chatId, otherUserId));
             chatList.appendChild(chatItem);
-        });
+        }
     });
 }
 
@@ -250,8 +285,21 @@ async function openChat(chatId, otherUserId) {
     }
 
     currentChat = chatId;
-    setLastRead(chatId, Date.now());
+    const currentTime = Date.now();
+    setLastRead(chatId, currentTime);
     unreadCounts[chatId] = 0;
+    
+    document.querySelectorAll('.message-notification-dot').forEach(dot => {
+        dot.style.display = 'none';
+    });
+    
+    const chatItem = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
+    if (chatItem) {
+        const badge = chatItem.querySelector('.unread-badge');
+        if (badge) badge.remove();
+    }
+    
+    clearChatBellCount();
     
     document.querySelectorAll('.chat-item').forEach(item => {
         item.classList.remove('active');
@@ -265,8 +313,20 @@ async function openChat(chatId, otherUserId) {
         const chatData = chatDoc.data();
         if (chatData.participantNames) {
             participantNames = chatData.participantNames;
+        } else {
+            const participantIds = chatData.participants || [];
+            for (const uid of participantIds) {
+                const userDocRef = doc(db, 'users', uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const user = userDocSnap.data();
+                    participantNames[uid] = user.displayName || user.name || 'User';
+                }
+            }
+            await updateDoc(chatRef, { participantNames });
         }
     } catch (e) {
+        console.error('Error loading participant names:', e);
         participantNames = {};
     }
 
@@ -360,18 +420,14 @@ async function sendNewMessage() {
 }
 
 onAuthStateChanged(auth, (user) => {
-    console.log('Auth state changed:', user ? 'User logged in' : 'No user');
     if (user) {
         clearChatData();
-        
         currentUser = user;
-        console.log('Current user set:', user.uid);
         loadChats();
         if (chatWidget.classList.contains('active')) {
             clearChatBellCount();
         }
     } else {
-        console.log('No user, resetting chat state');
         currentUser = null;
         chatWidget.classList.remove('active');
         clearChatData();
@@ -463,26 +519,24 @@ async function updateAllChatParticipantNames() {
             participantNames[uid] = displayName;
         }
         await updateDoc(chatDoc.ref, { participantNames });
-        console.log(`Updated chat ${chatDoc.id} participantNames:`, participantNames);
     }
     alert('All chats updated with correct participant names!');
 }
 
 export { createNewChat, openChat };
 
-window.updateAllChatParticipantNames = updateAllChatParticipantNames; 
+window.updateAllChatParticipantNames = updateAllChatParticipantNames;
 
-
- document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('updateChatNamesBtn');
-        if (btn && typeof updateAllChatParticipantNames === 'function') {
-            btn.addEventListener('click', () => {
-                btn.disabled = true;
-                btn.textContent = 'Updating...';
-                updateAllChatParticipantNames().then(() => {
-                    btn.textContent = 'Done!';
-                    setTimeout(() => btn.remove(), 2000);
-                });
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('updateChatNamesBtn');
+    if (btn && typeof updateAllChatParticipantNames === 'function') {
+        btn.addEventListener('click', () => {
+            btn.disabled = true;
+            btn.textContent = 'Updating...';
+            updateAllChatParticipantNames().then(() => {
+                btn.textContent = 'Done!';
+                setTimeout(() => btn.remove(), 2000);
             });
-        }
-    });
+        });
+    }
+});

@@ -96,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             querySnapshot.forEach((doc) => {
                 const job = doc.data();
-                console.log("Job Data:", job);
                 if (job.category) {
                     if (defaultCategories[job.category]) {
                         categoryCounts[job.category].count++;

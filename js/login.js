@@ -38,11 +38,9 @@ setupLoginValidation();
 if (googleSignInBtn) {
     googleSignInBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        console.log('Google sign-in button clicked');
         
         try {
             const result = await signInWithGoogle();
-            console.log('Google sign-in result:', result);
             
             if (result.success && result.user) {
                 try {
@@ -50,11 +48,9 @@ if (googleSignInBtn) {
                     const userDoc = await getDoc(userRef);
                     
                     if (userDoc.exists()) {
-                        console.log('Existing user found:', userDoc.data());
                         const userData = userDoc.data();
                         localStorage.setItem('userData', JSON.stringify(userData));
                     } else {
-                        console.log('Creating new user document...');
                         const defaultUserData = {
                             name: result.user.displayName || '',
                             email: result.user.email,
@@ -72,11 +68,9 @@ if (googleSignInBtn) {
                         };
                         
                         await setDoc(userRef, defaultUserData);
-                        console.log('New user document created:', defaultUserData);
                         localStorage.setItem('userData', JSON.stringify(defaultUserData));
                     }
                     
-                    console.log('Redirecting to home page...');
                     window.location.href = '../index.html';
                 } catch (error) {
                     console.error('Error handling user data:', error);

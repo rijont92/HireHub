@@ -176,19 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const hotJobs = jobs.filter(job => job.isHotJob);
-            if (hotJobs.length > 0) {
-                console.log('=== Hot Jobs ===');
-                hotJobs.forEach(job => {
-                    console.log(`\nHot Job: ${job.jobTitle}`);
-                    console.log('Details:', {
-                        company: job.companyName,
-                        hotnessScore: job.hotnessScore,
-                        postedDate: job.postedDate,
-                        applications: job.applications ? job.applications.length : 0,
-                        vacancy: job.vacancy
-                    });
-                });
-            }
+
 
             const topJobs = jobs.slice(0, 6);
 

@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Invalid user ID');
             }
 
-            console.log('Fetching jobs for user:', userId);
 
             const jobsQuery = query(
                 collection(db, 'jobs'),
@@ -38,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const jobsSnapshot = await getDocs(jobsQuery);
             
             if (jobsSnapshot.empty) {
-                console.log('No jobs found for user');
                 jobsList.innerHTML = `
                     <div class="no-jobs-message">
                         <i class="fas fa-briefcase"></i>
@@ -61,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 allJobs.push(job);
                 if (job.location) locations.add(job.location);
-                console.log('Successfully fetched job:', job.jobTitle);
             });
 
             locationFilter.innerHTML = '<option value="">All Locations</option>';

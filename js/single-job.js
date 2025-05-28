@@ -758,7 +758,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function showPosterInfo(uid) {
         if (!uid) {
-            console.log('No poster ID provided');
             return;
         }
 
@@ -803,7 +802,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             } else {
                 posterInfoDiv.style.display = 'none';
-                console.log('Poster user not found');
             }
         } catch (error) {
             console.error('Error loading poster info:', error);
