@@ -83,7 +83,8 @@ function initializeUserData() {
                     const userProfileImg = document.getElementById("userProfileImg");
 
                     if (userName) {
-                        userName.innerHTML = `Hi, ${userData.name}` || 'User';
+                        const displayName = userData.name || 'User';
+                        userName.innerHTML = `Hi, ${displayName.length > 20 ? displayName.substring(0, 20) + '...' : displayName}`;
                     }
 
                     if (userProfileImg) {

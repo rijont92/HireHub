@@ -77,9 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
             profileBanner.style.backgroundColor = `var(--primary-color)`;
         }
 
-        const userName = document.getElementById('userName');
-        if (userName) {
-            userName.style.color = `var(--primary-color)`;
+        const userName1 = document.getElementById('userName1');
+        if (userName1) {
+            userName1.style.color = `var(--primary-color)`;
         }
 
         const profileHeadings = document.querySelectorAll('.profile-section h2');
@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateProfileDisplay() {
-        document.getElementById('userName').textContent = userData.name || 'User Name';
+        document.getElementById('userName1').textContent = userData.name || 'User Name';
         document.getElementById('userTitle').textContent = userData.title || 'Professional Title';
         document.getElementById('userLocation').textContent = userData.location || 'Location';
         document.getElementById('userEmail').textContent = userData.email || 'Email';
