@@ -36,7 +36,6 @@ export async function signIn(email, password) {
             };
         }
         
-        localStorage.setItem("isAuthenticated","true");
         return { success: true, user };
     } catch (error) {
         return { success: false, error: error.message };
@@ -46,7 +45,6 @@ export async function signIn(email, password) {
 export async function logOut() {
     try {
         await signOut(auth);
-        localStorage.removeItem("isAuthenticated");
         return { success: true };
     } catch (error) {
         return { success: false, error: error.message };
@@ -55,17 +53,13 @@ export async function logOut() {
 
 export function checkAuthState(callback) {
     return onAuthStateChanged(auth, (user) => {
-        if (user && user.emailVerified) {
-            localStorage.setItem("isAuthenticated", "true");
-        } else {
-            localStorage.setItem("isAuthenticated", "false");
-        }
         callback(user);
     });
 }
 
 export function isAuthenticated() {
-    return localStorage.getItem("isAuthenticated") === "true";
+    const user = auth.currentUser;
+    return user !== null && user.emailVerified;
 }
 
 export function isEmailVerified() {
@@ -79,11 +73,9 @@ export async function signInWithGoogle() {
         provider.addScope('profile');
         provider.addScope('email');
         
-        
         const result = await signInWithPopup(auth, provider);
         
         if (result.user) {
-            localStorage.setItem("isAuthenticated", "true");
             return { success: true, user: result.user };
         }
         

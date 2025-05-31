@@ -1,3 +1,8 @@
+import { auth, db } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// Scroll animation for featured bars
 document.addEventListener('scroll', function () {
     const boxes = document.querySelectorAll('.featured-bar-color');
     const windowHeight = window.innerHeight;
@@ -23,13 +28,10 @@ document.addEventListener('scroll', function () {
         const interval = setInterval(updateBar, 1);
       }
     });
-  });
-  
+});
 
-
-
-
-  document.addEventListener('scroll', function() {
+// Scroll animation for work rows
+document.addEventListener('scroll', function() {
     const boxes = document.querySelectorAll('.work-row');
     const windowHeight = window.innerHeight;
   
@@ -43,5 +45,5 @@ document.addEventListener('scroll', function () {
             box.classList.remove('reveal');
         }
     });
-  });
-  
+});
+

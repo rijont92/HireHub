@@ -62,6 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const jobCard = document.createElement('div');
         jobCard.className = 'job-card';
+
+          const status_r = {
+                "full-time":"Full Time",
+                "part-time":"Part Time",
+                "contract":"Contract",
+                "internship":"Internship"
+            }
         
         
         jobCard.innerHTML = `
@@ -83,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="featured-job-time">
                             <div class="time-job">
-                                <p>${job.jobType}</p>
+                                <p>${status_r[job.jobType]}</p>
                             </div>
                         </div>
                     </div>
