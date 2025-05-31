@@ -51,7 +51,8 @@ function updateHeader(user) {
     const dropdownMenu = document.querySelector('.dropdown__menu');
     const currentPath = window.location.pathname;
 
-    if (user || localStorage.getItem('token')) {
+    if (user) {
+        localStorage.setItem("isAuthenticated", "true");
         dropdownMenu.innerHTML = `
             <li>
                 <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/profile.html' : 'profile.html'}" class="dropdown__link">
@@ -93,10 +94,9 @@ function updateHeader(user) {
         document.getElementById('logout-btn').addEventListener('click', async (e) => {
             e.preventDefault();
             try {
-                if (auth.currentUser) {
-                    await auth.signOut();
-                }
+                await auth.signOut();
                 localStorage.removeItem('token');
+                localStorage.removeItem('userData');
                 localStorage.setItem("isAuthenticated", "false");
                 window.location.href = '../html/login.html';
             } catch (error) {
@@ -106,6 +106,7 @@ function updateHeader(user) {
 
         setDropdownLinks();
     } else {
+        localStorage.setItem("isAuthenticated", "false");
         dropdownMenu.innerHTML = `
             <li>
                 <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/login.html' : 'login.html'}" class="dropdown__link">
@@ -133,10 +134,16 @@ function initAuthState() {
 
 initAuthState();
 
-window.logOut = () => {
-    localStorage.removeItem('token');
-    updateHeader(null);
-    window.location.href = '../html/login.html';
+window.logOut = async () => {
+    try {
+        await auth.signOut();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        localStorage.setItem("isAuthenticated", "false");
+        window.location.href = '../html/login.html';
+    } catch (error) {
+        console.error('Error signing out:', error);
+    }
 };
 
 export { initAuthState };

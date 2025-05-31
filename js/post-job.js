@@ -19,6 +19,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let paypalButtonInitialized = false;
 
+    // Check authentication state
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.emailVerified) {
+            btn.innerHTML = "Post Job";
+            postJobContainer.classList.remove('blurred');
+        } else {
+            btn.innerHTML = "Sign Up to post";
+            showLoginPopup();
+            postJobContainer.classList.add('blurred');
+        }
+    });
+
     function initializePayPalButton() {
         if (paypalButtonInitialized) return;
         
@@ -85,17 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    if(localStorage.getItem("isAuthenticated") === "true") {
-        btn.innerHTML = "Post Job";
-        postJobContainer.classList.remove('blurred');
-       
-    } else {
-        btn.innerHTML = "Sign Up to post";
-        showLoginPopup();
-        postJobContainer.classList.add('blurred');
-    }
-
-
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     applicationDeadline.min = formattedDate;
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const inputs = postJobForm.querySelectorAll(
         'input:not([type="file"]), select, textarea'    
-      );
+    );
       
     inputs.forEach(input => {
         input.addEventListener('input', function() {
@@ -186,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 break;
 
-                 case 'location':
+            case 'location':
                 if (!value) {
                     showError(input, 'Please select a location');
                     return false;
@@ -302,7 +303,8 @@ document.addEventListener('DOMContentLoaded', function() {
         postJobForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (localStorage.getItem("isAuthenticated") === "false") {
+            const user = auth.currentUser;
+            if (!user || !user.emailVerified) {
                 showLoginPopup();
                 return;
             }
@@ -334,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         benefits: formData.get('benefits'),
                         applicationDeadline: formData.get('applicationDeadline'),
                         contactEmail: formData.get('contactEmail'),
-                        postedBy: auth.currentUser.uid,
+                        postedBy: user.uid,
                         postedDate: new Date().toISOString(),
                         status: 'active',
                         applications: [],
@@ -366,8 +368,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function saveAndRedirect(jobData) {
         try {
             const user = auth.currentUser;
-            if (!user) {
-                throw new Error('User not authenticated');
+            if (!user || !user.emailVerified) {
+                throw new Error('User not authenticated or email not verified');
             }
 
             const formData = new FormData(postJobForm);

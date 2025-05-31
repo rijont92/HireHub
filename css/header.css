@@ -225,6 +225,24 @@ a,li {
     opacity: 0;
     transform: none;
   }
+
+  .avatar-row {
+    width: 100%;
+    justify-content: start !important;
+    color: white !important;
+    border: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .avatar-img {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .avatar-name h4 {
+    color: white !important;
+  }
 }
 
 .nav__link {
@@ -269,8 +287,8 @@ a,li {
 
 .dropdown__arrow {
   font-size: 1.25rem;
-  font-weight: initial;
   transition: transform .4s;
+  display: inline-block;
 }
 
 .dropdown__link, 
@@ -507,8 +525,8 @@ a,li {
 
 .dropdown__arrow {
     font-size: 1.25rem;
-    font-weight: initial;
     transition: transform .4s;
+    display: inline-block;
 }
 
 .dropdown__item:hover .dropdown__arrow {
@@ -634,4 +652,54 @@ a,li {
 
 #headerChatBtn i {
     font-size: 1.2rem;
+}
+
+#accountText {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: black;
+}
+
+#accountText .dropdown__arrow,
+.avatar-row .dropdown__arrow {
+    font-size: 1.25rem;
+    transition: transform .4s;
+}
+
+.dropdown__item:hover #accountText .dropdown__arrow,
+.dropdown__item:hover .avatar-row .dropdown__arrow {
+    transform: rotate(180deg);
+}
+
+
+
+.avatar-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 2px solid rgba(0, 0, 0, 0.218);
+  border-radius: 20px;
+  padding: 0px;
+  padding-right: 5px;
+}
+
+.avatar-name h4 {
+  font-weight: normal;
+  font-size: 14px;
+}
+
+.avatar-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.avatar-img img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+
 }

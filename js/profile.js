@@ -35,28 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const defaultThemeColor = '#755ea3';
 
-    if (localStorage.getItem('isAuthenticated') !== 'true') {
-        window.location.href = '/html/login.html';
-        return;
-    }
-
-    let userData = JSON.parse(localStorage.getItem('userData') || '{}');
-    
+    let userData = {};
     let unsubscribeFirestore;
     
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            
+        if (user && user.emailVerified) {
             const userRef = doc(db, 'users', user.uid);
             
             getDoc(userRef).then((docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const firestoreData = docSnapshot.data();
-                    
                     userData = { ...userData, ...firestoreData };
-                    
-                    localStorage.setItem('userData', JSON.stringify(userData));
-                    
                     updateProfileDisplay();
                 }
             }).catch(error => {
@@ -66,18 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
             unsubscribeFirestore = onSnapshot(userRef, (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const firestoreData = docSnapshot.data();
-                    
                     userData = { ...userData, ...firestoreData };
-                    
-                    localStorage.setItem('userData', JSON.stringify(userData));
-                    
                     updateProfileDisplay();
                 }
             }, (error) => {
                 console.error("Error listening to Firestore changes:", error);
             });
         } else {
-            window.location.href = '/html/login.html';
+            window.location.href = 'login.html';
         }
     });
 

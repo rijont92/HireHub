@@ -24,102 +24,118 @@
 <body>
     <header class="header">
         <nav class="nav container">
-            <div class="nav__data">
-                <a href="../index.html" class="nav__logo">
-                    <img src="../img/logo.png" alt="logo">
-                </a>
-                
-                <div class="nav-rightt" >
-                    <div class="nav-li-right">
-                       <ul>
-                          <li>
-                             <a href="#" class="nav__link">
-                             <div class="notification-bell">
-                                <i class="fa-regular fa-bell"></i>
-                                <div class="notification-count"></div>
-                             </div>
-                             </a>
-                            </li>
-                       </ul>
-                    </div>
+           <div class="nav__data">
+              <a href="#" class="nav__logo">
+                 <img src="../img/logo.png" alt="logo">
+              </a>
 
-                    <div class="nav__toggle" id="nav-toggle">
-                        <i class="ri-menu-line nav__burger"></i>
-                        <i class="ri-close-line nav__close"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="nav__menu" id="nav-menu">
-                <ul class="nav__list">
-                    <li><a href="../index.html" class="nav__link">Home</a></li>
-                    <li><a href="jobs.html" class="nav__link">Jobs</a></li>
-                    <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
-                    <li class="dropdown__item">
-                        <div class="nav__link">
-                            Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>
-                        </div>
-
-                        <ul class="dropdown__menu">
-                            <li class="remove">
-                                <a href="#" class="dropdown__link">
-                                    <i class="ri-user-line"></i> Profile
-                                </a>                          
-                            </li>
-
-                            <li class="remove">
-                                <a href="#" class="dropdown__link">
-                                    <i class="ri-settings-3-line"></i>Settings
-                                </a>
-                            </li>
-
-                            <li class="remove">
-                                <a href="my-jobs.html" class="dropdown__link">
-                                    <i class="ri-file-text-line"></i> My Jobs
-                                </a>
-                            </li>
-
-                            <li class="remove">
-                                <a href="#" class="dropdown__link">
-                                    <i class="ri-bookmark-line"></i>Saved Jobs
-                                </a>
-                            </li>
-
-                            <li class="remove">
-                                <a href="#" class="dropdown__link">
-                                    <i class="ri-history-line"></i>History
-                                </a>
-                            </li>
-
-                            <li>
-                                <a href="/html/login.html" class="dropdown__link" onclick="logOut()" id="login">
-                                    <i class="ri-logout-box-line"></i>Log in
-                                </a>
-                            </li>
-
-                            <li id="sign__up">
-                                <a href="/html/sign_up.html" class="dropdown__link">
-                                    <i class="ri-login-box-line"></i>Sign up
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li><a href="about.html" class="nav__link">About</a></li>
-                    <li><a href="contact.html" class="nav__link">Contact</a></li>
-
-                    <li class="nonee none2">
+              
+              
+              <div class="nav-rightt" >
+               <div class="nav-li-right">
+                  <ul>
+                     <li>
                         <a href="#" class="nav__link">
                         <div class="notification-bell">
-                            <i class="fa-regular fa-bell"></i>
-                            <div class="notification-count"></div>
+                           <i class="fa-regular fa-bell"></i>
+                           <div class="notification-count"></div>
                         </div>
                         </a>
-                    </li>
-                </ul>
+                       </li>
+      
+                       <!-- <li><a href="#" class="nav__link">
+                        <img src="img/happy-client.png" alt="User" class="user nonee" id="img-profile2">
+                       </a></li> -->
+                  </ul>
+               </div>
+
+
+                 <div class="nav__toggle" id="nav-toggle">
+                    <i class="ri-menu-line nav__burger"></i>
+                    <i class="ri-close-line nav__close"></i>
+                  </div>
+
+                  
+
             </div>
+                 
+
+              
+           </div>
+
+           <!--=============== NAV MENU ===============-->
+           <div class="nav__menu" id="nav-menu">
+              <ul class="nav__list">
+                 <li><a href="../index.html" class="nav__link">Home</a></li>
+                 <li><a href="jobs.html" class="nav__link">Jobs</a></li>
+                 <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                
+                 <li><a href="about.html" class="nav__link">About</a></li>
+                 <li><a href="contact.html" class="nav__link">Contact</a></li>
+                  <li class="dropdown__item">
+                     <div class="nav__link">
+                        <span id="accountText">Account <i class="ri-arrow-down-s-line dropdown__arrow"></i></span>
+                        <div class="avatar-row" id="userProfileRow" style="display: none;">
+                           <div class="avatar-img">
+                              <img src="../img/useri.png" alt="user img" id="userProfileImg">
+                           </div>
+
+                           <div class="avatar-name">
+                              <h4 id="userName">Loading...</h4>
+                           </div>
+                           <i class="ri-arrow-down-s-line dropdown__arrow"></i>
+                        </div>
+                     </div>
+                     <ul class="dropdown__menu" id="accountMenu">
+                     </ul>
+                  </li>
+                 <!-- <li><a href="#" class="nav__link" id="headerChatBtn"><i class="ri-message-2-line"></i> Messages</a></li> -->
+
+                  <!-- <li>
+                     <a href="html/contact.html" class="nav__link">
+
+                        <div class="avatar-row">
+                           <div class="avatar-img">
+                              <img src="img/useri.png" alt="user img" id="userProfileImg">
+                           </div>
+
+                           <div class="avatar-name">
+                              <h4 id="userName">Loading...</h4>
+                           </div>
+                        </div>
+
+                     </a>
+                  </li> -->
+
+                 <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="notification-bell ">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="notification-count"></div>
+                  </div>   
+                  </a>
+                 </li>
+
+                 
+<!-- 
+                 <li class="nonee none2"><a href="#" class="nav__link">
+                  <img src="img/happy-client.png" alt="User" class="user" id="img-profile">
+                 </a></li> -->
+
+                 
+                
+                 
+
+                 
+                 
+
+               
+
+                
+              </ul>
+           </div>
         </nav>
-    </header>
+     </header>
 
     <div class="all">
         <main class="saved-jobs-container">
@@ -266,6 +282,6 @@
     </button>
 
     <script type="module" src="../js/chat.js"></script>
-    <script src="../js/header.js"></script>
+    <script type="module" src="../js/header.js"></script>
 </body>
 </html> 
