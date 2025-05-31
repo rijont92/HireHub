@@ -65,10 +65,26 @@ function initializeUserData() {
     const accountText = document.getElementById('accountText');
     const userProfileRow = document.getElementById('userProfileRow');
     const accountMenu = document.getElementById('accountMenu');
+    const userName = document.getElementById("userName");
+    const userProfileImg = document.getElementById("userProfileImg");
 
-    // Show loading state initially
-    if (accountText) {
-        accountText.innerHTML = 'Loading... <i class="ri-arrow-down-s-line dropdown__arrow"></i>';
+    // Try to load from cache first
+    const cachedUserData = JSON.parse(localStorage.getItem('userData') || '{}');
+    if (cachedUserData.name || cachedUserData.profileImage) {
+        if (userName) {
+            const displayName = cachedUserData.name || 'User';
+            userName.innerHTML = `Hi, ${displayName.length > 20 ? displayName.substring(0, 20) + '...' : displayName}`;
+        }
+        if (userProfileImg) {
+            userProfileImg.src = cachedUserData.profileImage || 'img/useri.png';
+        }
+        if (accountText) accountText.style.display = 'none';
+        if (userProfileRow) userProfileRow.style.display = 'flex';
+    } else {
+        // Show loading state if no cache
+        if (accountText) {
+            accountText.innerHTML = 'Loading... <i class="ri-arrow-down-s-line dropdown__arrow"></i>';
+        }
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -79,8 +95,9 @@ function initializeUserData() {
                 
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    const userName = document.getElementById("userName");
-                    const userProfileImg = document.getElementById("userProfileImg");
+                    
+                    // Update cache
+                    localStorage.setItem('userData', JSON.stringify(userData));
 
                     if (userName) {
                         const displayName = userData.name || 'User';
@@ -99,22 +116,50 @@ function initializeUserData() {
                     const currentPath = window.location.pathname;
                     if (accountMenu) {
                         accountMenu.innerHTML = `
-                            <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/profile.html' : 'profile.html'}" class="dropdown__link"><i class="ri-user-line"></i> Profile</a></li>
-                            <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/settings.html' : 'settings.html'}" class="dropdown__link"><i class="ri-settings-3-line"></i> Settings</a></li>
-                            <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/my-jobs.html' : 'my-jobs.html'}" class="dropdown__link"><i class="ri-file-text-line"></i> My Jobs</a></li>
-                            <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/saved-jobs.html' : 'saved-jobs.html'}" class="dropdown__link"><i class="ri-bookmark-line"></i> Saved Jobs</a></li>
-                            <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/history.html' : 'history.html'}" class="dropdown__link"><i class="ri-history-line"></i> History</a></li>
-                            <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/dashboard.html' : 'dashboard.html'}" class="dropdown__link"><i class="ri-dashboard-line"></i> Dashboard</a></li>
-                            <li><a href="#" class="dropdown__link" id="logout-btn"><i class="ri-logout-box-line"></i> Sign Out</a></li>
+                            <li>
+                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/profile.html' : 'profile.html'}" class="dropdown__link">
+                                    <i class="ri-user-line"></i> Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/settings.html' : 'settings.html'}" class="dropdown__link">
+                                    <i class="ri-settings-3-line"></i> Settings
+                                </a>
+                            </li>
+                            <li>
+                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/my-jobs.html' : 'my-jobs.html'}" class="dropdown__link">
+                                    <i class="ri-file-text-line"></i> My Jobs
+                                </a>
+                            </li>
+                            <li>
+                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/saved-jobs.html' : 'saved-jobs.html'}" class="dropdown__link">
+                                    <i class="ri-bookmark-line"></i> Saved Jobs
+                                </a>
+                            </li>
+                            <li>
+                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/history.html' : 'history.html'}" class="dropdown__link">
+                                    <i class="ri-history-line"></i> History
+                                </a>
+                            </li>
+                            <li>
+                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/dashboard.html' : 'dashboard.html'}" class="dropdown__link">
+                                    <i class="ri-dashboard-line"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="dropdown__link" id="logout-btn">
+                                    <i class="ri-logout-box-line"></i> Sign Out
+                                </a>
+                            </li>
                         `;
 
-                        // Add logout event listener
-                        const logoutBtn = accountMenu.querySelector('#logout-btn');
+                        const logoutBtn = document.getElementById('logout-btn');
                         if (logoutBtn) {
                             logoutBtn.addEventListener('click', async (e) => {
                                 e.preventDefault();
                                 try {
                                     await auth.signOut();
+                                    localStorage.removeItem('userData');
                                     if(currentPath.endsWith('index.html') || currentPath === '/') {
                                         window.location.href = 'html/login.html';
                                     } else {
