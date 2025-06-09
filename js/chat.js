@@ -206,9 +206,14 @@ async function loadChats() {
     chatListener = onSnapshot(q, async (snapshot) => {
         chatList.innerHTML = '';
         if (snapshot.empty) {
-            messagesContainer.innerHTML = '<div style="padding:20px;color:#888;text-align:center; display:flex; justify-content:center; align-items:center; height:100%;">No active chats. Start a conversation from a user\'s profile!</div>';
+            messagesContainer.innerHTML = '<div style="padding:20px;color:#888;text-align:center; display:flex; justify-content:center; align-items:center; height:100%;" data-translate="no active chats">No active chats. Start a conversation from a user\'s profile!</div>';
+                if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
             return;
         }
+
+    
         
         for (const doc of snapshot.docs) {
             const chat = doc.data();
@@ -359,7 +364,12 @@ async function openChat(chatId, otherUserId) {
         chatMessages.insertBefore(chatWithBanner, chatMessages.firstChild);
     }
     const otherUserName = participantNames[otherUserId] || 'User';
-    chatWithBanner.textContent = `Chatting with ${otherUserName}`;
+    chatWithBanner.innerHTML = `<span data-translate="chatting-with">Chatting with</span> ${otherUserName}`;
+    
+    // Apply translations after setting the banner text
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
 }
 
 function createMessageElement(message) {

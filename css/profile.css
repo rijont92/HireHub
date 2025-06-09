@@ -182,7 +182,7 @@ body {
 }
 
 .section-header button:hover {
-    background: var(--hover);
+    background: var(--primary-color);
     color: white;
 }
 

@@ -1,6 +1,7 @@
 import { auth, db } from './firebase-config.js';
 import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { translations, currentLanguage } from './translations.js';
 
 const paypalScript = document.createElement('script');
 paypalScript.src = 'https://www.paypal.com/sdk/js?client-id=ATvGyJEjEo_vMlTxeh53DRbuP7Arcz6pomm3ZsrduW-BAy8oCo_w-djwWjEx4DGI44UFSy95ZG3tsgym&currency=EUR';
@@ -22,12 +23,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check authentication state
     onAuthStateChanged(auth, (user) => {
         if (user && user.emailVerified) {
-            btn.innerHTML = "Post Job";
+            btn.innerHTML = `<span data-translate="post-job">Post Job</span>`;
             postJobContainer.classList.remove('blurred');
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         } else {
-            btn.innerHTML = "Sign Up to post";
+            btn.innerHTML = `<span data-translate="sign-up-post">Sign Up to post</span>`;
             showLoginPopup();
             postJobContainer.classList.add('blurred');
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         }
     });
 
@@ -161,93 +168,93 @@ document.addEventListener('DOMContentLoaded', function() {
         switch(input.id) {
             case 'jobTitle':
                 if (value.length < 3) {
-                    showError(input, 'Job title must be at least 3 characters long');
+                    showError(input, translations[currentLanguage]['error-job-title-length']);
                     return false;
                 }
                 break;
                 
             case 'companyName':
                 if (value.length < 2) {
-                    showError(input, 'Company name must be at least 2 characters long');
+                    showError(input, translations[currentLanguage]['error-company-name-length']);
                     return false;
                 }
                 break;
                 
             case 'jobType':
                 if (!value) {
-                    showError(input, 'Please select a job type');
+                    showError(input, translations[currentLanguage]['error-job-type-required']);
                     return false;
                 }
                 break;
                 
             case 'category':
                 if (!value) {
-                    showError(input, 'Please select an industry category');
+                    showError(input, translations[currentLanguage]['error-category-required']);
                     return false;
                 }
                 break;
 
             case 'location':
                 if (!value) {
-                    showError(input, 'Please select a location');
+                    showError(input, translations[currentLanguage]['error-location-required']);
                     return false;
                 }
                 break;
                 
             case 'salary':
                 if (!value) {
-                    showError(input, 'Salary range is required');
+                    showError(input, translations[currentLanguage]['error-salary-required']);
                     return false;
                 } else if (!/^[€$]?\d+(\s*-\s*[€$]?\d+)?$/.test(value)) {
-                    showError(input, 'Please enter a valid salary range (e.g., €1000 - €2000)');
+                    showError(input, translations[currentLanguage]['error-salary-format']);
                     return false;
                 }
                 break;
                 
             case 'vacancy':
                 if (value < 1) {
-                    showError(input, 'Number of vacancies must be at least 1');
+                    showError(input, translations[currentLanguage]['error-vacancy-min']);
                     return false;
                 }
                 break;
                 
             case 'jobDescription':
                 if (value.length < 50) {
-                    showError(input, 'Job description must be at least 50 characters long');
+                    showError(input, translations[currentLanguage]['error-description-length']);
                     return false;
                 }
                 break;
                 
             case 'requirements':
                 if (value.length < 30) {
-                    showError(input, 'Requirements must be at least 30 characters long');
+                    showError(input, translations[currentLanguage]['error-requirements-length']);
                     return false;
                 }
                 break;
                 
             case 'benefits':
                 if (!value) {
-                    showError(input, 'Benefits are required');
+                    showError(input, translations[currentLanguage]['error-benefits-required']);
                     return false;
                 } else if (value.length < 20) {
-                    showError(input, 'Benefits must be at least 20 characters long');
+                    showError(input, translations[currentLanguage]['error-benefits-length']);
                     return false;
                 }
                 break;
                 
             case 'applicationDeadline':
                 if (!value) {
-                    showError(input, 'Application deadline is required');
+                    showError(input, translations[currentLanguage]['error-deadline-required']);
                     return false;
                 } else if (!isValidDate(value)) {
-                    showError(input, 'Application deadline must be a future date');
+                    showError(input, translations[currentLanguage]['error-deadline-past']);
                     return false;
                 }
                 break;
                 
             case 'contactEmail':
                 if (!isValidEmail(value)) {
-                    showError(input, 'Please enter a valid email address');
+                    showError(input, translations[currentLanguage]['error-email-invalid']);
                     return false;
                 }
                 break;
@@ -256,11 +263,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (input.files.length > 0) {
                     const file = input.files[0];
                     if (!file.type.startsWith('image/')) {
-                        showError(input, 'Please upload an image file');
+                        showError(input, translations[currentLanguage]['error-logo-format']);
                         return false;
                     }
                     if (file.size > 5 * 1024 * 1024) {
-                        showError(input, 'Image size should be less than 5MB');
+                        showError(input, translations[currentLanguage]['error-logo-size']);
                         return false;
                     }
                 }
@@ -275,11 +282,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const file = e.target.files[0];
             if (file) {
                 if (!file.type.startsWith('image/')) {
-                    showError(logoInput, 'Please upload an image file');
+                    showError(logoInput, translations[currentLanguage]['error-logo-format']);
                     return;
                 }
                 if (file.size > 5 * 1024 * 1024) {
-                    showError(logoInput, 'Image size should be less than 5MB');
+                    showError(logoInput, translations[currentLanguage]['error-logo-size']);
                     return;
                 }
 
@@ -472,71 +479,84 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const jobTitle = document.getElementById('jobTitle');
         if (!jobTitle.value.trim()) {
-            showError(jobTitle, 'Job title is required');
+            showError(jobTitle, translations[currentLanguage]['error-job-title-required']);
             isValid = false;
         } else if (jobTitle.value.trim().length < 3) {
-            showError(jobTitle, 'Job title must be at least 3 characters long');
+            showError(jobTitle, translations[currentLanguage]['error-job-title-length']);
             isValid = false;
         }
 
         const companyName = document.getElementById('companyName');
         if (!companyName.value.trim()) {
-            showError(companyName, 'Company name is required');
+            showError(companyName, translations[currentLanguage]['error-company-name-required']);
             isValid = false;
         }
 
         const jobType = document.getElementById('jobType');
         if (!jobType.value) {
-            showError(jobType, 'Please select a job type');
+            showError(jobType, translations[currentLanguage]['error-job-type-required']);
             isValid = false;
         }
+
+        const category = document.getElementById('category');
+        if (!category.value) {
+            showError(category, translations[currentLanguage]['error-category-required']);
+            isValid = false;
+        }
+
+        const location = document.getElementById('location');
+        if (!location.value) {
+            showError(location, translations[currentLanguage]['error-location-required']);
+            isValid = false;
+        }
+
         const salary = document.getElementById('salary');
         if (!salary.value.trim()) {
-            showError(salary, 'Salary range is required');
+            showError(salary, translations[currentLanguage]['error-salary-required']);
             isValid = false;
         } else if (!/^[€$]?\d+(\s*-\s*[€$]?\d+)?$/.test(salary.value.trim())) {
-            showError(salary, 'Please enter a valid salary range (e.g., €1000 - €2000)');
+            showError(salary, translations[currentLanguage]['error-salary-format']);
             isValid = false;
         }
 
         const vacancy = document.getElementById('vacancy');
         if (!vacancy.value) {
-            showError(vacancy, 'Number of vacancies is required');
+            showError(vacancy, translations[currentLanguage]['error-vacancy-required']);
             isValid = false;
         } else if (parseInt(vacancy.value) < 1) {
-            showError(vacancy, 'Number of vacancies must be at least 1');
+            showError(vacancy, translations[currentLanguage]['error-vacancy-min']);
             isValid = false;
         }
 
         const jobDescription = document.getElementById('jobDescription');
         if (!jobDescription.value.trim()) {
-            showError(jobDescription, 'Job description is required');
+            showError(jobDescription, translations[currentLanguage]['error-description-required']);
             isValid = false;
         } else if (jobDescription.value.trim().length < 50) {
-            showError(jobDescription, 'Job description must be at least 50 characters long');
+            showError(jobDescription, translations[currentLanguage]['error-description-length']);
             isValid = false;
         }
 
         const requirements = document.getElementById('requirements');
         if (!requirements.value.trim()) {
-            showError(requirements, 'Requirements are required');
+            showError(requirements, translations[currentLanguage]['error-requirements-required']);
             isValid = false;
         } else if (requirements.value.trim().length < 30) {
-            showError(requirements, 'Requirements must be at least 30 characters long');
+            showError(requirements, translations[currentLanguage]['error-requirements-length']);
             isValid = false;
         }
 
         const benefits = document.getElementById('benefits');
         if (!benefits.value.trim()) {
-            showError(benefits, 'Benefits are required');
+            showError(benefits, translations[currentLanguage]['error-benefits-required']);
             isValid = false;
         } else if (benefits.value.trim().length < 20) {
-            showError(benefits, 'Benefits must be at least 20 characters long');
+            showError(benefits, translations[currentLanguage]['error-benefits-length']);
             isValid = false;
         }
 
         if (!applicationDeadline.value) {
-            showError(applicationDeadline, 'Application deadline is required');
+            showError(applicationDeadline, translations[currentLanguage]['error-deadline-required']);
             isValid = false;
         } else {
             const selectedDate = new Date(applicationDeadline.value);
@@ -544,29 +564,29 @@ document.addEventListener('DOMContentLoaded', function() {
             today.setHours(0, 0, 0, 0);
             
             if (selectedDate < today) {
-                showError(applicationDeadline, 'Application deadline cannot be in the past');
+                showError(applicationDeadline, translations[currentLanguage]['error-deadline-past']);
                 isValid = false;
             }
         }
 
         const contactEmail = document.getElementById('contactEmail');
         if (!contactEmail.value.trim()) {
-            showError(contactEmail, 'Contact email is required');
+            showError(contactEmail, translations[currentLanguage]['error-email-required']);
             isValid = false;
         } else if (!isValidEmail(contactEmail.value.trim())) {
-            showError(contactEmail, 'Please enter a valid email address');
+            showError(contactEmail, translations[currentLanguage]['error-email-invalid']);
             isValid = false;
         }
 
         const companyLogo = document.getElementById('companyLogo');
         if (!companyLogo.files || companyLogo.files.length === 0) {
-            showError(companyLogo, 'Company logo is required');
+            showError(companyLogo, translations[currentLanguage]['error-logo-required']);
             isValid = false;
         } else {
             const file = companyLogo.files[0];
             const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
             if (!validTypes.includes(file.type)) {
-                showError(companyLogo, 'Please upload a valid image file (JPEG, PNG, or GIF)');
+                showError(companyLogo, translations[currentLanguage]['error-logo-format']);
                 isValid = false;
             }
         }

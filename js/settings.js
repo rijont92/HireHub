@@ -2,6 +2,7 @@ import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { doc, getDoc, updateDoc, deleteDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, sendPasswordResetEmail, deleteUser, updateEmail, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { updateHeaderName } from './header.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     let userData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -310,6 +311,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const userData = JSON.parse(localStorage.getItem('userData') || '{}');
             userData.name = newName;
             localStorage.setItem('userData', JSON.stringify(userData));
+            
+            updateHeaderName(newName);
 
         } catch (error) {
             console.error('Error updating name:', error);
@@ -602,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const successMessage = document.createElement('div');
                 successMessage.style.color = 'green';
                 successMessage.style.marginTop = '10px';
-                successMessage.textContent = `Password reset email sent to ${email}. Please check your inbox (and spam folder).`;
+                successMessage.innerHTML = `<span data-translate="reset-sent">Password reset email sent to</span> ${email}. <span data-translate="please-check">Please check your inbox (and spam folder).</span>`;
                 securityForm.appendChild(successMessage);
 
                 setTimeout(() => {
@@ -610,6 +613,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 5000);
                 
                 securityForm.reset();
+
+                if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
             } catch (error) {
                 console.error('Error sending password reset email:', error);
                 if (errorEmail) {

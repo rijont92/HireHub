@@ -1,6 +1,7 @@
 import { auth, db } from './firebase-config.js';
 import { collection, getDocs, query, where, orderBy, doc, getDoc, updateDoc, arrayUnion, addDoc, onSnapshot, arrayRemove, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { translations, currentLanguage } from './translations.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const savedJobsContainer = document.getElementById('savedJobsContainer');
@@ -14,21 +15,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let currentJobId = null;
 
+    // Add language change event listener
+    window.addEventListener('languageChanged', () => {
+        // Update translations for all job cards
+        const jobCards = document.querySelectorAll('.job-item');
+        jobCards.forEach(card => {
+            const elements = card.querySelectorAll('[data-translate]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[currentLanguage][key]) {
+                    element.textContent = translations[currentLanguage][key];
+                }
+            });
+        });
+    });
+
     function createJobCard(job, jobId) {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isClosed = job.status === 'closed';
+        const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
         
         const jobItem = document.createElement('div');
         jobItem.className = `job-item ${isClosed ? 'closed' : ''}`;
         jobItem.dataset.jobId = jobId;
 
-           const status_r = {
-                "full-time":"Full Time",
-                "part-time":"Part Time",
-                "contract":"Contract",
-                "internship":"Internship"
-            }
-        
         jobItem.innerHTML = `
             <div class="job-item-content">
                 <div class="job-item-header">
@@ -41,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="job-meta-info">
                             <div class="meta-item job-type ${jobTypeClass}">
                                 <i class="fas fa-briefcase"></i>
-                                <span>${status_r[job.jobType]}</span>
+                                <span data-translate="${job.jobType}">${translations[currentLanguage][job.jobType] || job.jobType}</span>
                             </div>
                             <div class="meta-item location">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -59,22 +69,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="deadline">
                             <i class="far fa-clock"></i>
-                            <span>Apply before: ${formatDate(job.applicationDeadline)}</span>
+                            <span><span data-translate="apply-before">${translations[currentLanguage]['apply-before']}</span>: ${formatDate(job.applicationDeadline)}</span>
                         </div>
                     </div>
                     
                     <div class="job-actions">
                         ${isClosed ? `
                             <button class="apply-btn disabled" disabled>
-                                <i class="fas fa-lock"></i> Job Closed
+                                <i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed']}</span>
                             </button>
+                        ` : isApplied ? `
+                            <div class="application-status status-pending">
+                                <i class="fas fa-clock"></i>
+                                <span data-translate="pending">${translations[currentLanguage]['pending']}</span>
+                            </div>
                         ` : `
                             <button class="apply-btn" data-job-id="${jobId}">
-                                <i class="fas fa-paper-plane"></i> Apply Now
+                                <i class="fas fa-paper-plane"></i> <span data-translate="apply-now">${translations[currentLanguage]['apply-now']}</span>
                             </button>
                         `}
                         <button class="save-btn saved" data-job-id="${jobId}">
-                            <i class="fas fa-bookmark"></i> Saved
+                            <i class="fas fa-bookmark"></i> <span data-translate="saved">${translations[currentLanguage]['saved']}</span>
                         </button>
                     </div>
                 </div>
@@ -102,12 +117,58 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
+        if (isApplied) {
+            checkApplicationStatus(jobId, jobItem);
+        }
+
         return jobItem;
     }
 
+    async function checkApplicationStatus(jobId, jobItem) {
+        try {
+            const applicationsRef = collection(db, 'applications');
+            const q = query(
+                applicationsRef,
+                where('jobId', '==', jobId),
+                where('userId', '==', auth.currentUser?.uid)
+            );
+            
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                const application = snapshot.docs[0].data();
+                const statusElement = jobItem.querySelector('.application-status');
+                if (statusElement) {
+                    const status = application.status || 'pending';
+                    const statusClass = status === 'approved' ? 'status-approved' : 
+                                     status === 'rejected' ? 'status-rejected' : 'status-pending';
+                    const icon = status === 'approved' ? 'fa-check' : 
+                               status === 'rejected' ? 'fa-times' : 'fa-clock';
+                    
+                    statusElement.className = `application-status ${statusClass}`;
+                    statusElement.innerHTML = `
+                        <i class="fas ${icon}"></i>
+                        <span data-translate="${status}">${translations[currentLanguage][status] || status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                    `;
+                    if (application.message) {
+                        statusElement.title = application.message;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error checking application status:', error);
+        }
+    }
+
     function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString(undefined, options);
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+        
+        // Get the translated month name
+        const translatedMonth = translations[currentLanguage][month] || month;
+        
+        return `${day} ${translatedMonth} ${year}`;
     }
 
     async function loadSavedJobs() {
@@ -156,16 +217,21 @@ document.addEventListener('DOMContentLoaded', function() {
         jobsContainer.innerHTML = `
             <div class="no-saved-jobs-container">
                 <i class="fas fa-bookmark no-saved-jobs-icon"></i>
-                <h2 class="no-saved-jobs-title">No Saved Jobs Yet</h2>
-                <p class="no-saved-jobs-description">
+                <h2 class="no-saved-jobs-title" data-translate="no-saved-jobs">No Saved Jobs Yet</h2>
+                <p class="no-saved-jobs-description" data-translate="no-saved-jobs-text">
                     You haven't saved any jobs yet. Start exploring and save jobs that interest you to keep track of them here.
                 </p>
                 <a href="jobs.html" class="explore-jobs-btn">
                     <i class="fas fa-search"></i>
-                    Explore Jobs
+                    <span data-translate="explore-jobs">Explore Jobs</span>
+                   
                 </a>
             </div>
         `;
+
+        if (window.updateTranslations) {
+                            window.updateTranslations();
+        }
     }
 
     async function toggleSaveJob(jobId) {
@@ -267,18 +333,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const resumeFile = formData.get('resume');
             
             if (!resumeFile || resumeFile.size === 0) {
-                alert('Please upload your resume');
+                showNotification('Please upload your resume', 'error');
                 return;
             }
 
             if (resumeFile.size > 5 * 1024 * 1024) {
-                alert('Resume file size should be less than 5MB');
+                showNotification('Resume file size should be less than 5MB', 'error');
                 return;
             }
 
             const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!allowedTypes.includes(resumeFile.type)) {
-                alert('Please upload a PDF or Word document');
+                showNotification('Please upload a PDF or Word document', 'error');
                 return;
             }
 
@@ -301,13 +367,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 applications: arrayUnion(user.uid)
             });
 
-            alert('Application submitted successfully!');
             hideApplyModal();
-            
-            window.location.reload();
+
+            const successNotification = document.getElementById('successNotification');
+            successNotification.classList.add('show');
+
+            document.getElementById('closeNotification').addEventListener('click', () => {
+                successNotification.classList.remove('show');
+            });
+
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
+
+            // Update the job card to show pending status
+            const jobItem = document.querySelector(`.job-item[data-job-id="${currentJobId}"]`);
+            if (jobItem) {
+                const jobActions = jobItem.querySelector('.job-actions');
+                const applyBtn = jobActions.querySelector('.apply-btn');
+                if (applyBtn) {
+                    const statusElement = document.createElement('div');
+                    statusElement.className = 'application-status status-pending';
+                    statusElement.innerHTML = `
+                        <i class="fas fa-clock"></i>
+                        <span data-translate="pending">${translations[currentLanguage]['pending']}</span>
+                    `;
+                    jobActions.replaceChild(statusElement, applyBtn);
+                }
+            }
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (error) {
             console.error('Error submitting application:', error);
-            alert('Error submitting application. Please try again.');
+            showNotification('Error submitting application. Please try again.', 'error');
         }
     });
 

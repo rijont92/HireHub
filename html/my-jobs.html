@@ -23,10 +23,10 @@
     <script type="module" src="../js/notification-center.js"></script>
 </head>
 <body>
-   <header class="header">
+<header class="header">
         <nav class="nav container">
            <div class="nav__data">
-              <a href="#" class="nav__logo">
+              <a href="../index.html" class="nav__logo">
                  <img src="../img/logo.png" alt="logo">
               </a>
 
@@ -67,12 +67,12 @@
            <!--=============== NAV MENU ===============-->
            <div class="nav__menu" id="nav-menu">
               <ul class="nav__list">
-                 <li><a href="../index.html" class="nav__link">Home</a></li>
-                 <li><a href="jobs.html" class="nav__link">Jobs</a></li>
-                 <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                 <li><a href="../index.html" class="nav__link" data-translate="Home">Home</a></li>
+                 <li><a href="jobs.html" class="nav__link " data-translate="Jobs">Jobs</a></li>
+                 <li><a href="post-job.html" class="nav__link" data-translate="Post a Job">Post a Job</a></li>
                 
-                 <li><a href="about.html" class="nav__link">About</a></li>
-                 <li><a href="contact.html" class="nav__link">Contact</a></li>
+                 <li><a href="about.html" class="nav__link" data-translate="About">About</a></li>
+                 <li><a href="contact.html" class="nav__link" data-translate="Contact">Contact</a></li>
                   <li class="dropdown__item">
                      <div class="nav__link">
                         <span id="accountText">Account <i class="ri-arrow-down-s-line dropdown__arrow"></i></span>
@@ -89,6 +89,23 @@
                      </div>
                      <ul class="dropdown__menu" id="accountMenu">
                      </ul>
+
+                     <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="notification-bell ">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="notification-count"></div>
+                  </div>   
+                  </a>
+                 </li>
+
+                      <li class="dropdown__item">
+                     <div class="nav__link">
+                        <span id="currentLanguage" onclick="toggleLanguage()">
+                           <img src="../img/albanian-flag.png" alt="Albanian" class="language-flag" id="languageFlag">
+                        </span>
+                     </div>
+                  </li>
                   </li>
                  <!-- <li><a href="#" class="nav__link" id="headerChatBtn"><i class="ri-message-2-line"></i> Messages</a></li> -->
 
@@ -108,14 +125,7 @@
                      </a>
                   </li> -->
 
-                 <li class="nonee none2">
-                  <a href="#" class="nav__link">
-                  <div class="notification-bell ">
-                     <i class="fa-regular fa-bell"></i>
-                     <div class="notification-count"></div>
-                  </div>   
-                  </a>
-                 </li>
+                 
 
                  
 <!-- 
@@ -141,39 +151,39 @@
     <section class="my-jobs-section">
         <div class="container">
             <div class="my-jobs-header">
-                <h1>My Posted Jobs</h1>
+                <h1 data-translate="My Posted Jobs">My Posted Jobs</h1>
             </div>
 
             <div class="my-jobs-filters">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search jobs...">
+                    <input type="text" id="searchInput" placeholder="Search jobs..." data-translate-placeholder="search-jobs">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
 
                 <div class="filters">
                     <div class="select-wrapper">
                         <select id="jobTypeFilter">
-                            <option value="">All Job Types</option>
-                            <option value="full-time">Full Time</option>
-                            <option value="part-time">Part Time</option>
-                            <option value="contract">Contract</option>
-                            <option value="internship">Internship</option>
+                            <option value="" data-translate="All Job Types">All Job Types</option>
+                            <option value="full-time" data-translate="Full Time">Full Time</option>
+                            <option value="part-time" data-translate="Part Time">Part Time</option>
+                            <option value="contract" data-translate="Contract">Contract</option>
+                            <option value="internship" data-translate="Internship">Internship</option>
                         </select>
                         <i class="fa-solid fa-chevron-down select-arrow"></i>
                     </div>
 
                     <div class="select-wrapper">
                         <select id="locationFilter">
-                            <option value="">All Locations</option>
+                            <option value="" data-translate="All Locations">All Locations</option>
                         </select>
                         <i class="fa-solid fa-chevron-down select-arrow"></i>
                     </div>
 
                     <div class="select-wrapper">
                         <select id="statusFilter">
-                            <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="closed">Closed</option>
+                            <option value="" data-translate="All Status">All Status</option>
+                            <option value="active" data-translate="Active">Active</option>
+                            <option value="closed" data-translate="Closed">Closed</option>
                         </select>
                         <i class="fa-solid fa-chevron-down select-arrow"></i>
                     </div>
@@ -188,14 +198,14 @@
         </div>
     </section>
 
-    <footer>
+ <footer>
       <div class="container">
          <div class="wrapper">
             <div class="footer-widget wrapper-center">
-               <a href="#">
+               <a href="../index.html">
                   <img src="../img/logo.png" alt="" class="logo">
                </a>
-               <p class="desc">
+               <p class="desc" data-translate="footer-dsc">
                   Connecting skilled professionals with top employers for success and growth.
                </p>
                <ul class="socials">
@@ -222,34 +232,34 @@
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Quick Links</h6>
+               <h6 data-translate="quick-links">Quick Links</h6>
                <ul class="links">
-                  <li><a href="../index.html">Home</a></li>
-                  <li><a href="jobs.html">Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="about.html">About</a></li>
-                  <li><a href="contact.html">Contact</a></li>
+                  <li><a href="../index.html" data-translate="Home">Home</a></li>
+                  <li><a href="jobs.html" data-translate="Jobs">Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="about.html" data-translate="About">About</a></li>
+                  <li><a href="contact.html" data-translate="Contact">Contact</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Services</h6>
+               <h6 data-translate="services">Services</h6>
                <ul class="links">
-                  <li><a href="profile.html">Profile</a></li>
-                  <li><a href="saved-jobs.html">Save Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="dashboard.html">Manage Applications</a></li>
-                  <li><a href="settings.html">Settings</a></li>
+                  <li><a href="profile.html" data-translate="Profile">Profile</a></li>
+                  <li><a href="saved-jobs.html" data-translate="Saved Jobs">Saved Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="dashboard.html" data-translate="manage-applications">Manage Applications</a></li>
+                  <li><a href="settings.html" data-translate="Settings">Settings</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Help &amp; Support</h6>
-               <ul class="links">
-                  <li><a href="contact.html">Contact</a></li>
-                  <li><a href="">Live Chat</a></li>
-                  <li><a href="">Privacy Policy</a></li>
-                  <li><a href="">Terms of Service</a></li>
-               </ul>
-            </div>
+            <h6 data-translate="help-support">Help & Support</h6>
+            <ul class="links">
+               <li><a href="contact.html" data-translate="Contact">Contact</a></li>
+               <li><a href="" data-translate="live-chat">Live Chat</a></li>
+               <li><a href="" data-translate="privacy-policy">Privacy Policy</a></li>
+               <li><a href="" data-translate="terms-service">Terms of Service</a></li>
+            </ul>
+         </div>
          </div>
       </div>
    </footer>
@@ -259,67 +269,75 @@
     <div class="edit-popup-overlay" id="editPopupOverlay">
         <div class="edit-popup">
             <div class="edit-popup-header">
-                <h2>Edit Job</h2>
+                <h2 data-translate="Edit Job">Edit Job</h2>
                 <button class="close-popup" onclick="closeEditPopup()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <form id="editJobForm" class="edit-job-form">
                 <div class="form-group">
-                    <label for="editJobTitle">Job Title</label>
+                    <label for="editJobTitle" data-translate="job-title">Job Title</label>
                     <input type="text" id="editJobTitle" name="jobTitle" required>
                 </div>
                 <div class="form-group">
-                    <label for="editCompanyName">Company Name</label>
+                    <label for="editCompanyName" data-translate="company-name">Company Name</label>
                     <input type="text" id="editCompanyName" name="companyName" required>
                 </div>
                 <div class="form-group">
-                    <label for="editJobType">Job Type</label>
+                    <label for="editJobType" data-translate="job-type">Job Type</label>
                     <select id="editJobType" name="jobType" required>
-                        <option value="full-time">Full Time</option>
-                        <option value="part-time">Part Time</option>
-                        <option value="contract">Contract</option>
-                        <option value="internship">Internship</option>
+                        <option value="full-time" data-translate="Full Time">Full Time</option>
+                        <option value="part-time" data-translate="Part Time">Part Time</option>
+                        <option value="contract" data-translate="Contract">Contract</option>
+                        <option value="internship" data-translate="Internship">Internship</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="editLocation">Location</label>
-                    <input type="text" id="editLocation" name="location" required>
+                    <label for="editCategory" data-translate="industry-category">Industry Category</label>
+                    <select id="editCategory" name="category" required>
+                        <option value="" data-translate="select-industry">Select Industry Category</option>
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="editSalary">Salary</label>
+                    <label for="editLocation" data-translate="location">Location</label>
+                    <select id="editLocation" name="location" required>
+                        <option value="">Select Location</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editSalary" data-translate="salary">Salary</label>
                     <input type="text" id="editSalary" name="salary" required>
                 </div>
                 <div class="form-group">
-                    <label for="editJobDescription">Job Description</label>
+                    <label for="editJobDescription" data-translate="job-description">Job Description</label>
                     <textarea id="editJobDescription" name="jobDescription" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="editRequirements">Requirements</label>
+                    <label for="editRequirements" data-translate="requirements">Requirements</label>
                     <textarea id="editRequirements" name="requirements" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="editBenefits">Benefits</label>
+                    <label for="editBenefits" data-translate="benefits">Benefits</label>
                     <textarea id="editBenefits" name="benefits" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="editApplicationDeadline">Application Deadline</label>
+                    <label for="editApplicationDeadline" data-translate="application-deadline">Application Deadline</label>
                     <input type="date" id="editApplicationDeadline" name="applicationDeadline" required>
                 </div>
                 <div class="form-group">
-                    <label for="editContactEmail">Contact Email</label>
+                    <label for="editContactEmail" data-translate="contact-email">Contact Email</label>
                     <input type="email" id="editContactEmail" name="contactEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="editStatus">Status</label>
+                    <label for="editStatus" data-translate="Status">Status</label>
                     <select id="editStatus" name="status" required>
-                        <option value="active">Active</option>
-                        <option value="closed">Closed</option>
+                        <option value="active" data-translate="Active">Active</option>
+                        <option value="closed" data-translate="Closed">Closed</option>
                     </select>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="cancel-btn" onclick="closeEditPopup()">Cancel</button>
-                    <button type="submit" class="save-btn">Save Changes</button>
+                    <button type="button" class="cancel-btn" onclick="closeEditPopup()" data-translate="cancel">Cancel</button>
+                    <button type="submit" class="save-btn" data-translate="save-changes">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -329,11 +347,11 @@
          
    <div class="chat-widget" id="chatWidget">
         <div class="chat-header">
-            <h3>Messages</h3>
-            <button class="minimize-btn" id="minimizeChat">
+            <h3 data-translate="Messages">Messages</h3>
+            <button class="minimize-btn" id="minimizeChat" title="Minimize">
                 <i class="ri-subtract-line"></i>
             </button>
-            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;" data-translate="Update Chat Names">Update Chat Names</button>
         </div>
         <div class="chat-body" id="chatBody">
             <div class="chat-list" id="chatList">
@@ -342,8 +360,8 @@
                 <div class="messages-container" id="messagesContainer">
                 </div>
                 <div class="message-input">
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="sendMessage">
+                    <input type="text" id="messageInput" data-translate-placeholder="type-your-message" placeholder="Type your message...">
+                    <button id="sendMessage" title="Send">
                         <i class="ri-send-plane-fill"></i>
                     </button>
                 </div>
@@ -355,5 +373,7 @@
         <i class="ri-message-2-line"></i>
     </button>
     <script type="module" src="../js/chat.js"></script>
+    <script type="module" src="../js/translations.js"></script>
+
 </body>
 </html> 

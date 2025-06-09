@@ -102,14 +102,22 @@ loginForm.addEventListener('submit', async (e) => {
     const validation = validateLoginForm(email, password);
     if (!validation.isValid) {
         if (!email || !password) {
-            generalError.textContent = 'Please fill in all fields';
+            generalError.innerHTML = '<span data-translate="fill-fields">Please fill in all fields</span>';
+             if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         } else {
-            generalError.textContent = 'Email or password is invalid';
+            generalError.innerHTML = '<span data-translate="incorrect">Email or password is invalid</span>';
+             if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         }
         return;
     }
+    
 
     const result = await signIn(email, password);
+    
 
     if (result.success) {
         try {
@@ -156,13 +164,19 @@ loginForm.addEventListener('submit', async (e) => {
         } else if (result.error.includes('user-not-found') || 
             result.error.includes('wrong-password') || 
             result.error.includes('auth/wrong-password')) {
-            generalError.textContent = 'Email or password is invalid';
+            generalError.innerHTML = '<span data-translate="incorrect">Email or password is invalid</span>';
         } else if (result.error.includes('too-many-requests')) {
-            generalError.textContent = 'Too many failed attempts. Please try again later.';
+            generalError.innerHTML = '<span data-translate="failed-attempts">Too many failed attempts. Please try again later.</span>';
+            if (window.updateTranslations) {
+                window.updateTranslations();
+             }
         } else if (result.error.includes('invalid-email')) {
-            generalError.textContent = 'Please enter a valid email address';
+            generalError.innerHTML = '<span data-translate="enter-valid-email">Please enter a valid email address</span>';
         } else {
-            generalError.textContent = 'Incorrect email or password';
+            generalError.innerHTML = '<span data-translate="incorrect-email-psw">Incorrect email or password</span>';
+             if (window.updateTranslations) {
+                window.updateTranslations();
+             }
         }
     }
 });

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadingSpinner = document.getElementById('loadingSpinner');
     const profileContent = document.querySelector('.profile-content');
     const profileImage = document.getElementById('profileImage');
-    const userName = document.getElementById('userName');
+    const userName3 = document.getElementById('userName3');
     const userEmail = document.getElementById('userEmail');
     const userLocation = document.getElementById('userLocation');
     const userBio = document.getElementById('userBio');
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const userData = userDoc.data();
 
             profileImage.src = userData.profileImage || '../img/logo.png';
-            userName.textContent = userData.name || 'No Name';
+            userName3.textContent = userData.name || 'No Name';
             userEmail.textContent = userData.email || 'No Email';
             userLocation.textContent = userData.location || 'Location not specified';
             userBio.textContent = userData.bio || 'No bio available';

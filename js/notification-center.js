@@ -40,9 +40,9 @@ class NotificationCenter {
         this.panel.className = 'notification-panel';
         this.panel.innerHTML = `
             <div class="notification-header">
-                <h3>Notifications</h3>
+                <h3 data-translate="notifications">Notifications</h3>
                 <div class="notification-actions">
-                    <button class="clear-all-btn">Clear All</button>
+                    <button class="clear-all-btn" data-translate="clear-all">Clear All</button>
                     <button class="close-btn-1">&times;</button>
                 </div>
             </div>
@@ -255,6 +255,9 @@ class NotificationCenter {
                 this.renderNotifications();
             });
             this.unsubscribers.push(unsubscribe);
+             if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
         } catch (error) {
             console.error('DEBUG: Error loading notifications:', error);
         }
@@ -363,17 +366,31 @@ class NotificationCenter {
                 jobId: application.jobId,
                 jobTitle: job.jobTitle || 'Untitled Job',
                 message: application.status === 'approved' 
-                    ? `${jobPosterName} has approved your application for <strong>${job.jobTitle || 'Untitled Job'}</strong>!`
-                    : `${jobPosterName} has rejected your application for <strong>${job.jobTitle || 'Untitled Job'}</strong>.`,
+                    ? {
+                        jobPosterName: jobPosterName,
+                        jobTitle: job.jobTitle || 'Untitled Job',
+                        type: 'approved'
+                    }
+                    : {
+                        jobPosterName: jobPosterName,
+                        jobTitle: job.jobTitle || 'Untitled Job',
+                        type: 'rejected'
+                    },
                 timestamp: new Date().toISOString(),
                 read: false,
                 userId: userId
             };
+            if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
 
 
             const docRef = await addDoc(collection(db, 'notifications'), notificationData);
 
             await this.loadNotifications(userId);
+            if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
         } catch (error) {
             console.error('❌ Error creating status notification:', error);
         }
@@ -440,12 +457,15 @@ class NotificationCenter {
                             <i class="fa-solid fa-bell-slash"></i>
                         </div>
                         <div class="notification-message">
-                            <h4>No Notifications Found</h4>
-                            <p>You'll receive notifications here when someone applies to your posted jobs or when your applications are reviewed.</p>
+                            <h4 data-translate="no-notifications">No Notifications Found</h4>
+                            <p data-translate="notification-textt">You'll receive notifications here when someone applies to your posted jobs or when your applications are reviewed.</p>
                         </div>
                     </div>
                 </div>
             `;
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
             return;
         }
 
@@ -467,13 +487,26 @@ class NotificationCenter {
                     </div>
                     <div class="notification-message">
                         ${isStatusNotification ? 
-                            notification.message : 
+                            (() => {
+                                // Handle both old and new message formats
+                                if (typeof notification.message === 'string') {
+                                    return notification.message;
+                                } else if (notification.message && typeof notification.message === 'object') {
+                                    const jobPosterName = notification.message.jobPosterName || 'The employer';
+                                    const jobTitle = notification.message.jobTitle || 'Untitled Job';
+                                    const type = notification.message.type || notification.status;
+                                    return `<span>${jobPosterName}</span> <span data-translate="has-${type}"></span> <strong>${jobTitle}</strong>${type === 'approved' ? '!' : '.'}`;
+                                } else {
+                                    // Fallback for any other format
+                                    return `<span>The employer</span> <span data-translate="has-${notification.status}"></span> <strong>${notification.jobTitle || 'Untitled Job'}</strong>${notification.status === 'approved' ? '!' : '.'}`;
+                                }
+                            })() : 
                             `<strong>${notification.applicantName}</strong> applied for <strong>${notification.jobTitle}</strong>`
                         }
                     </div>
                     <div class="application-actions">
                         <button class="view-application-btn" data-job-id="${notification.jobId}">
-                            ${isStatusNotification ? 'View Job' : 'View Application'}
+                            ${isStatusNotification ? '<span data-translate="view-job">View Job</span>' : 'View Application'}
                         </button>
                     </div>
                 </div>
@@ -498,6 +531,11 @@ class NotificationCenter {
 
             list.appendChild(item);
         });
+
+        // Apply translations after all notifications are rendered
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
     }
 
     formatTime(timestamp) {
@@ -510,10 +548,10 @@ class NotificationCenter {
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
 
-        if (days > 0) return `${days}d ago`;
-        if (hours > 0) return `${hours}h ago`;
-        if (minutes > 0) return `${minutes}m ago`;
-        return 'Just now';
+        if (days > 0) return `${days}d <span data-translate="ago">ago</span>`;
+        if (hours > 0) return `${hours}h <span data-translate="ago">ago</span>`;
+        if (minutes > 0) return `${minutes}m <span data-translate="ago">ago</span>`;
+        return '<span data-translate="just-now">Just now</span>';
     }
 
     togglePanel() {

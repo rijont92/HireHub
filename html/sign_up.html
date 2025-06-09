@@ -15,13 +15,20 @@
     <div class="all-cnt">
     <div class="container container-signup">
         <div class="right">
-            <div class="logo">
-                <a href="../index.html"><img src="../img/logo.png" alt="logo"></a>
+            <div class="roww">
+    
+              <div class="logo">
+                 <a href="../index.html"><img src="../img/logo.png" alt="logo"></a>
+              </div>
+
+                <span id="currentLanguage" onclick="toggleLanguage()">
+                   <img src="../img/albanian-flag.svg" alt="Albanian" class="language-flag" id="languageFlag">
+                </span>
             </div>
 
-            <h2>Create new account</h2>
+            <h2 data-translate="create-account1">Create new account</h2>
 
-            <p class="new-here">Already a member? <a href="login.html">Log in</a></p>
+            <p class="new-here"><span data-translate="already-member">Already a member?</span> <a href="login.html" data-translate="login">Log in</a></p>
 
             <div class="form">
                 <form id="signupForm">
@@ -32,19 +39,19 @@
                         </div>
                         
                         <div class="input-row">
-                            <label for="name">Full Name</label>
+                            <label for="name" data-translate="full-name">Full Name</label>
                             <input type="text" id="name" >
                             <p id="error-name"></p>
                         </div>
 
                         <div class="input-row">
-                            <label for="email">Enter email id</label>
+                            <label for="email" data-translate="enter-email">Enter email id</label>
                             <input type="email" id="email" >
                             <p id="error-email"></p>
                         </div>
 
                         <div class="input-row">
-                            <label for="password">Enter password</label>
+                            <label for="password" data-translate="enter-password">Enter password</label>
                             <div class="password-row">
                                 <input type="password" id="password">
                                 <i class="fa-solid fa-eye-slash" id="icon"></i>
@@ -53,7 +60,7 @@
                         </div>
 
                         <div class="input-row">
-                            <label for="password2">Confirm password</label>
+                            <label for="password2" data-translate="confirm-password">Confirm password</label>
                             <div class="password-row">
                                 <input type="password" id="password2">
                                 <i class="fa-solid fa-eye-slash" id="icon2"></i>
@@ -65,23 +72,24 @@
                     <div class="remember-forgot-row">
                         <div class="remember-me">
                             <input type="checkbox" id="check">
-                            <label for="check">Remember me?</label>
+                            <label for="check" data-translate="remember-me">Remember me?</label>
                         </div>
                     </div>
 
-                    <input type="submit" id="submit" value="Sign Up">
+                    <button type="submit" id="submit" value="Sign Up" data-translate="signup">Sign Up</button>
 
                     <div class="or-signin-with">
                         <hr>
-                        <p>Or sign in with</p>
+                        <p data-translate="or-signin-with">Or sign in with</p>
                     </div>
 
                     <div class="google">
                         <i class="fa-brands fa-google"></i>
-                        <p>Sign in with Google</p>
+                        <p><span data-translate="or-signin-with"></span> Google</p>
                     </div>
 
-                    <p class="last">&copy; <span style="color: unset; font-weight: unset;" id="date"></span> <span>Hire Hub</span> All rights reserved</p>
+                    <p class="last">&copy; <span style="color: unset; font-weight: unset;" id="date"></span> <span>Hire Hub</span> <span style="color: unset;" data-translate="all-rights-reserved">All rights reserved</span></p>
+                    
                 </form>
             </div>
         </div>
@@ -95,5 +103,7 @@
     </div>
 
     <script type="module" src="../js/signup.js"></script>
+    <script type="module" src="../js/translations.js"></script>
+    <script type="module" src="../js/header.js"></script>
 </body>
 </html>

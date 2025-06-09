@@ -21,10 +21,10 @@
     <link rel="stylesheet" href="../css/chat.css">
 </head>
 <body>
-  <header class="header">
+<header class="header">
         <nav class="nav container">
            <div class="nav__data">
-              <a href="#" class="nav__logo">
+              <a href="../index.html" class="nav__logo">
                  <img src="../img/logo.png" alt="logo">
               </a>
 
@@ -65,12 +65,12 @@
            <!--=============== NAV MENU ===============-->
            <div class="nav__menu" id="nav-menu">
               <ul class="nav__list">
-                 <li><a href="../index.html" class="nav__link">Home</a></li>
-                 <li><a href="jobs.html" class="nav__link">Jobs</a></li>
-                 <li><a href="post-job.html" class="nav__link active">Post a Job</a></li>
+                 <li><a href="../index.html" class="nav__link" data-translate="Home">Home</a></li>
+                 <li><a href="jobs.html" class="nav__link " data-translate="Jobs">Jobs</a></li>
+                 <li><a href="post-job.html" class="nav__link active" data-translate="Post a Job">Post a Job</a></li>
                 
-                 <li><a href="about.html" class="nav__link">About</a></li>
-                 <li><a href="contact.html" class="nav__link">Contact</a></li>
+                 <li><a href="about.html" class="nav__link" data-translate="About">About</a></li>
+                 <li><a href="contact.html" class="nav__link" data-translate="Contact">Contact</a></li>
                   <li class="dropdown__item">
                      <div class="nav__link">
                         <span id="accountText">Account <i class="ri-arrow-down-s-line dropdown__arrow"></i></span>
@@ -87,6 +87,23 @@
                      </div>
                      <ul class="dropdown__menu" id="accountMenu">
                      </ul>
+
+                        <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="notification-bell ">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="notification-count"></div>
+                  </div>   
+                  </a>
+                 </li>
+
+                      <li class="dropdown__item">
+                     <div class="nav__link">
+                        <span id="currentLanguage" onclick="toggleLanguage()">
+                           <img src="../img/albanian-flag.png" alt="Albanian" class="language-flag" id="languageFlag">
+                        </span>
+                     </div>
+                  </li>
                   </li>
                  <!-- <li><a href="#" class="nav__link" id="headerChatBtn"><i class="ri-message-2-line"></i> Messages</a></li> -->
 
@@ -106,14 +123,7 @@
                      </a>
                   </li> -->
 
-                 <li class="nonee none2">
-                  <a href="#" class="nav__link">
-                  <div class="notification-bell ">
-                     <i class="fa-regular fa-bell"></i>
-                     <div class="notification-count"></div>
-                  </div>   
-                  </a>
-                 </li>
+              
 
                  
 <!-- 
@@ -141,91 +151,91 @@
             <div class="post-job-container">
                <div class="blured">
                 <div class="post-job-header">
-                    <h1>Post a New Job</h1>
-                    <p>Fill out the form below to post your job listing</p>
+                    <h1 data-translate="post-new-job">Post a New Job</h1>
+                    <p data-translate="fill-form">Fill out the form below to post your job listing</p>
                 </div>
 
                 <form class="post-job-form" id="postJobForm">
                     <div class="form-group">
-                        <label for="jobTitle">Job Title <span>*</span></label>
-                        <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Senior Web Developer" >
+                        <label for="jobTitle"><span data-translate="job-title" style="color: unset;">Job Title</span> <span>*</span></label>
+                        <input type="text" id="jobTitle" name="jobTitle" data-translate-placeholder="enter-company-title" placeholder="Enter your company name">
                     </div>
 
                     <div class="form-group">
-                        <label for="companyName">Company Name <span>*</span></label>
-                        <input type="text" id="companyName" name="companyName" placeholder="Enter your company name" >
+                        <label for="companyName"><span data-translate="company-name" style="color: unset;">Company Name</span> <span>*</span></label>
+                        <input type="text" id="companyName" name="companyName" data-translate-placeholder="enter-company" placeholder="Enter your company name">
                     </div>
 
                     <div class="form-group">
-                        <label for="jobType">Job Type</label>
-                        <select id="jobType" name="jobType" required>
-                            <option value="">Select Job Type</option>
-                            <option value="full-time">Full Time</option>
-                            <option value="part-time">Part Time</option>
-                            <option value="contract">Contract</option>
-                            <option value="internship">Internship</option>
+                        <label for="jobType"><span data-translate="job-type" style="color: unset;">Company Name</span> <span>*</span></label>
+                        <select id="jobType" name="jobType">
+                            <option value="" data-translate="select-job-type">Select Job Type</option>
+                            <option value="full-time" data-translate="Full Time">Full Time</option>
+                            <option value="part-time" data-translate="Part Time">Part Time</option>
+                            <option value="contract" data-translate="Contract">Contract</option>
+                            <option value="internship" data-translate="Internship">Internship</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="category">Industry Category</label>
-                        <select id="category" name="category" required>
-                              <option value="">Select Industry Category</option>
-                              <option value="IT & Software">IT & Software</option>
-                              <option value="Design & Creative">Design & Creative</option>
-                              <option value="Marketing">Marketing</option>
-                              <option value="Sales">Sales</option>
-                              <option value="Customer Service">Customer Service</option>
-                              <option value="Finance">Finance</option>
-                              <option value="Healthcare">Healthcare</option>
-                              <option value="Education">Education</option>
-                              <option value="Engineering">Engineering</option>
-                              <option value="Manufacturing">Manufacturing</option>
-                              <option value="Retail">Retail</option>
-                              <option value="Hospitality">Hospitality</option>
-                              <option value="Transportation">Transportation</option>
-                              <option value="Construction">Construction</option>
-                              <option value="Media & Entertainment">Media & Entertainment</option>
-                              <option value="Non-Profit">Non-Profit</option>
-                              <option value="Government">Government</option>
-                              <option value="Legal">Legal</option>
-                              <option value="Human Resources">Human Resources</option>
-                              <option value="Administrative">Administrative</option>
-                              <option value="Research & Development">Research & Development</option>
-                              <option value="Quality Assurance">Quality Assurance</option>
-                              <option value="Project Management">Project Management</option>
-                              <option value="Product Management">Product Management</option>
-                              <option value="Business Development">Business Development</option>
-                              <option value="Consulting">Consulting</option>
-                              <option value="Real Estate">Real Estate</option>
-                              <option value="Insurance">Insurance</option>
-                              <option value="Banking">Banking</option>
-                              <option value="Telecommunications">Telecommunications</option>
-                              <option value="Energy & Utilities">Energy & Utilities</option>
-                              <option value="Agriculture">Agriculture</option>
-                              <option value="Environmental">Environmental</option>
-                              <option value="Security">Security</option>
-                              <option value="Logistics">Logistics</option>
-                              <option value="Supply Chain">Supply Chain</option>
-                              <option value="Architecture">Architecture</option>
-                              <option value="Art & Design">Art & Design</option>
-                              <option value="Fashion">Fashion</option>
-                              <option value="Food & Beverage">Food & Beverage</option>
-                              <option value="Sports & Fitness">Sports & Fitness</option>
-                              <option value="Travel & Tourism">Travel & Tourism</option>
-                              <option value="Other">Other</option>
+                        <label for="category"><span data-translate="industry-category" style="color: unset;">Industry Category</span> <span>*</span></label>
+                        <select id="category" name="category">
+                            <option value="" data-translate="select-industry">Select Industry Category</option>
+                            <option value="IT & Software" data-translate="IT & Software">IT & Software</option>
+                            <option value="Design & Creative" data-translate="Design & Creative">Design & Creative</option>
+                            <option value="Marketing" data-translate="Marketing">Marketing</option>
+                            <option value="Sales" data-translate="Sales">Sales</option>
+                            <option value="Customer Service" data-translate="Customer Service">Customer Service</option>
+                            <option value="Finance" data-translate="Finance">Finance</option>
+                            <option value="Healthcare" data-translate="Healthcare">Healthcare</option>
+                            <option value="Education" data-translate="Education">Education</option>
+                            <option value="Engineering" data-translate="Engineering">Engineering</option>
+                            <option value="Manufacturing" data-translate="Manufacturing">Manufacturing</option>
+                            <option value="Retail" data-translate="Retail">Retail</option>
+                            <option value="Hospitality" data-translate="Hospitality">Hospitality</option>
+                            <option value="Transportation" data-translate="Transportation">Transportation</option>
+                            <option value="Construction" data-translate="Construction">Construction</option>
+                            <option value="Media & Entertainment" data-translate="Media & Entertainment">Media & Entertainment</option>
+                            <option value="Non-Profit" data-translate="Non-Profit">Non-Profit</option>
+                            <option value="Government" data-translate="Government">Government</option>
+                            <option value="Legal" data-translate="Legal">Legal</option>
+                            <option value="Human Resources" data-translate="Human Resources">Human Resources</option>
+                            <option value="Administrative" data-translate="Administrative">Administrative</option>
+                            <option value="Research & Development" data-translate="Research & Development">Research & Development</option>
+                            <option value="Quality Assurance" data-translate="Quality Assurance">Quality Assurance</option>
+                            <option value="Project Management" data-translate="Project Management">Project Management</option>
+                            <option value="Product Management" data-translate="Product Management">Product Management</option>
+                            <option value="Business Development" data-translate="Business Development">Business Development</option>
+                            <option value="Consulting" data-translate="Consulting">Consulting</option>
+                            <option value="Real Estate" data-translate="Real Estate">Real Estate</option>
+                            <option value="Insurance" data-translate="Insurance">Insurance</option>
+                            <option value="Banking" data-translate="Banking">Banking</option>
+                            <option value="Telecommunications" data-translate="Telecommunications">Telecommunications</option>
+                            <option value="Energy & Utilities" data-translate="Energy & Utilities">Energy & Utilities</option>
+                            <option value="Agriculture" data-translate="Agriculture">Agriculture</option>
+                            <option value="Environmental" data-translate="Environmental">Environmental</option>
+                            <option value="Security" data-translate="Security">Security</option>
+                            <option value="Logistics" data-translate="Logistics">Logistics</option>
+                            <option value="Supply Chain" data-translate="Supply Chain">Supply Chain</option>
+                            <option value="Architecture" data-translate="Architecture">Architecture</option>
+                            <option value="Art & Design" data-translate="Art & Design">Art & Design</option>
+                            <option value="Fashion" data-translate="Fashion">Fashion</option>
+                            <option value="Food & Beverage" data-translate="Food & Beverage">Food & Beverage</option>
+                            <option value="Sports & Fitness" data-translate="Sports & Fitness">Sports & Fitness</option>
+                            <option value="Travel & Tourism" data-translate="Travel & Tourism">Travel & Tourism</option>
+                            <option value="Other" data-translate="Other">Other</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="location">Location <span>*</span></label>
-                        <select id="location" name="location" required>
-                              <option value="">Select Location</option>
-                                 <option value="Prishtina">Prishtina</option>
+                        <label for="location"><span data-translate="location" style="color: unset;">Location</span> <span>*</span></label>
+                        <select id="location" name="location">
+                              <option value="" data-translate="select-location">Select Location</option>
+                                 <option value="Prishtinë">Prishtinë</option>
                                  <option value="Prizren">Prizren</option>
-                                 <option value="Gjakova">Gjakova</option>
-                                 <option value="Peja">Peja</option>
-                                 <option value="Mitrovica">Mitrovica</option>
+                                 <option value="Gjakovë">Gjakovë</option>
+                                 <option value="Pejë">Pejë</option>
+                                 <option value="Mitrovicë">Mitrovicë</option>
                                  <option value="Ferizaj">Ferizaj</option>
                                  <option value="Gjilan">Gjilan</option>
                                  <option value="Vushtrri">Vushtrri</option>
@@ -254,93 +264,92 @@
                                  <option value="Ranillug">Ranillug</option>
                                  <option value="Kllokot">Kllokot</option>
                                  <option value="Partesh">Partesh</option>
-                                 <option value="Novo Brdo">Novo Brdo</option>
+                                 <option value="Novobërd">Novobërd</option>
                                  <option value="Zubin Potok">Zubin Potok</option>
-                                 <option value="Zvečan">Zvečan</option>
-                                 <option value="Leposavić">Leposavić</option>
+                                 <option value="Zveçan">Zveçan</option>
+                                 <option value="Leposaviç">Leposaviç</option>
                                  <option value="North Mitrovica">North Mitrovica</option>
                               <option value="Other">Other</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="salary">Salary Range <span>*</span></label>
+                        <label for="salary"><span data-translate="salary-range" style="color: unset;">Salary Range</span> <span>*</span></label>
                         <input type="text" id="salary" name="salary" placeholder="e.g. €1000 - €2000">
                     </div>
 
                     <div class="form-group">
-                        <label for="vacancy">Number of Vacancies <span>*</span></label>
+                        <label for="vacancy"><span data-translate="number-vacancies" style="color: unset;">Number of Vacancies</span> <span>*</span></label>
                         <input type="number" id="vacancy" name="vacancy" min="1" >
                     </div>
 
                     <div class="form-group">
-                        <label for="jobDescription">Job Description <span>*</span></label>
-                        <textarea id="jobDescription" name="jobDescription" rows="6" placeholder="Describe the job responsibilities and requirements..." ></textarea>
+                        <label for="jobDescription"><span data-translate="job-description" style="color: unset;">Job Description</span> <span>*</span></label>
+                        <textarea id="jobDescription" name="jobDescription" rows="6" data-translate-placeholder="describe-job" placeholder="Describe the job responsibilities and requirements..." ></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="requirements">Requirements <span>*</span></label>
-                        <textarea id="requirements" name="requirements" rows="4" placeholder="List the  skills and qualifications..." ></textarea>
+                        <label for="requirements"><span data-translate="requirements" style="color: unset;">Requirements</span> <span>*</span></label>
+                        <textarea id="requirements" name="requirements" rows="4" data-translate-placeholder="list-skills" placeholder="List the skills and qualifications..." ></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="benefits">Benefits</label>
-                        <textarea id="benefits" name="benefits" required></textarea>
+                        <label for="benefits"><span data-translate="benefits" style="color: unset;">Benefits</span> <span>*</span></label>
+                        <textarea id="benefits" name="benefits" ></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label for="applicationDeadline">Application Deadline</label>
-                        <input type="date" id="applicationDeadline" name="applicationDeadline" required>
+                        <label for="applicationDeadline"><span data-translate="application-deadline" style="color: unset;">Application Deadline</span> <span>*</span></label>
+                        <input type="date" id="applicationDeadline" name="applicationDeadline" >
                     </div>
 
                     <div class="form-group">
-                        <label for="contactEmail">Contact Email</label>
-                        <input type="email" id="contactEmail" name="contactEmail" required>
+                        <label for="contactEmail"><span data-translate="contact-email" style="color: unset;">Contact Email</span> <span>*</span></label>
+                        <input type="email" id="contactEmail" name="contactEmail" >
                     </div>
 
                     <div class="form-group">
-                        <label for="companyLogo">Company Logo</label>
-                        <input type="file" id="companyLogo" name="companyLogo" accept="image/*" required>
+                        <label for="companyLogo"><span data-translate="company-logo" style="color: unset;">Company Logo</span> <span>*</span></label>
+                        <input type="file" id="companyLogo" name="companyLogo" accept="image/*" >
                         <div class="preview-container">
                             <div class="preview-placeholder">
                                 <i class="fas fa-image"></i>
-                                <p>Click to upload company logo</p>
+                                <p data-translate="upload-logo">Click to upload company logo</p>
                             </div>
                             <img id="logoPreview" style="display: none;" alt="Logo Preview">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="companyLogo">Company Logo</label>
+                        <label for="companyLogo"><span data-translate="promote-job" style="color: unset;">Promote this job</span></label>
 
-                     <div class="hot-job-option">
-                        <div class="hot-job-header">
-                            <input type="checkbox" id="hotJobCheckbox" name="hotJob">
-                            <label for="hotJobCheckbox">Make this a Hot Job (€5)</label>
+                        <div class="hot-job-option">
+                            <div class="hot-job-header">
+                                <input type="checkbox" id="hotJobCheckbox" name="hotJob">
+                                <label for="hotJobCheckbox" data-translate="make-hot-job">Make this a Hot Job (€5)</label>
+                            </div>
+                            <p class="hot-job-description" data-translate="hot-job-description">Hot jobs appear at the top of search results and in the featured section. They get more visibility and attract more applicants.</p>
+                            <div id="paypal-button-container" style="display: none;"></div>
                         </div>
-                        <p class="hot-job-description">Hot jobs appear at the top of search results and in the featured section. They get more visibility and attract more applicants.</p>
-                        <div id="paypal-button-container" style="display: none;"></div>
-                     </div>
-                        
                     </div>
                   </div>
 
                     <div class="form-submit">
-                        <button type="submit" class="submit-btn" id="btn">Post Job</button>
+                        <button type="submit" class="submit-btn" id="btn" data-translate="post-job">Post Job</button>
                     </div>
                 </form>
             </div>
         </div>
      </section>
 
-    <footer>
+   <footer>
       <div class="container">
          <div class="wrapper">
             <div class="footer-widget wrapper-center">
-               <a href="#">
+               <a href="../index.html">
                   <img src="../img/logo.png" alt="" class="logo">
                </a>
-               <p class="desc">
+               <p class="desc" data-translate="footer-dsc">
                   Connecting skilled professionals with top employers for success and growth.
                </p>
                <ul class="socials">
@@ -367,34 +376,34 @@
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Quick Links</h6>
+               <h6 data-translate="quick-links">Quick Links</h6>
                <ul class="links">
-                  <li><a href="../index.html">Home</a></li>
-                  <li><a href="jobs.html">Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="about.html">About</a></li>
-                  <li><a href="contact.html">Contact</a></li>
+                  <li><a href="../index.html" data-translate="Home">Home</a></li>
+                  <li><a href="jobs.html" data-translate="Jobs">Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="about.html" data-translate="About">About</a></li>
+                  <li><a href="contact.html" data-translate="Contact">Contact</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Services</h6>
+               <h6 data-translate="services">Services</h6>
                <ul class="links">
-                  <li><a href="profile.html">Profile</a></li>
-                  <li><a href="saved-jobs.html">Save Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="dashboard.html">Manage Applications</a></li>
-                  <li><a href="settings.html">Settings</a></li>
+                  <li><a href="profile.html" data-translate="Profile">Profile</a></li>
+                  <li><a href="saved-jobs.html" data-translate="Saved Jobs">Saved Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="dashboard.html" data-translate="manage-applications">Manage Applications</a></li>
+                  <li><a href="settings.html" data-translate="Settings">Settings</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Help &amp; Support</h6>
-               <ul class="links">
-                  <li><a href="contact.html">Contact</a></li>
-                  <li><a href="">Live Chat</a></li>
-                  <li><a href="">Privacy Policy</a></li>
-                  <li><a href="">Terms of Service</a></li>
-               </ul>
-            </div>
+            <h6 data-translate="help-support">Help & Support</h6>
+            <ul class="links">
+               <li><a href="contact.html" data-translate="Contact">Contact</a></li>
+               <li><a href="" data-translate="live-chat">Live Chat</a></li>
+               <li><a href="" data-translate="privacy-policy">Privacy Policy</a></li>
+               <li><a href="" data-translate="terms-service">Terms of Service</a></li>
+            </ul>
+         </div>
          </div>
       </div>
    </footer>
@@ -402,25 +411,25 @@
      <div class="popup-overlay" id="popupOverlay" style="display: none;">
         <div class="success-popup">
             <i class="fas fa-check-circle"></i>
-            <h2>Job Posted Successfully!</h2>
-            <p>Your job listing has been posted and is now visible to potential candidates.</p>
-            <button onclick="closePopup()">Continue</button>
+            <h2 data-translate="job-posted-success">Job Posted Successfully!</h2>
+            <p data-translate="job-posted-message">Your job listing has been posted and is now visible to potential candidates.</p>
+            <button onclick="closePopup()" data-translate="continue">Continue</button>
         </div>
      </div>
 
      <div class="popup-overlay" id="loginPopupOverlay" style="display: none;">
         <div class="login-popup">
             <div class="login-popup-header">
-                <h2>Login Required</h2>
+                <h2 data-translate="login-required">Login Required</h2>
                 <button class="close-popup" onclick="closeLoginPopup()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="login-popup-content">
-                <p>You need to be logged in to post a job. Please login or create an account to continue.</p>
+                <p data-translate="login-required-message">You need to be logged in to post a job. Please login or create an account to continue.</p>
                 <div class="login-popup-buttons">
-                    <a href="login.html" class="login-btn">Login</a>
-                    <a href="sign_up.html" class="signup-btn">Sign Up</a>
+                    <a href="login.html" class="login-btn" data-translate="login">Login</a>
+                    <a href="sign_up.html" class="signup-btn" data-translate="signup">Sign Up</a>
                 </div>
             </div>
         </div>
@@ -428,13 +437,13 @@
 
 
      
-   <div class="chat-widget" id="chatWidget">
+     <div class="chat-widget" id="chatWidget">
         <div class="chat-header">
-            <h3>Messages</h3>
-            <button class="minimize-btn" id="minimizeChat">
+            <h3 data-translate="Messages">Messages</h3>
+            <button class="minimize-btn" id="minimizeChat" title="Minimize">
                 <i class="ri-subtract-line"></i>
             </button>
-            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;" data-translate="Update Chat Names">Update Chat Names</button>
         </div>
         <div class="chat-body" id="chatBody">
             <div class="chat-list" id="chatList">
@@ -443,21 +452,22 @@
                 <div class="messages-container" id="messagesContainer">
                 </div>
                 <div class="message-input">
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="sendMessage">
+                    <input type="text" id="messageInput" data-translate-placeholder="type-your-message" placeholder="Type your message...">
+                    <button id="sendMessage" title="Send">
                         <i class="ri-send-plane-fill"></i>
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
     <button class="chat-toggle" id="chatToggle">
         <i class="ri-message-2-line"></i>
     </button>
 
-    <script type="module" src="../js/chat.js"></script>
-     <script type="module" src="../js/header.js"></script>
+      <script type="module" src="../js/chat.js"></script>
+      <script type="module" src="../js/header.js"></script>
+      <script script type="module" src="../js/translations.js"></script>
+     
 
 </body>
 </html> 

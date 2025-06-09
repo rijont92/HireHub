@@ -1,37 +1,61 @@
+import { currentLanguage, translations } from './translations.js';
+
+console.log('Validation module loaded');
+console.log('Current language:', currentLanguage);
+console.log('Available translations:', translations);
+
 function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-        return { isValid: false, message: 'Email is required' };
+    if (!email || email.trim() === '') {
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-email-required']
+        };
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        return { isValid: false, message: 'Please enter a valid email address' };
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-email-invalid']
+        };
     }
     return { isValid: true, message: '' };
 }
 
 function validateName(name) {
-    if (!name) {
-        return { isValid: false, message: 'Name is required' };
+    if (!name || name.trim() === '') {
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-name-required']
+        };
     }
     if (name.length < 2) {
-        return { isValid: false, message: 'Name must be at least 2 characters long' };
-    }
-    if (!/^[a-zA-Z\s'-]+$/.test(name)) {
-        return { isValid: false, message: 'Name can only contain letters, spaces, hyphens, and apostrophes' };
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-name-min']
+        };
     }
     return { isValid: true, message: '' };
 }
 
 function validateLoginPassword(password) {
-    if (!password) {
-        return { isValid: false, message: 'Password is required' };
+    console.log('Validating password:', password);
+    if (!password || password.trim() === '') {
+        console.log('Password is empty, returning validation error');
+        return { 
+            isValid: false, 
+            message: translations[currentLanguage]['validation-password-required'] 
+        };
     }
+    console.log('Password is valid');
     return { isValid: true, message: '' };
 }
 
 function validateSignupPassword(password) {
-    if (!password) {
-        return { isValid: false, message: 'Password is required' };
+    if (!password || password.trim() === '') {
+        return { 
+            isValid: false, 
+            message: translations[currentLanguage]['validation-password-required'] 
+        };
     }
 
     const minLength = 8;
@@ -43,22 +67,22 @@ function validateSignupPassword(password) {
     let errors = [];
 
     if (password.length < minLength) {
-        errors.push('at least 8 characters');
+        errors.push(translations[currentLanguage]['validation-password-min']);
     }
     if (!hasUpperCase || !hasLowerCase) {
-        errors.push('both uppercase and lowercase letters');
+        errors.push(translations[currentLanguage]['validation-password-case']);
     }
     if (!hasNumbers) {
-        errors.push('at least one number');
+        errors.push(translations[currentLanguage]['validation-password-number']);
     }
     if (!hasSpecialChar) {
-        errors.push('at least one special character (!@#$%^&*(),.?":{}|<>)');
+        errors.push(translations[currentLanguage]['validation-password-special']);
     }
 
     if (errors.length > 0) {
         return {
             isValid: false,
-            message: 'Password must contain: ' + errors.join(', ')
+            message: errors.join(' ')
         };
     }
 
@@ -66,13 +90,35 @@ function validateSignupPassword(password) {
 }
 
 function validateConfirmPassword(password, confirmPassword) {
-    if (!confirmPassword) {
-        return { isValid: false, message: 'Please confirm your password' };
+    if (!confirmPassword || confirmPassword.trim() === '') {
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-confirm-password-required']
+        };
     }
     if (password !== confirmPassword) {
-        return { isValid: false, message: 'Passwords do not match' };
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-passwords-dont-match']
+        };
     }
     return { isValid: true, message: '' };
+}
+
+function validatePassword(password) {
+    if (!password || password.trim() === '') {
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-password-required']
+        };
+    }
+    if (password.length < 6) {
+        return {
+            isValid: false,
+            message: translations[currentLanguage]['validation-password-min']
+        };
+    }
+    return { isValid: true };
 }
 
 function validateLoginForm(email, password) {
@@ -112,37 +158,27 @@ function setupLoginValidation() {
     const errorPassword = document.getElementById('error-password');
     const submitButton = document.getElementById('submit');
 
-    let isEmailValid = false;
-    let isPasswordValid = false;
+    console.log('Validation elements:', {
+        emailInput: emailInput,
+        passwordInput: passwordInput,
+        errorEmail: errorEmail,
+        errorEmail,
+        errorPassword: errorPassword,
+        submitButton: submitButton
+    });
 
-    function updateSubmitButton() {
-        submitButton.disabled = !(isEmailValid && isPasswordValid);
-        submitButton.style.opacity = submitButton.disabled ? '0.5' : '1';
+    // Clear error messages on focus
+    if (emailInput && errorEmail) {
+        emailInput.addEventListener('focus', () => {
+            errorEmail.textContent = '';
+        });
     }
 
-    emailInput.addEventListener('input', () => {
-        const result = validateEmail(emailInput.value);
-        errorEmail.textContent = result.message;
-        errorEmail.style.color = result.isValid ? 'green' : 'red';
-        isEmailValid = result.isValid;
-        updateSubmitButton();
-    });
-
-    passwordInput.addEventListener('input', () => {
-        const result = validateLoginPassword(passwordInput.value);
-        errorPassword.textContent = result.message;
-        errorPassword.style.color = result.isValid ? 'green' : 'red';
-        isPasswordValid = result.isValid;
-        updateSubmitButton();
-    });
-
-    emailInput.addEventListener('focus', () => {
-        errorEmail.textContent = '';
-    });
-
-    passwordInput.addEventListener('focus', () => {
-        errorPassword.textContent = '';
-    });
+    if (passwordInput && errorPassword) {
+        passwordInput.addEventListener('focus', () => {
+            errorPassword.textContent = '';
+        });
+    }
 }
 
 function setupSignupValidation() {
@@ -156,70 +192,53 @@ function setupSignupValidation() {
     const errorPassword2 = document.getElementById('error-password2');
     const submitButton = document.getElementById('submit');
 
-    let isNameValid = false;
-    let isEmailValid = false;
-    let isPasswordValid = false;
-    let isPassword2Valid = false;
+    console.log('Signup validation elements:', {
+        nameInput,
+        emailInput,
+        passwordInput,
+        password2Input,
+        errorName,
+        errorEmail,
+        errorPassword,
+        errorPassword2,
+        submitButton
+    });
 
-    function updateSubmitButton() {
-        submitButton.disabled = !(isNameValid && isEmailValid && isPasswordValid && isPassword2Valid);
-        submitButton.style.opacity = submitButton.disabled ? '0.5' : '1';
+    // Clear error messages on focus
+    if (nameInput && errorName) {
+        nameInput.addEventListener('focus', () => {
+            errorName.textContent = '';
+        });
     }
 
-    nameInput.addEventListener('input', () => {
-        const result = validateName(nameInput.value);
-        errorName.textContent = result.message;
-        errorName.style.color = result.isValid ? 'green' : 'red';
-        isNameValid = result.isValid;
-        updateSubmitButton();
-    });
+    if (emailInput && errorEmail) {
+        emailInput.addEventListener('focus', () => {
+            errorEmail.textContent = '';
+        });
+    }
 
-    emailInput.addEventListener('input', () => {
-        const result = validateEmail(emailInput.value);
-        errorEmail.textContent = result.message;
-        errorEmail.style.color = result.isValid ? 'green' : 'red';
-        isEmailValid = result.isValid;
-        updateSubmitButton();
-    });
+    if (passwordInput && errorPassword) {
+        passwordInput.addEventListener('focus', () => {
+            errorPassword.textContent = '';
+        });
+    }
 
-    passwordInput.addEventListener('input', () => {
-        const result = validateSignupPassword(passwordInput.value);
-        errorPassword.textContent = result.message;
-        errorPassword.style.color = result.isValid ? 'green' : 'red';
-        isPasswordValid = result.isValid;
-
-        if (password2Input.value) {
-            const confirmResult = validateConfirmPassword(passwordInput.value, password2Input.value);
-            errorPassword2.textContent = confirmResult.message;
-            errorPassword2.style.color = confirmResult.isValid ? 'green' : 'red';
-            isPassword2Valid = confirmResult.isValid;
-        }
-        updateSubmitButton();
-    });
-
-    password2Input.addEventListener('input', () => {
-        const result = validateConfirmPassword(passwordInput.value, password2Input.value);
-        errorPassword2.textContent = result.message;
-        errorPassword2.style.color = result.isValid ? 'green' : 'red';
-        isPassword2Valid = result.isValid;
-        updateSubmitButton();
-    });
-
-    nameInput.addEventListener('focus', () => {
-        errorName.textContent = '';
-    });
-
-    emailInput.addEventListener('focus', () => {
-        errorEmail.textContent = '';
-    });
-
-    passwordInput.addEventListener('focus', () => {
-        errorPassword.textContent = '';
-    });
-
-    password2Input.addEventListener('focus', () => {
-        errorPassword2.textContent = '';
-    });
+    if (password2Input && errorPassword2) {
+        password2Input.addEventListener('focus', () => {
+            errorPassword2.textContent = '';
+        });
+    }
 }
 
-export { setupLoginValidation, setupSignupValidation, validateLoginForm, validateSignupForm };
+export { 
+    setupLoginValidation, 
+    setupSignupValidation, 
+    validateLoginForm, 
+    validateSignupForm,
+    validateEmail,
+    validateLoginPassword,
+    validateName,
+    validateSignupPassword,
+    validateConfirmPassword,
+    validatePassword
+};

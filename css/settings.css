@@ -369,7 +369,7 @@ input:focus + .toggle-slider {
     outline: none;
 }
 
-#security-section input[type="submit"] {
+#security-section #save-password {
     width: auto;
     padding: 12px 24px;
     background: var(--primary-color);
@@ -383,7 +383,7 @@ input:focus + .toggle-slider {
     margin-top: 10px;
 }
 
-#security-section input[type="submit"]:hover {
+#security-section #save-password:hover {
     background-color: var(--hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);

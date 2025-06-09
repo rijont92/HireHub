@@ -21,25 +21,35 @@
         </div>
 
         <div class="right">
-            <div class="logo">
-                <a href="../index.html"><img src="../img/logo.png" alt="logo"></a>
+            <div class="roww">
+    
+              <div class="logo">
+                 <a href="../index.html"><img src="../img/logo.png" alt="logo"></a>
+              </div>
+
+                <span id="currentLanguage" onclick="toggleLanguage()">
+                   <img src="../img/albanian-flag.svg" alt="Albanian" class="language-flag" id="languageFlag">
+                </span>
             </div>
+           
 
-            <h2>Welcome back</h2>
+           
+            <h2 data-translate="welcome-back">Welcome back</h2>
+            
 
-            <p class="new-here">New here? <a href="sign_up.html">Create an Account</a></p>
+            <p class="new-here"><span data-translate="new-here">New here?</span> <a href="sign_up.html" data-translate="create-account">Create an Account</a></p>
 
             <div class="form">
                 <form id="loginForm">
                     <div class="input-container">
                         <div class="input-row">
-                            <label for="email">Enter email id</label>
+                            <label for="email" data-translate="enter-email">Enter email id</label>
                             <input type="email" id="email" autocomplete="username">
                             <p id="error-email"></p>
                         </div>
 
                         <div class="input-row">
-                            <label for="password">Enter password</label>
+                            <label for="password" data-translate="enter-password">Enter password</label>
                             <div class="password-row">
                                 <input type="password" id="password" autocomplete="current-password">
                                 <i class="fa-solid fa-eye-slash" onclick="changeIcon()" id="icon"></i>
@@ -53,27 +63,27 @@
                     <div class="remember-forgot-row">
                         <div class="remember-me">
                             <input type="checkbox" id="check">
-                            <label for="check">Remember me?</label>
+                            <label for="check" data-translate="remember-me">Remember me?</label>
                         </div>
 
                         <div class="forgot">
-                            <a href="forgot.html">Forgot Password?</a>
+                            <a href="forgot.html" data-translate="forgot-password">Forgot Password?</a>
                         </div>
                     </div>
 
-                    <input type="submit" id="submit" value="Login">
+                    <button type="submit" id="submit" value="Login" data-translate="login">Login</button>
 
                     <div class="or-signin-with">
                         <hr>
-                        <p>Or sign in with</p>
+                        <p data-translate="or-signin-with">Or sign in with</p>
                     </div>
 
                     <div class="google">
                         <i class="fa-brands fa-google"></i>
-                        <p>Sign in with Google</p>
+                        <p><span data-translate="p2">Sign in with</span> Google</p>
                     </div>
 
-                    <p class="last">&copy; <span style="color: unset; font-weight: unset;" id="date"></span> <span>Hire Hub</span> All rights reserved</p>
+                    <p class="last">&copy; <span style="color: unset; font-weight: unset;" id="date"></span> <span>Hire Hub</span> <span style="color: unset;" data-translate="all-rights-reserved">All rights reserved</span></p>
                 </form>
             </div>
         </div>
@@ -82,5 +92,7 @@
 
 
     <script type="module" src="../js/login.js"></script>
+    <script type="module" src="../js/translations.js"></script>
+    <script type="module" src="../js/header.js"></script>
 </body>
 </html>

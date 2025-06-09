@@ -1,3 +1,5 @@
+import { translations, currentLanguage } from './translations.js';
+
         (function() {
             try {
                 emailjs.init("5T7gOiJsCCN0SRMsL");
@@ -20,34 +22,34 @@
             let isValid = true;
             
             if (name.value.trim() === '') {
-                showError(name, 'Name is required');
+                showError(name, translations[currentLanguage]['error-name-required']);
                 isValid = false;
             } else if (name.value.trim().length < 2) {
-                showError(name, 'Name must be at least 2 characters');
+                showError(name, translations[currentLanguage]['error-name-length']);
                 isValid = false;
             }
             
             if (email.value.trim() === '') {
-                showError(email, 'Email is required');
+                showError(email, translations[currentLanguage]['error-email-required']);
                 isValid = false;
             } else if (!isValidEmail(email.value)) {
-                showError(email, 'Please enter a valid email address');
+                showError(email, translations[currentLanguage]['error-email-invalid']);
                 isValid = false;
             }
             
             if (subject.value.trim() === '') {
-                showError(subject, 'Subject is required');
+                showError(subject, translations[currentLanguage]['error-subject-required']);
                 isValid = false;
             } else if (subject.value.trim().length < 5) {
-                showError(subject, 'Subject must be at least 5 characters');
+                showError(subject, translations[currentLanguage]['error-subject-length']);
                 isValid = false;
             }
             
             if (message.value.trim() === '') {
-                showError(message, 'Message is required');
+                showError(message, translations[currentLanguage]['error-message-required']);
                 isValid = false;
             } else if (message.value.trim().length < 10) {
-                showError(message, 'Message must be at least 10 characters');
+                showError(message, translations[currentLanguage]['error-message-length']);
                 isValid = false;
             }
             
@@ -74,7 +76,7 @@
                         console.error('Email sending failed:', error);
                         const errorMessage = document.createElement('div');
                         errorMessage.className = 'error-message';
-                        errorMessage.textContent = 'Failed to send message. Please try again later. Error: ' + error.text;
+                        errorMessage.textContent = translations[currentLanguage]['error-sending-message'] + error.text;
                         document.querySelector('.contact-form').appendChild(errorMessage);
                     })
                     .finally(function() {

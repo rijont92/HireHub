@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { translations, currentLanguage } from './translations.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBy4bVUtUwSUSijmr0Rvjiwu9rlbWBhOG8",
@@ -113,21 +114,21 @@ function displayJobHistory(history) {
                 </div>
             </div>
             <div class="history-item-actions">
-                <button class="view-job-btn" onclick="viewJob('${job.jobId}')">View Job</button>
-                <button class="remove-history-btn" onclick="removeFromHistory('${job.id}')">Remove</button>
+                <button class="view-job-btn" onclick="viewJob('${job.jobId}')" data-translate="view-job">View Job</button>
+                <button class="remove-history-btn" onclick="removeFromHistory('${job.id}')" data-translate="remove">Remove</button>
             </div>
         `;
         historyList.appendChild(historyItem);
+         if (window.updateTranslations) {
+            window.updateTranslations();
+        }
     });
 }
 
 function formatDate(timestamp) {
     const date = timestamp.toDate();
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+    const month = date.toLocaleString('en-US', { month: 'long' });
+    return `${date.getDate()} <span data-translate="${month}">${month}</span> ${date.getFullYear()}`;
 }
 
 window.viewJob = function(jobId) {
