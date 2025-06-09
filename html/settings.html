@@ -21,10 +21,10 @@
 
 </head>
 <body>
-   <header class="header">
+<header class="header">
         <nav class="nav container">
            <div class="nav__data">
-              <a href="#" class="nav__logo">
+              <a href="../index.html" class="nav__logo">
                  <img src="../img/logo.png" alt="logo">
               </a>
 
@@ -65,12 +65,12 @@
            <!--=============== NAV MENU ===============-->
            <div class="nav__menu" id="nav-menu">
               <ul class="nav__list">
-                 <li><a href="../index.html" class="nav__link">Home</a></li>
-                 <li><a href="jobs.html" class="nav__link">Jobs</a></li>
-                 <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                 <li><a href="../index.html" class="nav__link" data-translate="Home">Home</a></li>
+                 <li><a href="jobs.html" class="nav__link " data-translate="Jobs">Jobs</a></li>
+                 <li><a href="post-job.html" class="nav__link" data-translate="Post a Job">Post a Job</a></li>
                 
-                 <li><a href="about.html" class="nav__link">About</a></li>
-                 <li><a href="contact.html" class="nav__link">Contact</a></li>
+                 <li><a href="about.html" class="nav__link" data-translate="About">About</a></li>
+                 <li><a href="contact.html" class="nav__link" data-translate="Contact">Contact</a></li>
                   <li class="dropdown__item">
                      <div class="nav__link">
                         <span id="accountText">Account <i class="ri-arrow-down-s-line dropdown__arrow"></i></span>
@@ -87,6 +87,23 @@
                      </div>
                      <ul class="dropdown__menu" id="accountMenu">
                      </ul>
+
+                     <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="notification-bell ">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="notification-count"></div>
+                  </div>   
+                  </a>
+                 </li>
+
+                      <li class="dropdown__item">
+                     <div class="nav__link">
+                        <span id="currentLanguage" onclick="toggleLanguage()">
+                           <img src="../img/albanian-flag.png" alt="Albanian" class="language-flag" id="languageFlag">
+                        </span>
+                     </div>
+                  </li>
                   </li>
                  <!-- <li><a href="#" class="nav__link" id="headerChatBtn"><i class="ri-message-2-line"></i> Messages</a></li> -->
 
@@ -106,14 +123,7 @@
                      </a>
                   </li> -->
 
-                 <li class="nonee none2">
-                  <a href="#" class="nav__link">
-                  <div class="notification-bell ">
-                     <i class="fa-regular fa-bell"></i>
-                     <div class="notification-count"></div>
-                  </div>   
-                  </a>
-                 </li>
+                 
 
                  
 <!-- 
@@ -138,55 +148,55 @@
 
     <main class="settings-container">
         <div class="settings-sidebar">
-            <h2>Settings</h2>
+            <h2 data-translate="Settings">Settings</h2>
             <ul class="settings-menu">
-                <li class="active" data-tab="profile">Profile</li>
-                <li data-tab="security">Security</li>
+                <li class="active" data-tab="profile" data-translate="Profile">Profile</li>
+                <li data-tab="security" data-translate="Security">Security</li>
             </ul>
         </div>
 
         <div class="settings-content">
             <div class="settings-section active" id="profile-section">
-                <h2>Profile Settings</h2>
+                <h2 data-translate="profile-settings">Profile Settings</h2>
                 <div class="profile-form">
                     <div class="profile-picture">
                         <img src="../img/useri.png" alt="Profile Picture" id="profile-pic">
-                        <button class="change-picture-btn">Change Picture</button>
+                        <button class="change-picture-btn" data-translate="change-picture">Change Picture</button>
                     </div>
                     <form id="profile-form">
                         <div class="form-group">
-                            <label for="name">Name</label>
+                            <label for="name" data-translate="name">Name</label>
                             <input type="text" id="name" name="name" required>
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>
                             <input type="email" id="email" name="email" required>
                         </div>
-                        <button type="submit" class="save-btn">Save Changes</button>
+                        <button type="submit" class="save-btn" data-translate="save-changes">Save Changes</button>
                     </form>
                 </div>
             </div>
 
             <div id="security-section" class="settings-section">
-                <h2>Security</h2>
+                <h2 data-translate="Security">Security</h2>
                 
                 <div class="form">
                     <form id="security-form">
                         <div class="input-container">
                             <div class="input-row">
-                                <label for="reset-email">Enter email id</label>
+                                <label for="reset-email" data-translate="enter-email">Enter email id</label>
                                 <input type="email" id="reset-email" required>
                                 <p id="error-email"></p>
                             </div>
                         </div>
-                        <input type="submit" id="save-password" value="Reset Password">
+                        <button type="submit" id="save-password" data-translate="reset-password">Reset Password</button>
                     </form>
                 </div>
 
                 <div class="delete-account-section">
-                    <h3>Delete Account</h3>
-                    <p>Once you delete your account, there is no going back. Please be certain.</p>
-                    <button id="delete-account-btn" class="delete-btn">Delete Account</button>
+                    <h3 data-translate="delete-account">Delete Account</h3>
+                    <p data-translate="delete-text">Once you delete your account, there is no going back. Please be certain.</p>
+                    <button id="delete-account-btn" class="delete-btn" data-translate="delete-account">Delete Account</button>
                 </div>
             </div>
         </div>
@@ -195,11 +205,11 @@
     <div id="deleteAccountModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closeDeleteModal">&times;</span>
-            <h3>Delete Account</h3>
-            <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+            <h3 data-translate="delete-account">Delete Account</h3>
+            <p data-translate="delete-text-2">Are you sure you want to delete your account? This action cannot be undone.</p>
             <div class="modal-buttons">
-                <button id="confirm-delete" class="delete-btn">Yes, Delete Account</button>
-                <button id="cancel-delete" class="cancel-btn">Cancel</button>
+                <button id="confirm-delete" class="delete-btn" data-translate="yes-delete">Yes, Delete Account</button>
+                <button id="cancel-delete" class="cancel-btn" data-translate="cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -207,43 +217,43 @@
     <div id="passwordResetModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closePasswordModal">&times;</span>
-            <h3>Password Reset Email Sent</h3>
-            <p>We have sent a password reset link to your email. Please check your inbox.</p>
+            <h3 data-translate="password-reset-sent">Password Reset Email Sent</h3>
+            <p data-translate="password-reset-message">We have sent a password reset link to your email. Please check your inbox.</p>
         </div>
     </div>
 
     <div id="accountDeletedModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closeAccountDeletedModal">&times;</span>
-            <h2>Account Deleted</h2>
-            <p>Your account has been successfully deleted.</p>
+            <h2 data-translate="account-deleted">Account Deleted</h2>
+            <p data-translate="account-deleted-message">Your account has been successfully deleted.</p>
         </div>
     </div>
 
     <div id="passwordConfirmModal" class="modal">
         <div class="modal-content">
             <span class="close" id="closePasswordConfirmModal">&times;</span>
-            <h2>Confirm Password</h2>
-            <p>Please enter your current password to confirm the email change:</p>
+            <h2 data-translate="confirm-password">Confirm Password</h2>
+            <p data-translate="confirm-password-message">Please enter your current password to confirm the email change:</p>
             <div class="form-group">
-                <input type="password" id="confirm-password" class="form-input" placeholder="Enter your current password">
+                <input type="password" id="confirm-password" class="form-input" data-translate-placeholder="enter-current-password" placeholder="Enter your current password">
                 <div id="password-error" class="error-message"></div>
             </div>
             <div class="modal-buttons">
-                <button id="confirm-password-btn" class="save-btn">Confirm</button>
-                <button id="cancel-password-btn" class="cancel-btn">Cancel</button>
+                <button id="confirm-password-btn" class="save-btn" data-translate="confirm">Confirm</button>
+                <button id="cancel-password-btn" class="cancel-btn" data-translate="cancel">Cancel</button>
             </div>
         </div>
     </div>
 
- <footer>
+<footer>
       <div class="container">
          <div class="wrapper">
             <div class="footer-widget wrapper-center">
-               <a href="#">
+               <a href="../index.html">
                   <img src="../img/logo.png" alt="" class="logo">
                </a>
-               <p class="desc">
+               <p class="desc" data-translate="footer-dsc">
                   Connecting skilled professionals with top employers for success and growth.
                </p>
                <ul class="socials">
@@ -270,47 +280,46 @@
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Quick Links</h6>
+               <h6 data-translate="quick-links">Quick Links</h6>
                <ul class="links">
-                  <li><a href="../index.html">Home</a></li>
-                  <li><a href="jobs.html">Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="about.html">About</a></li>
-                  <li><a href="contact.html">Contact</a></li>
+                  <li><a href="../index.html" data-translate="Home">Home</a></li>
+                  <li><a href="jobs.html" data-translate="Jobs">Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="about.html" data-translate="About">About</a></li>
+                  <li><a href="contact.html" data-translate="Contact">Contact</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Services</h6>
+               <h6 data-translate="services">Services</h6>
                <ul class="links">
-                  <li><a href="profile.html">Profile</a></li>
-                  <li><a href="saved-jobs.html">Save Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="dashboard.html">Manage Applications</a></li>
-                  <li><a href="settings.html">Settings</a></li>
+                  <li><a href="profile.html" data-translate="Profile">Profile</a></li>
+                  <li><a href="saved-jobs.html" data-translate="Saved Jobs">Saved Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="dashboard.html" data-translate="manage-applications">Manage Applications</a></li>
+                  <li><a href="settings.html" data-translate="Settings">Settings</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Help &amp; Support</h6>
-               <ul class="links">
-                  <li><a href="contact.html">Contact</a></li>
-                  <li><a href="">Live Chat</a></li>
-                  <li><a href="">Privacy Policy</a></li>
-                  <li><a href="">Terms of Service</a></li>
-               </ul>
-            </div>
+            <h6 data-translate="help-support">Help & Support</h6>
+            <ul class="links">
+               <li><a href="contact.html" data-translate="Contact">Contact</a></li>
+               <li><a href="" data-translate="live-chat">Live Chat</a></li>
+               <li><a href="" data-translate="privacy-policy">Privacy Policy</a></li>
+               <li><a href="" data-translate="terms-service">Terms of Service</a></li>
+            </ul>
+         </div>
          </div>
       </div>
    </footer>
 
-
         
    <div class="chat-widget" id="chatWidget">
         <div class="chat-header">
-            <h3>Messages</h3>
-            <button class="minimize-btn" id="minimizeChat">
+            <h3 data-translate="Messages">Messages</h3>
+            <button class="minimize-btn" id="minimizeChat" title="Minimize">
                 <i class="ri-subtract-line"></i>
             </button>
-            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;" data-translate="Update Chat Names">Update Chat Names</button>
         </div>
         <div class="chat-body" id="chatBody">
             <div class="chat-list" id="chatList">
@@ -319,8 +328,8 @@
                 <div class="messages-container" id="messagesContainer">
                 </div>
                 <div class="message-input">
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="sendMessage">
+                    <input type="text" id="messageInput" data-translate-placeholder="type-your-message" placeholder="Type your message...">
+                    <button id="sendMessage" title="Send">
                         <i class="ri-send-plane-fill"></i>
                     </button>
                 </div>
@@ -335,5 +344,6 @@
     <script type="module" src="../js/chat.js"></script>
     <script type="module" src="../js/header.js"></script>
     <script type="module" src="../js/settings.js"></script>
+    <script script type="module" src="../js/translations.js"></script>
 </body>
 </html> 

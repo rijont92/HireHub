@@ -1,5 +1,6 @@
 import { db } from './firebase-config.js';
 import { collection, query, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { translations, currentLanguage } from './translations.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -71,11 +72,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas ${icon}" style="color: ${color}"></i>
                     </div>
                     <div class="category-content">
-                        <h4>${category}</h4>
+                        <h4 data-translate="${category}">${category}</h4>
                         <p>${count} ${count === 1 ? 'Job' : 'Jobs'}</p>
                     </div>
                 </div>
         `;
+         if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
     }
 
     async function loadPopularCategories() {
@@ -126,6 +130,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const categoryCard = createCategoryCard(category, count);
                 categoriesContainer.innerHTML += categoryCard;
             });
+
+                if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
 
 
         } catch (error) {

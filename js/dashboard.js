@@ -31,8 +31,8 @@ function initializeContentSections() {
 
     contentSections['posted-jobs'].innerHTML = `
         <div class="content-header">
-            <h1>Posted Jobs</h1>
-            <a href="post-job.html" class="btn btn-primary">Post New Job</a>
+            <h1 data-translate="Posted Jobs">Posted Jobs</h1>
+            <a href="post-job.html" class="btn btn-primary" data-translate="Post New Job">Post New Job</a>
         </div>
         <div class="posted-jobs-list" id="posted-jobs-list">
             <!-- Posted jobs will be loaded here -->
@@ -111,6 +111,11 @@ onAuthStateChanged(auth, async (user) => {
                 userAvatarElement.innerHTML = `<i class="ri-user-line"></i>`;
             }
 
+            // Add click event to redirect to profile
+            userAvatarElement.addEventListener('click', () => {
+                window.location.href = 'profile.html';
+            });
+
             initializeContentSections();
             initializeTabLinks();
 
@@ -130,13 +135,11 @@ onAuthStateChanged(auth, async (user) => {
 
 async function loadApplications(userId) {
     try {
-        
         const jobsQuery = query(
             collection(db, 'jobs'),
             where('postedBy', '==', userId)
         );
         const jobsSnapshot = await getDocs(jobsQuery);
-        
         
         const jobIds = jobsSnapshot.docs.map(doc => doc.id);
         
@@ -144,11 +147,14 @@ async function loadApplications(userId) {
             applicationsList.innerHTML = `
                 <div class="no-applications">
                     <i class="ri-inbox-line"></i>
-                    <h3>No Jobs Posted</h3>
-                    <p>You haven't posted any jobs yet. Start by posting a job to receive applications.</p>
-                    <a href="post-job.html" class="btn btn-primary">Post a Job</a>
+                    <h3 data-translate="No Jobs Posted Yet">No Jobs Posted</h3>
+                    <p data-translate="dd1">You haven't posted any jobs yet. Start by posting a job to receive applications.</p>
+                    <a href="post-job.html" class="btn btn-primary" data-translate="post-job-button">Post a Job</a>
                 </div>
             `;
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
             return;
         }
 
@@ -174,19 +180,27 @@ async function loadApplications(userId) {
             return dateB - dateA;
         });
         
-        
         applicationsList.innerHTML = '';
         
         if (allApplications.length === 0) {
             applicationsList.innerHTML = `
                 <div class="no-applications">
                     <i class="ri-inbox-line"></i>
-                    <h3>No Applications Yet</h3>
-                    <p>You haven't received any applications for your posted jobs yet.</p>
+                    <h3 data-translate="no-applications">No Applications Yet</h3>
+                    <p data-translate="o1">You haven't received any applications for your posted jobs yet.</p>
                 </div>
             `;
+            
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
             return;
         }
+        
+        // Create a container for applications
+        const applicationsContainer = document.createElement('div');
+        applicationsContainer.className = 'applications-container';
+        applicationsList.appendChild(applicationsContainer);
         
         for (const applicationDoc of allApplications) {
             const application = applicationDoc.data();
@@ -208,7 +222,6 @@ async function loadApplications(userId) {
                         const userDoc = await getDoc(userDocRef);
                         if (userDoc.exists()) {
                             userData = { ...userData, ...userDoc.data() };
-                        } else {
                         }
                     } catch (userError) {
                         console.error('Error fetching user data:', userError);
@@ -245,6 +258,8 @@ function getInitials(name) {
 }
 
 function displayApplication(applicationId, application, jobData, userData) {
+    const applicationsContainer = document.querySelector('.applications-container');
+    if (!applicationsContainer) return;
     
     const applicationCard = document.createElement('div');
     applicationCard.className = 'application-card';
@@ -265,7 +280,7 @@ function displayApplication(applicationId, application, jobData, userData) {
                 </div>
                 <div class="applicant-details">
                     <h3 onclick="window.location.href='view-profile.html?id=${application.userId}'" style="cursor: pointer;">${application.fullName || 'Anonymous Applicant'}</h3>
-                    <p class="job-title">Applied for: ${jobData?.jobTitle || 'Unknown Job'}</p>
+                    <p class="job-title"><span data-translate="applied-for">Applied for:</span> ${jobData?.jobTitle || 'Unknown Job'}</p>
                     <div class="contact-info">
                         <span class="contact-item">
                             <i class="ri-mail-line"></i>
@@ -279,25 +294,25 @@ function displayApplication(applicationId, application, jobData, userData) {
                 </div>
             </div>
             <div class="application-status ${statusColors[application.status || 'pending']}">
-                ${(application.status || 'pending').charAt(0).toUpperCase() + (application.status || 'pending').slice(1)}
+                <span data-translate="${(application.status || 'pending').charAt(0) + (application.status || 'pending').slice(1)}">${(application.status || 'pending').charAt(0).toUpperCase() + (application.status || 'pending').slice(1)}</span>
             </div>
         </div>
         <div class="application-content">
             <div class="cover-letter">
-                <h4>Cover Letter</h4>
+                <h4 data-translate="cover-letter1">Cover Letter</h4>
                 <p>${application.coverLetter || 'No cover letter provided'}</p>
             </div>
             <div class="application-actions">
                 ${(application.status === 'pending' || !application.status) ? `
                     <button class="btn btn-primary approve-btn" data-application-id="${applicationId}">
-                        <i class="ri-check-line"></i> Approve
+                        <i class="ri-check-line"></i> <span data-translate="Approve">Approve</span>
                     </button>
                     <button class="btn btn-outline reject-btn" data-application-id="${applicationId}">
-                        <i class="ri-close-line"></i> Reject
+                        <i class="ri-close-line"></i> <span data-translate="Reject">Reject</span>
                     </button>
                 ` : ''}
                 <button class="btn btn-danger delete-btn" data-application-id="${applicationId}">
-                    <i class="ri-delete-bin-line"></i> Delete
+                    <i class="ri-delete-bin-line"></i> <span data-translate="remove">Delete</span>
                 </button>
             </div>
         </div>
@@ -324,7 +339,7 @@ function displayApplication(applicationId, application, jobData, userData) {
         });
     }
     
-    applicationsList.appendChild(applicationCard);
+    applicationsContainer.appendChild(applicationCard);
 }
 
 function showStatusUpdateModal(applicationId, newStatus) {
@@ -332,14 +347,14 @@ function showStatusUpdateModal(applicationId, newStatus) {
     modal.className = 'status-update-modal';
     modal.innerHTML = `
         <div class="modal-content">
-            <h3>${newStatus === 'approved' ? 'Approve' : 'Reject'} Application</h3>
+            <h3><span data-translate="${newStatus === 'approved' ? 'Approve' : 'Reject'}">${newStatus === 'approved' ? 'Approve' : 'Reject'}</span> <span data-translate="application">Application</span></h3>
             <div class="form-group">
-                <label for="status-message">Message to Applicant</label>
-                <textarea id="status-message" placeholder="Enter your message to the applicant..." required></textarea>
+                <label for="status-message" data-translate="message-applicant">Message to Applicant</label>
+                <textarea id="status-message" data-translate-placeholder="p1" placeholder="Enter your message to the applicant..." required></textarea>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-outline cancel-btn">Cancel</button>
-                <button class="btn btn-primary confirm-btn">Confirm</button>
+                <button class="btn btn-outline cancel-btn" data-translate="cancel">Cancel</button>
+                <button class="btn btn-primary confirm-btn" data-translate="confirm">Confirm</button>
             </div>
         </div>
     `;
@@ -359,6 +374,10 @@ function showStatusUpdateModal(applicationId, newStatus) {
         await updateApplicationStatus(applicationId, newStatus, message);
         modal.remove();
     });
+
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
 }
 
 function showNotification(message, type = 'success') {
@@ -366,14 +385,22 @@ function showNotification(message, type = 'success') {
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <i class="ri-${type === 'success' ? 'check' : 'close'}-circle-fill"></i>
-        <span>${message}</span>
+        <span data-translate="${message}">${message}</span>
     `;
-    
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
     document.body.appendChild(notification);
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
     
     setTimeout(() => {
         notification.remove();
     }, 3000);
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
 }
 
 async function updateApplicationStatus(applicationId, newStatus, message = '') {
@@ -432,8 +459,8 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             jobId: application.jobId,
             jobTitle: jobData.jobTitle || 'Untitled Job',
             message: newStatus === 'approved' 
-                ? `${jobPosterName} has approved your application for <strong>${jobData.jobTitle || 'Untitled Job'}</strong>!`
-                : `${jobPosterName} has rejected your application for <strong>${jobData.jobTitle || 'Untitled Job'}</strong>.`,
+                ? `${jobPosterName} <span data-translate="has-approved">has approved your application for</span> <strong> ${jobData.jobTitle || 'Untitled Job'}</strong>!`
+                : `${jobPosterName} <span data-translate="has-rejected">has rejected your application for</span> <strong> ${jobData.jobTitle || 'Untitled Job'}</strong>.`,
             timestamp: new Date().toISOString(),
             read: false,
             userId: application.userId, 
@@ -490,9 +517,16 @@ filterSelect.addEventListener('change', filterApplications);
 function filterApplications() {
     const searchInput = document.querySelector('.search-box input');
     const statusFilter = document.querySelector('.filter-dropdown select');
-    const applications = document.querySelectorAll('.application-card');
+    const applicationsList = document.getElementById('applications-list');
+    const applicationsContainer = document.querySelector('.applications-container');
     
-    if (!searchInput || !statusFilter || !applications.length) return;
+    if (!searchInput || !statusFilter || !applicationsList) return;
+    
+    // If there's no applications container, it means there are no applications
+    if (!applicationsContainer) return;
+    
+    const applications = applicationsContainer.querySelectorAll('.application-card');
+    if (!applications.length) return;
     
     const searchTerm = searchInput.value.toLowerCase();
     const selectedStatus = statusFilter.value;
@@ -501,10 +535,11 @@ function filterApplications() {
     applications.forEach(card => {
         const applicantName = card.querySelector('.applicant-details h3')?.textContent.toLowerCase() || '';
         const jobTitle = card.querySelector('.applicant-details p')?.textContent.toLowerCase() || '';
-        const status = card.querySelector('.application-status')?.textContent.toLowerCase() || '';
+        const statusElement = card.querySelector('.application-status span');
+        const status = statusElement?.getAttribute('data-translate')?.toLowerCase() || '';
         
         const matchesSearch = applicantName.includes(searchTerm) || jobTitle.includes(searchTerm);
-        const matchesStatus = selectedStatus === 'all' || status.includes(selectedStatus);
+        const matchesStatus = selectedStatus === 'all' || status === selectedStatus.toLowerCase();
         
         if (matchesSearch && matchesStatus) {
             card.style.display = 'block';
@@ -513,23 +548,27 @@ function filterApplications() {
             card.style.display = 'none';
         }
     });
-
-    const applicationsList = document.getElementById('applications-list');
-    const noResultsMessage = applicationsList.querySelector('.no-results-message');
+    
+    // Remove any existing no-results message
+    const existingNoResults = applicationsList.querySelector('.no-results-message');
+    if (existingNoResults) {
+        existingNoResults.remove();
+    }
     
     if (!hasVisibleResults) {
-        if (!noResultsMessage) {
-            const message = document.createElement('div');
-            message.className = 'no-results-message';
-            message.innerHTML = `
+        const message = document.createElement('div');
+        message.className = 'no-results-message';
+        message.innerHTML = `
+            <div class="no-applications">
                 <i class="ri-search-line"></i>
-                <h3>No Applications Found</h3>
-                <p>No applications match your current filter criteria.</p>
-            `;
-            applicationsList.appendChild(message);
+                <h3 data-translate="no-application-found">No Applications Found</h3>
+                <p data-translate="no-application-text">No applications match your current filter criteria.</p>
+            </div>
+        `;
+        if (window.updateTranslations) {
+            window.updateTranslations();
         }
-    } else if (noResultsMessage) {
-        noResultsMessage.remove();
+        applicationsList.appendChild(message);
     }
 }
 
@@ -555,12 +594,16 @@ async function loadPostedJobs(userId) {
             jobsList.innerHTML = `
                 <div class="no-jobs">
                     <i class="ri-briefcase-line"></i>
-                    <h3>No Jobs Posted</h3>
-                    <p>You haven't posted any jobs yet. Start by posting a job to receive applications.</p>
-                    <a href="post-job.html" class="btn btn-primary">Post a Job</a>
+                    <h3 data-translate="No Jobs Posted Yet">No Jobs Posted</h3>
+                    <p data-translate="dd2">You haven't posted any jobs yet. Start by posting a job to receive applications.</p>
+                    <a href="post-job.html" class="btn btn-primary" data-translate="post-job-button">Post a Job</a>
                 </div>
             `;
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
             return;
+            
         }
         
         jobsSnapshot.forEach(doc => {
@@ -571,19 +614,24 @@ async function loadPostedJobs(userId) {
             jobCard.innerHTML = `
                 <div class="job-header">
                     <h3>${job.jobTitle || 'Untitled Job'}</h3>
-                    <span class="job-status">${job.status || 'Active'}</span>
+                    <span class="job-status" data-translate="${job.status ? job.status.charAt(0).toUpperCase() + job.status.slice(1).toLowerCase() : 'Active'}"</span>
                 </div>
                 <div class="job-details">
                     <p><i class="ri-map-pin-line"></i> ${job.location || 'Location not specified'}</p>
                     <p><i class="ri-money-dollar-circle-line"></i> ${job.salary || 'Salary not specified'}</p>
-                    <p><i class="ri-time-line"></i> Posted ${job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Date not specified'}</p>
+                    <p><i class="ri-time-line"></i> <span data-translate="posted">Posted</span> ${job.postedDate ? new Date(job.postedDate).toLocaleDateString() : 'Date not specified'}</p>
                 </div>
                 <div class="job-actions">
-                    <button class="btn btn-outline" onclick="editJob('${doc.id}')">Edit</button>
+                    <button class="btn btn-outline" onclick="editJob('${doc.id}')" data-translate="edit">Edit</button>
                 </div>
             `;
             jobsList.appendChild(jobCard);
+
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         });
+
     } catch (error) {
         console.error('Error loading posted jobs:', error);
         const jobsList = document.getElementById('posted-jobs-list');
@@ -653,7 +701,43 @@ async function editJob(jobId) {
         document.getElementById('editJobTitle').value = jobData.jobTitle;
         document.getElementById('editCompanyName').value = jobData.companyName;
         document.getElementById('editJobType').value = jobData.jobType;
-        document.getElementById('editLocation').value = jobData.location;
+        
+        // Populate category select
+        const categorySelect = document.getElementById('editCategory');
+        categorySelect.innerHTML = '<option value="" data-translate="select-industry">Select Industry Category</option>'; // Clear existing options
+        
+        const predefinedCategories = [
+            'IT & Software', 'Design & Creative', 'Marketing', 'Sales', 'Customer Service',
+            'Finance', 'Healthcare', 'Education', 'Engineering', 'Manufacturing', 'Retail',
+            'Hospitality', 'Transportation', 'Construction', 'Media & Entertainment',
+            'Non-Profit', 'Government', 'Legal', 'Human Resources', 'Administrative',
+            'Research & Development', 'Quality Assurance', 'Project Management',
+            'Product Management', 'Business Development', 'Consulting', 'Real Estate',
+            'Insurance', 'Banking', 'Telecommunications', 'Energy & Utilities',
+            'Agriculture', 'Environmental', 'Security', 'Logistics', 'Supply Chain',
+            'Architecture', 'Art & Design', 'Fashion', 'Food & Beverage',
+            'Sports & Fitness', 'Travel & Tourism', 'Other'
+        ];
+        
+        predefinedCategories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            option.setAttribute('data-translate', category);
+            categorySelect.appendChild(option);
+        });
+        
+        categorySelect.value = jobData.category || '';
+        
+        // Update translations after populating the select
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
+        
+        // Set the location value in the select dropdown
+        const locationSelect = document.getElementById('editLocation');
+        locationSelect.value = jobData.location || '';
+        
         document.getElementById('editSalary').value = jobData.salary;
         document.getElementById('editJobDescription').value = jobData.jobDescription;
         document.getElementById('editRequirements').value = jobData.requirements;
@@ -691,6 +775,7 @@ document.getElementById('editJobForm').addEventListener('submit', async function
             jobTitle: document.getElementById('editJobTitle').value,
             companyName: document.getElementById('editCompanyName').value,
             jobType: document.getElementById('editJobType').value,
+            category: document.getElementById('editCategory').value,
             location: document.getElementById('editLocation').value,
             salary: document.getElementById('editSalary').value,
             jobDescription: document.getElementById('editJobDescription').value,
@@ -729,14 +814,18 @@ function showConfirmationModal(message, onConfirm) {
     modal.className = 'confirmation-modal';
     modal.innerHTML = `
         <div class="confirmation-modal-content">
-            <h3>Confirm Action</h3>
-            <p>${message}</p>
+            <h3 data-translate="confirm-action">Confirm Action</h3>
+            <p data-translate="are-you-sure">${message}</p>
             <div class="confirmation-modal-actions">
-                <button class="cancel-btn">Cancel</button>
-                <button class="confirm-btn">Confirm</button>
+                <button class="cancel-btn" data-translate="cancel">Cancel</button>
+                <button class="confirm-btn" data-translate="confirm">Confirm</button>
             </div>
         </div>
     `;
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
+    
 
     document.body.appendChild(modal);
 
@@ -748,6 +837,10 @@ function showConfirmationModal(message, onConfirm) {
         modal.remove();
         onConfirm();
     });
+
+   if (window.updateTranslations) {
+        window.updateTranslations();
+    }
 }
 
 async function loadMyApplications(userId) {
@@ -769,14 +862,17 @@ async function loadMyApplications(userId) {
             myApplicationsList.innerHTML = `
                 <div class="no-applications">
                     <i class="ri-inbox-line"></i>
-                    <h3>No Applications Yet</h3>
-                    <p>You haven't submitted any job applications yet. Start your job search journey today!</p>
+                    <h3 data-translate="no-applications">No Applications Yet</h3>
+                    <p data-translate="dd3">You haven't submitted any job applications yet. Start your job search journey today!</p>
                     <a href="jobs.html" class="btn btn-primary">
                         <i class="ri-search-line"></i>
-                        Browse Jobs
+                        <span data-translate="Browse Jobs">Browse Jobs</span>
                     </a>
                 </div>
             `;
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
             return;
         }
 
@@ -816,18 +912,18 @@ async function loadMyApplications(userId) {
                                 </div>
                             </div>
                         </div>
-                        <div class="application-status ${statusColors[application.status || 'pending']}">
+                        <div class="application-status ${statusColors[application.status || 'pending']}" data-translate="${(application.status)}">
                             ${(application.status || 'pending').charAt(0).toUpperCase() + (application.status || 'pending').slice(1)}
                         </div>
                     </div>
                     <div class="application-content">
                         <div class="cover-letter">
-                            <h4>My Cover Letter</h4>
+                            <h4 data-translate="my-cover-letter">My Cover Letter</h4>
                             <p>${application.coverLetter || 'No cover letter provided'}</p>
                         </div>
                         ${application.message ? `
                             <div class="status-message">
-                                <h4>Message from Employer</h4>
+                                <h4 data-translate="message-employer">Message from Employer</h4>
                                 <p>${application.message}</p>
                             </div>
                         ` : ''}
@@ -836,6 +932,9 @@ async function loadMyApplications(userId) {
                 
                 myApplicationsList.appendChild(applicationCard);
                 validApplications++;
+                if (window.updateTranslations) {
+                    window.updateTranslations();
+                }
             } catch (jobError) {
                 console.error('Error loading job data:', jobError);
                 continue;
@@ -921,10 +1020,16 @@ function filterMyApplications() {
             message.className = 'no-results-message';
             message.innerHTML = `
                 <i class="ri-search-line"></i>
-                <h3>No Applications Found</h3>
-                <p>No applications match your current filter criteria.</p>
+                <h3 data-translate="no-application-found">No Applications Found</h3>
+                <p data-translate="no-application-text">No applications match your current filter criteria.</p>
             `;
+              if (window.updateTranslations) {
+                window.updateTranslations();
+            }
             myApplicationsList.appendChild(message);
+             if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         }
     } else if (noResultsMessage) {
         noResultsMessage.remove();

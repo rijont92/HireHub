@@ -705,3 +705,33 @@ a,li {
   object-fit: cover;
 
 }
+
+/* Language selector styles */
+.language-flag {
+    width: 25px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+}
+
+#currentLanguage {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+#currentLanguage .language-flag {
+    margin-right: 0;
+}
+
+.dropdown__menu .language-flag {
+    margin-right: 8px;
+}
+
+.dropdown__menu a {
+    display: flex;
+    align-items: center;
+}

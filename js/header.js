@@ -65,123 +65,150 @@ function initializeUserData() {
     const accountText = document.getElementById('accountText');
     const userProfileRow = document.getElementById('userProfileRow');
     const accountMenu = document.getElementById('accountMenu');
-    const userName = document.getElementById("userName");
-    const userProfileImg = document.getElementById("userProfileImg");
+
+    // Hide menu initially until translations are ready
+    if (accountMenu) {
+        accountMenu.style.visibility = 'hidden';
+    }
+
+    // Apply translations before showing any content
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
 
     // Try to load from cache first
     const cachedUserData = JSON.parse(localStorage.getItem('userData') || '{}');
     if (cachedUserData.name || cachedUserData.profileImage) {
+        const userName = document.getElementById('userName');
+        const userProfileImg = document.getElementById('userProfileImg');
+
         if (userName) {
-            const displayName = cachedUserData.name || 'User';
-            userName.innerHTML = `Hi, ${displayName.length > 20 ? displayName.substring(0, 20) + '...' : displayName}`;
+            userName.textContent = cachedUserData.name || 'User';
         }
         if (userProfileImg) {
             userProfileImg.src = cachedUserData.profileImage || 'img/useri.png';
         }
         if (accountText) accountText.style.display = 'none';
         if (userProfileRow) userProfileRow.style.display = 'flex';
-    } else {
-        // Show loading state if no cache
-        if (accountText) {
-            accountText.innerHTML = 'Loading... <i class="ri-arrow-down-s-line dropdown__arrow"></i>';
-        }
     }
 
     onAuthStateChanged(auth, async (user) => {
         if (user && user.emailVerified) {
-            try {
-                const userDocRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userDocRef);
-                
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    
-                    // Update cache
-                    localStorage.setItem('userData', JSON.stringify(userData));
+            // Show profile row and hide account text
+            if (userProfileRow) {
+                userProfileRow.style.display = 'flex';
+            }
+            if (accountText) {
+                accountText.style.display = 'none';
+            }
 
-                    if (userName) {
-                        const displayName = userData.name || 'User';
-                        userName.innerHTML = `Hi, ${displayName.length > 20 ? displayName.substring(0, 20) + '...' : displayName}`;
-                    }
+            // Only fetch user data if cache is empty or user data has changed
+            const lastUpdate = localStorage.getItem('userDataLastUpdate');
+            const now = Date.now();
+            if (!lastUpdate || (now - parseInt(lastUpdate)) > 300000) { // Update cache every 5 minutes
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const userName = document.getElementById('userName');
+                        const userProfileImg = document.getElementById('userProfileImg');
 
-                    if (userProfileImg) {
-                        userProfileImg.src = userData.profileImage || 'img/useri.png';
-                    }
+                        // Update cache
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                        localStorage.setItem('userDataLastUpdate', now.toString());
 
-                    // Show profile row and hide account text
-                    if (accountText) accountText.style.display = 'none';
-                    if (userProfileRow) userProfileRow.style.display = 'flex';
-
-                    // Populate authenticated menu
-                    const currentPath = window.location.pathname;
-                    if (accountMenu) {
-                        accountMenu.innerHTML = `
-                            <li>
-                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/profile.html' : 'profile.html'}" class="dropdown__link">
-                                    <i class="ri-user-line"></i> Profile
-                                </a>
-                            </li>
-                            <li>
-                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/settings.html' : 'settings.html'}" class="dropdown__link">
-                                    <i class="ri-settings-3-line"></i> Settings
-                                </a>
-                            </li>
-                            <li>
-                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/my-jobs.html' : 'my-jobs.html'}" class="dropdown__link">
-                                    <i class="ri-file-text-line"></i> My Jobs
-                                </a>
-                            </li>
-                            <li>
-                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/saved-jobs.html' : 'saved-jobs.html'}" class="dropdown__link">
-                                    <i class="ri-bookmark-line"></i> Saved Jobs
-                                </a>
-                            </li>
-                            <li>
-                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/history.html' : 'history.html'}" class="dropdown__link">
-                                    <i class="ri-history-line"></i> History
-                                </a>
-                            </li>
-                            <li>
-                                <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/dashboard.html' : 'dashboard.html'}" class="dropdown__link">
-                                    <i class="ri-dashboard-line"></i> Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="dropdown__link" id="logout-btn">
-                                    <i class="ri-logout-box-line"></i> Sign Out
-                                </a>
-                            </li>
-                        `;
-
-                        const logoutBtn = document.getElementById('logout-btn');
-                        if (logoutBtn) {
-                            logoutBtn.addEventListener('click', async (e) => {
-                                e.preventDefault();
-                                try {
-                                    await auth.signOut();
-                                    localStorage.removeItem('userData');
-                                    if(currentPath.endsWith('index.html') || currentPath === '/') {
-                                        window.location.href = 'html/login.html';
-                                    } else {
-                                        window.location.href = 'login.html';
-                                    }
-                                } catch (error) {
-                                    console.error('Error signing out:', error);
-                                }
-                            });
+                        if (userName) {
+                            userName.textContent = userData.name || 'User';
                         }
-
-                        // Set active state for dropdown links
-                        setActiveDropdownLink();
+                        if (userProfileImg && userData.profileImage) {
+                            userProfileImg.src = userData.profileImage;
+                        }
                     }
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
                 }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
+            }
+
+            // Populate authenticated menu
+            const currentPath = window.location.pathname;
+            if (accountMenu) {
+                accountMenu.innerHTML = `
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/profile.html' : 'profile.html'}" class="dropdown__link">
+                            <i class="ri-user-line"></i> <span data-translate="Profile">Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/settings.html' : 'settings.html'}" class="dropdown__link">
+                            <i class="ri-settings-4-line"></i> <span data-translate="Settings">Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/my-jobs.html' : 'my-jobs.html'}" class="dropdown__link">
+                            <i class="ri-briefcase-line"></i> <span data-translate="My Jobs">My Jobs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/saved-jobs.html' : 'saved-jobs.html'}" class="dropdown__link">
+                            <i class="ri-bookmark-line"></i> <span data-translate="Saved Jobs">Saved Jobs</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/history.html' : 'history.html'}" class="dropdown__link">
+                            <i class="ri-history-line"></i> <span data-translate="History">History</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/dashboard.html' : 'dashboard.html'}" class="dropdown__link">
+                            <i class="ri-dashboard-line"></i> <span data-translate="Dashboard">Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown__link" id="logout-btn">
+                            <i class="ri-logout-box-line"></i> <span data-translate="Sign Out">Sign Out</span>
+                        </a>
+                    </li>
+                `;
+
+                // Apply translations after menu is populated
+                if (window.updateTranslations) {
+                    window.updateTranslations();
+                }
+
+                // Show menu after translations are applied
+                accountMenu.style.visibility = 'visible';
+
+                // Set active state for dropdown links
+                setActiveDropdownLink();
+
+                // Add logout functionality
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        try {
+                            await auth.signOut();
+                            localStorage.removeItem('userData');
+                            localStorage.removeItem('userDataLastUpdate');
+                            if(currentPath.endsWith('index.html') || currentPath === '/') {
+                                window.location.href = 'html/login.html';
+                            } else {
+                                window.location.href = 'login.html';
+                            }
+                        } catch (error) {
+                            console.error('Error signing out:', error);
+                        }
+                    });
+                }
             }
         } else {
+            // Clear cache when user is not authenticated
+            localStorage.removeItem('userData');
+            localStorage.removeItem('userDataLastUpdate');
+
             // Show account text and hide profile row
             if (accountText) {
-                accountText.innerHTML = 'Account <i class="ri-arrow-down-s-line dropdown__arrow"></i>';
+                accountText.innerHTML = '<span data-translate="Account">Account</span> <i class="ri-arrow-down-s-line dropdown__arrow"></i>';
                 accountText.style.display = 'inline';
             }
             if (userProfileRow) userProfileRow.style.display = 'none';
@@ -190,12 +217,25 @@ function initializeUserData() {
             const currentPath = window.location.pathname;
             if (accountMenu) {
                 accountMenu.innerHTML = `
-                    <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/login.html' : 'login.html'}" class="dropdown__link"><i class="ri-login-box-line"></i> Log In</a></li>
-                    <li><a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/sign_up.html' : 'sign_up.html'}" class="dropdown__link"><i class="ri-user-add-line"></i> Sign Up</a></li>
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/login.html' : 'login.html'}" class="dropdown__link">
+                            <i class="ri-login-box-line"></i> <span data-translate="Log In">Log In</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="${currentPath.endsWith('index.html') || currentPath === '/' ? 'html/sign_up.html' : 'sign_up.html'}" class="dropdown__link">
+                            <i class="ri-user-add-line"></i> <span data-translate="Sign Up">Sign Up</span>
+                        </a>
+                    </li>
                 `;
 
-                // Set active state for dropdown links
-                setActiveDropdownLink();
+                // Apply translations after menu is populated
+                if (window.updateTranslations) {
+                    window.updateTranslations();
+                }
+
+                // Show menu after translations are applied
+                accountMenu.style.visibility = 'visible';
             }
         }
     });
@@ -214,3 +254,49 @@ document.addEventListener('click', (e) => {
         }, 100);
     }
 });
+
+// Add event listener for page load to set active state
+window.addEventListener('load', () => {
+    setActiveDropdownLink();
+});
+
+// Make toggleLanguage function globally available
+window.toggleLanguage = function() {
+    const currentLang = localStorage.getItem('preferredLanguage') || 'sq';
+    const newLang = currentLang === 'en' ? 'sq' : 'en';
+    setLanguage(newLang);
+}
+
+function setLanguage(lang) {
+    // Store the selected language
+    localStorage.setItem('preferredLanguage', lang);
+    
+    // Update the flag
+    const languageFlag = document.getElementById('languageFlag');
+    if (languageFlag) {
+        const currentPath = window.location.pathname;
+        const isInHtmlFolder = currentPath.includes('/html/');
+        const imgPath = isInHtmlFolder ? '../img/' : 'img/';
+        languageFlag.src = lang === 'en' ? `${imgPath}albanian-flag.svg` : `${imgPath}uk-flag.svg`;
+        languageFlag.alt = lang === 'en' ? 'English' : 'Albanian';
+    }
+    
+    // Call the global setLanguage function from translations.js
+    if (typeof window.setLanguage === 'function') {
+        window.setLanguage(lang);
+    }
+}
+
+// Initialize language on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const savedLanguage = localStorage.getItem('preferredLanguage') || 'sq'; // Default to Albanian
+    setLanguage(savedLanguage);
+});
+
+// Function to update header name
+export function updateHeaderName(newName) {
+    const userName = document.getElementById('userName');
+    if (userName) {
+        userName.textContent = newName || 'User';
+    }
+}

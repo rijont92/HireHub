@@ -85,11 +85,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        console.log('Form submitted');
 
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
+
+        console.log('Form values:', { name, email, password, password2 });
 
         errorEmail.textContent = '';
         errorPassword.textContent = '';
@@ -97,7 +100,10 @@ document.addEventListener("DOMContentLoaded", function () {
         errorName.textContent = '';
 
         const validation = validateSignupForm(name, email, password, password2);
+        console.log('Validation result:', validation);
+
         if (!validation.isValid) {
+            console.log('Validation failed, setting error messages');
             errorName.textContent = validation.errors.name;
             errorName.style.color = 'red';
             errorEmail.textContent = validation.errors.email;
@@ -137,8 +143,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 window.location.href = 'verify-email.html';
             } else {
                 if (result.error.includes('email-already-in-use')) {
-                    errorEmail.textContent = 'An account with this email already exists';
+                    errorEmail.innerHTML = '<span data-translate="alredy-exist">An account with this email already exists</span>';
                     errorEmail.style.color = 'red';
+                    if (window.updateTranslations) {
+                     window.updateTranslations();
+                    }
                 } else if (result.error.includes('invalid-email')) {
                     errorEmail.textContent = 'Please enter a valid email address';
                     errorEmail.style.color = 'red';

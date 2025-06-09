@@ -2,6 +2,9 @@ import { auth, db } from './firebase-config.js';
 import { collection, query, where, getDocs, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { createNewChat, openChat } from './chat.js';
+import { translations } from './translations.js';
+
+let currentLanguage = 'en'; // Default language
 
 document.addEventListener('DOMContentLoaded', function() {
     const featuredContainer = document.getElementById('featured-container');
@@ -16,11 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const diffTime = Math.abs(today - jobDate);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays === 0) return 'Today';
-        if (diffDays === 1) return 'Yesterday';
-        if (diffDays < 7) return `${diffDays} days ago`;
-        if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-        return `${Math.floor(diffDays / 30)} months ago`;
+        if (diffDays === 0) return { type: 'Today' };
+        if (diffDays === 1) return { type: 'Yesterday' };
+        if (diffDays < 7) return { type: 'days ago', number: diffDays };
+        if (diffDays < 30) return { type: 'weeks ago', number: Math.floor(diffDays / 7) };
+        return { type: 'months ago', number: Math.floor(diffDays / 30) };
     }
 
     function calculateProgress(applications, vacancy) {
@@ -58,18 +61,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function createJobCard(job) {
         const progress = calculateProgress(job.applications, job.vacancy);
-        const timeAgo = formatDate(job.postedDate);
+        const timeInfo = formatDate(job.postedDate);
         
         const jobCard = document.createElement('div');
         jobCard.className = 'job-card';
 
-          const status_r = {
-                "full-time":"Full Time",
-                "part-time":"Part Time",
-                "contract":"Contract",
-                "internship":"Internship"
-            }
-        
+        const status_r = {
+            "full-time": "full-time",
+            "part-time": "part-time",
+            "contract": "contract",
+            "internship": "internship"
+        }
         
         jobCard.innerHTML = `
             <a href="html/single-job.html?id=${job.id}">
@@ -84,13 +86,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <h4>${job.companyName}</h4>
                                 </div>
                                 <div class="job-title-bottom">
-                                    <p>${timeAgo}</p>
+                                    <p>${timeInfo.number ? timeInfo.number + ' ' : ''}<span data-translate="${timeInfo.type}">${translations[currentLanguage][timeInfo.type] || timeInfo.type}</span></p>
                                 </div>
                             </div>
                         </div>
                         <div class="featured-job-time">
                             <div class="time-job">
-                                <p>${status_r[job.jobType]}</p>
+                                <p data-translate="${status_r[job.jobType]}">${translations[currentLanguage][status_r[job.jobType]] || job.jobType}</p>
                             </div>
                         </div>
                     </div>
@@ -108,16 +110,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
 
-
                     <div class="featured-p-number">
-                        <p>${job.applications ? job.applications.length : 0} applied <span>of ${job.vacancy} vacancy</span></p>
+                        <p>${job.applications ? job.applications.length : 0} <span data-translate="applied">${translations[currentLanguage]['applied']}</span> <span data-translate="of">${translations[currentLanguage]['of']}</span> ${job.vacancy} <span data-translate="${job.vacancy === 1 ? 'vacancy_singular' : 'vacancy_plural'}">${translations[currentLanguage][job.vacancy === 1 ? 'vacancy_singular' : 'vacancy_plural']}</span></p>
                     </div>
                 </div>
             </a>
         `;
         const messageButton = document.createElement('button');
         messageButton.className = 'message-job-poster';
-        messageButton.innerHTML = '<i class="ri-message-2-line"></i> Message';
+        messageButton.innerHTML = `<i class="ri-message-2-line"></i> <span data-translate="Message">${translations[currentLanguage]['Message']}</span>`;
         messageButton.addEventListener('click', async (e) => {
             e.preventDefault();
             if (!job.postedBy) return;
@@ -136,7 +137,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        
         return jobCard;
     }
 
@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 featuredContainer.innerHTML = `
                     <div class="no-jobs-message">
                         <i class="fas fa-briefcase"></i>
-                        <h3>No Jobs Available</h3>
-                        <p>Check back later for new opportunities</p>
+                        <h3 data-translate="No Jobs Available">No Jobs Available</h3>
+                        <p data-translate="Check back later for new opportunities">Check back later for new opportunities</p>
                     </div>
                 `;
                 return;
@@ -184,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const hotJobs = jobs.filter(job => job.isHotJob);
 
-
             const topJobs = jobs.slice(0, 6);
 
             topJobs.forEach(job => {
@@ -192,20 +191,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 featuredContainer.appendChild(jobCard);
             });
 
+            // Apply translations after jobs are loaded
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
 
         } catch (error) {
             console.error('Error loading hot jobs:', error);
             featuredContainer.innerHTML = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-circle"></i>
-                    <h3>Error Loading Jobs</h3>
-                    <p>There was an error loading the jobs. Please try again later.</p>
+                    <h3 data-translate="Error Loading Jobs">Error Loading Jobs</h3>
+                    <p data-translate="There was an error loading the jobs. Please try again later.">There was an error loading the jobs. Please try again later.</p>
                 </div>
             `;
         }
     }
 
     loadHotJobs();
+
+    // Listen for language changes
+    window.addEventListener('languageChanged', () => {
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
+    });
 
     onAuthStateChanged(auth, () => {
         loadHotJobs();

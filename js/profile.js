@@ -3,6 +3,8 @@ import { doc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/fire
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { arrayRemove, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { translations, currentLanguage } from './translations.js';
+import { updateHeaderName } from './header.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const profileImage = document.getElementById('profileImage');
@@ -39,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let unsubscribeFirestore;
     
     onAuthStateChanged(auth, (user) => {
+        console.log('Auth state changed:', user ? 'User logged in' : 'No user');
         if (user && user.emailVerified) {
             const userRef = doc(db, 'users', user.uid);
             
@@ -62,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error listening to Firestore changes:", error);
             });
         } else {
+            console.log('User not authenticated or email not verified');
             window.location.href = 'login.html';
         }
     });
@@ -137,11 +141,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 el.style.color = `var(--primary-color)`;
             }
         });
+
+          if (window.updateTranslations) {
+                            window.updateTranslations();
+            }
     }
 
     function openModal(modalType) {
+        console.log('Opening modal:', modalType);
         const modal = modals[modalType];
-        if (!modal) return;
+        if (!modal) {
+            console.error('Modal not found:', modalType);
+            return;
+        }
 
         switch (modalType) {
             case 'profile':
@@ -212,6 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         modal.style.display = 'block';
+        
+        // Add translation update after opening any modal
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
     }
 
     function closeModal(modalType) {
@@ -230,7 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     editProfileBtn.addEventListener('click', () => openModal('profile'));
-    editAboutBtn.addEventListener('click', () => openModal('about'));
+    editAboutBtn.addEventListener('click', () => {
+        console.log('Edit About button clicked');
+        openModal('about');
+    });
     editSkillsBtn.addEventListener('click', () => openModal('skills'));
     editExperienceBtn.addEventListener('click', () => openModal('experience'));
     editEducationBtn.addEventListener('click', () => openModal('education'));
@@ -292,6 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('userData', JSON.stringify(userData));
                 
                 updateProfileDisplay();
+                updateHeaderName(name);
                 closeModal('profile');
             } catch (error) {
                 console.error('Error updating profile:', error);
@@ -302,9 +323,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (editAboutForm) {
         editAboutForm.addEventListener('submit', async (e) => {
+            console.log('About form submitted');
             e.preventDefault();
             
             const bio = document.getElementById('editBio').value;
+            console.log('Bio value:', bio);
+
+            // Check if user is authenticated
+            if (!auth.currentUser) {
+                console.error('User not authenticated');
+                alert('Please log in to update your bio.');
+                window.location.href = 'login.html';
+                return;
+            }
 
             userData.bio = bio;
 
@@ -318,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 updateProfileDisplay();
                 closeModal('about');
+                console.log('Bio updated successfully');
             } catch (error) {
                 console.error('Error updating bio:', error);
                 alert('Error updating bio. Please try again.');
@@ -425,13 +457,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateProfileDisplay() {
-        document.getElementById('userName1').textContent = userData.name || 'User Name';
-        document.getElementById('userTitle').textContent = userData.title || 'Professional Title';
-        document.getElementById('userLocation').textContent = userData.location || 'Location';
+        document.getElementById('userName1').innerHTML = userData.name || '<span data-translate="user-name">User Name</span>';
+        document.getElementById('userTitle').innerHTML = userData.title || '<span data-translate="profesional-title">Professional Title</span>';
+        
+        // Update location display with proper translation handling
+        const userLocation = document.getElementById('userLocation');
+        if (userData.location && userData.location.trim() !== '') {
+            userLocation.textContent = userData.location;
+            userLocation.removeAttribute('data-translate');
+        } else {
+            userLocation.innerHTML = '<span data-translate="location">Location</span>';
+        }
+        
         document.getElementById('userEmail').textContent = userData.email || 'Email';
-        document.getElementById('userCompany').textContent = userData.company || 'Company not specified';
-        document.getElementById('userPhone').textContent = userData.phone || 'Phone not specified';
-        document.getElementById('userWebsite').textContent = userData.website || 'Website not specified';
+        document.getElementById('userCompany').innerHTML = userData.company || '<span data-translate="company-not-specified">Company not specified</span>';
+        document.getElementById('userPhone').innerHTML = userData.phone || '<span data-translate="phone-not-specified">Phone not specified</span>';
+        document.getElementById('userWebsite').innerHTML = userData.website || '<span data-translate="website-not-specified">Website not specified</span>';
+
+        // Update bio display
+        const userBio = document.getElementById('userBio');
+        if (userBio) {
+            if (userData.bio && userData.bio.trim() !== '') {
+                userBio.textContent = userData.bio;
+                userBio.removeAttribute('data-translate');
+            } else {
+                userBio.textContent = 'No bio available';
+                userBio.setAttribute('data-translate', 'no-bio');
+            }
+        }
 
         if (userData.profileImage) {
             document.getElementById('profileImage').src = userData.profileImage;
@@ -443,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .map(skill => `<span class="skill-tag">${skill}</span>`)
                 .join('');
         } else {
-            skillsList.innerHTML = '<p>No skills added yet</p>';
+            skillsList.innerHTML = '<p data-translate="no-skills">No skills added yet</p>';
         }
 
         const experienceList = document.getElementById('experienceList');
@@ -453,13 +506,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="experience-item">
                         <h3>${exp.title}</h3>
                         <p class="company">${exp.company}</p>
-                        <p class="duration">${exp.startDate} - ${exp.endDate || 'Present'}</p>
+                        <p class="duration">${exp.startDate} - ${exp.endDate || '<span data-translate="present">Present</span>'}</p>
                         <p class="description">${exp.description}</p>
                     </div>
                 `)
                 .join('');
         } else {
-            experienceList.innerHTML = '<p>No experience added yet</p>';
+            experienceList.innerHTML = '<p data-translate="no-experience">No experience added yet</p>';
         }
 
         const educationList = document.getElementById('educationList');
@@ -469,12 +522,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="education-item">
                         <h3>${edu.degree}</h3>
                         <p class="institution">${edu.school}</p>
-                        <p class="duration">${edu.startDate} - ${edu.endDate || 'Present'}</p>
+                        <p class="duration">${edu.startDate} - ${edu.endDate || '<span data-translate="present">Present</span>'}</p>
                     </div>
                 `)
                 .join('');
         } else {
-            educationList.innerHTML = '<p>No education added yet</p>';
+            educationList.innerHTML = '<p data-translate="no-education">No education added yet</p>';
         }
 
         const themeColor = userData.themeColor || defaultThemeColor;
@@ -504,10 +557,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 appliedJobsContainer.innerHTML = `
                     <div class="no-jobs-message">
                         <i class="fas fa-file-alt"></i>
-                        <h3>No Applications Yet</h3>
-                        <p>You haven't applied to any jobs yet.</p>
+                        <h3 data-translate="no-applications">No Applications Yet</h3>
+                        <p data-translate="havent-applied">You haven't applied to any jobs yet.</p>
                     </div>
                 `;
+
+                 if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
                 return;
             }
 
@@ -531,18 +588,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="job-card">
                     <div class="job-header">
                         <h3>${job.jobTitle}</h3>
-                        <span class="status ${job.status}">${job.status}</span>
+                        <span class="status ${job.status}" data-translate="${job.status}">${job.status}</span>
                     </div>
                     <div class="job-details">
-                        <p><strong>Company:</strong> ${job.companyName}</p>
-                        <p><strong>Location:</strong> ${job.location}</p>
-                        <p><strong>Applied on:</strong> ${new Date(job.appliedAt).toLocaleDateString()}</p>
+                        <p><strong data-translate="Company">Company</strong>: ${job.companyName}</p>
+                        <p><strong data-translate="location">Location</strong>: ${job.location}</p>
+                        <p><strong data-translate="applied-on">Applied on</strong>: ${new Date(job.appliedAt).toLocaleDateString()}</p>
                     </div>
                     <div class="job-actions">
-                        <a href="single-job.html?id=${job.id}" class="view-job-btn">View Job</a>
+                        <a href="single-job.html?id=${job.id}" class="view-job-btn" data-translate="view-job">View Job</a>
                     </div>
                 </div>
             `).join('');
+
+             if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
         } catch (error) {
             console.error('Error fetching applied jobs:', error);
             const appliedJobsContainer = document.getElementById('appliedJobs');
@@ -576,10 +637,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 savedJobsContainer.innerHTML = `
                     <div class="no-jobs-message">
                         <i class="fas fa-bookmark"></i>
-                        <h3>No Saved Jobs</h3>
-                        <p>You haven't saved any jobs yet.</p>
+                        <h3 data-translate="no-saved-jobs">No Saved Jobs</h3>
+                        <p data-translate="havent-saved-jobs">You haven't saved any jobs yet.</p>
                     </div>
                 `;
+                 if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
                 return;
             }
 
@@ -604,15 +668,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${job.status === 'closed' ? '<span class="status closed">Closed</span>' : ''}
                     </div>
                     <div class="job-details">
-                        <p><strong>Company:</strong> ${job.companyName}</p>
-                        <p><strong>Location:</strong> ${job.location}</p>
-                        <p><strong>Type:</strong> ${job.jobType}</p>
-                        <p><strong>Salary:</strong> ${job.salary}</p>
+                        <p><strong data-translate="Company">Company</strong>: ${job.companyName}</p>
+                        <p><strong data-translate="location">Location</strong>: ${job.location}</p>
+                        <p><strong data-translate="type">Type</strong>: <span data-translate="${job.jobType}">${job.jobType}</span></p>
+                        <p><strong data-translate="salary">Salary</strong>: ${job.salary}</p>
                     </div>
                     <div class="job-actions">
-                        <a href="single-job.html?id=${job.id}" class="view-job-btn">View Job</a>
+                        <a href="single-job.html?id=${job.id}" class="view-job-btn" data-translate="view-job">View Job</a>
                         <button class="unsave-btn" data-job-id="${job.id}">
-                            <i class="fas fa-bookmark"></i> Unsave
+                            <i class="fas fa-bookmark"></i> <span data-translate="unsave">Unsave</span>
                         </button>
                     </div>
                 </div>
@@ -627,6 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     fetchSavedJobs();
                 });
             });
+
+             if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
         } catch (error) {
             console.error('Error fetching saved jobs:', error);
             const savedJobsContainer = document.getElementById('savedJobs');
@@ -727,32 +795,34 @@ document.addEventListener('DOMContentLoaded', () => {
         entry.className = 'experience-entry';
         entry.innerHTML = `
             <div class="form-group">
-                <input type="text" name="jobTitle" placeholder="Job Title" value="${data.title || ''}" required>
+                <input type="text" name="jobTitle" data-translate-placeholder="job-title" placeholder="Job Title" value="${data.title || ''}" required>
             </div>
             <div class="form-group">
-                <input type="text" name="company" placeholder="Company" value="${data.company || ''}" required>
+                <input type="text" name="company" data-translate-placeholder="Company" placeholder="Company" value="${data.company || ''}" required>
             </div>
             <div class="form-group">
-                <input type="text" name="jobLocation" placeholder="Location" value="${data.location || ''}">
+                <input type="text" name="jobLocation" data-translate-placeholder="location" placeholder="Location" value="${data.location || ''}">
             </div>
             <div class="form-group">
-                <input type="date" name="startDate" placeholder="Start Date" value="${data.startDate || ''}" required>
+                <input type="date" name="startDate" data-translate-placeholder="start-date" placeholder="Start Date" value="${data.startDate || ''}" required>
             </div>
             <div class="form-group">
-                <input type="date" name="endDate" placeholder="End Date" value="${data.endDate || ''}">
+                <input type="date" name="endDate" data-translate-placeholder="end-date" placeholder="End Date" value="${data.endDate || ''}">
                 <div class="checkbox-group">
                     <input type="checkbox" name="currentJob" class="current-job">
-                    <label>I currently work here</label>
+                    <label data-translate="currently-work">I currently work here</label>
                 </div>
             </div>
             <div class="form-group">
-                <textarea name="jobDescription" placeholder="Description">${data.description || ''}</textarea>
+                <textarea name="jobDescription" data-translate-placeholder="description" placeholder="Description">${data.description || ''}</textarea>
             </div>
-            <button type="button" class="remove-experience">Remove</button>
+            <button type="button" class="remove-experience" data-translate="remove">Remove</button>
         `;
 
         const currentJobCheckbox = entry.querySelector('.current-job');
         const endDateInput = entry.querySelector('[name="endDate"]');
+
+      
         
         currentJobCheckbox.addEventListener('change', () => {
             endDateInput.disabled = currentJobCheckbox.checked;
@@ -766,6 +836,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         container.appendChild(entry);
+
+           if (window.updateTranslations) {
+                            window.updateTranslations();
+         }
     }
 
     function addEducationEntry(data = {}) {
@@ -774,32 +848,38 @@ document.addEventListener('DOMContentLoaded', () => {
         entry.className = 'education-entry';
         entry.innerHTML = `
             <div class="form-group">
-                <input type="text" name="school" placeholder="School/University" value="${data.school || ''}" required>
+                <label data-translate="degree">Degree</label>
+                <input type="text" name="degree" data-translate-placeholder="degree" placeholder="Degree" value="${data.degree || ''}" required>
             </div>
             <div class="form-group">
-                <input type="text" name="degree" placeholder="Degree" value="${data.degree || ''}" required>
+                <label data-translate="institution">Institution</label>
+                <input type="text" name="institution" data-translate-placeholder="school-university" placeholder="School/University" value="${data.school || ''}" required>
             </div>
             <div class="form-group">
-                <input type="text" name="field" placeholder="Field of Study" value="${data.field || ''}">
+                <label data-translate="field-of-study">Field of Study</label>
+                <input type="text" name="field" data-translate-placeholder="field-of-study" placeholder="Field of Study" value="${data.field || ''}">
             </div>
             <div class="form-group">
-                <input type="date" name="eduStartDate" placeholder="Start Date" value="${data.startDate || ''}" required>
+                <label data-translate="start-date">Start Date</label>
+                <input type="date" name="startDate" data-translate-placeholder="start-date" placeholder="Start Date" value="${data.startDate || ''}" required>
             </div>
             <div class="form-group">
-                <input type="date" name="eduEndDate" placeholder="End Date" value="${data.endDate || ''}">
+                <label data-translate="end-date">End Date</label>
+                <input type="date" name="endDate" data-translate-placeholder="end-date" placeholder="End Date" value="${data.endDate || ''}">
                 <div class="checkbox-group">
                     <input type="checkbox" name="currentlyStudying" class="current-study">
-                    <label>I am currently studying here</label>
+                    <label data-translate="currently-studying">I am currently studying here</label>
                 </div>
             </div>
             <div class="form-group">
-                <textarea name="eduDescription" placeholder="Description">${data.description || ''}</textarea>
+                <label data-translate="description">Description</label>
+                <textarea name="description" data-translate-placeholder="description" placeholder="Description" rows="3">${data.description || ''}</textarea>
             </div>
-            <button type="button" class="remove-education">Remove</button>
+            <button type="button" class="remove-education" data-translate="remove">Remove</button>
         `;
 
         const currentStudyCheckbox = entry.querySelector('.current-study');
-        const endDateInput = entry.querySelector('[name="eduEndDate"]');
+        const endDateInput = entry.querySelector('[name="endDate"]');
         
         currentStudyCheckbox.addEventListener('change', () => {
             endDateInput.disabled = currentStudyCheckbox.checked;
@@ -813,6 +893,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         container.appendChild(entry);
+
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
     }
 
     document.querySelector('.add-experience')?.addEventListener('click', () => {
@@ -1037,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <label>Description</label>
                 <textarea name="description" rows="3"></textarea>
             </div>
-            <button type="button" class="remove-experience">Remove</button>
+            <button type="button" class="remove-experience" data-translate="remove">Remove</button>
         </div>
     `;
 
@@ -1060,25 +1144,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="date" name="endDate">
                 <div class="checkbox-group">
                     <input type="checkbox" name="currentlyStudying" class="current-study">
-                    <label>I currently study here</label>
+                    <label data-translate="currently-studying">I currently study here</label>
                 </div>
             </div>
             <div class="form-group">
                 <label>Description</label>
                 <textarea name="description" rows="3"></textarea>
             </div>
-            <button type="button" class="remove-education">Remove</button>
+            <button type="button" class="remove-education" data-translate="remove">Remove</button>
         </div>
     `;
 
     const skillTemplate = `
         <div class="skill-entry">
             <div class="form-group">
-                <input type="text" name="skill" placeholder="Enter skill" required>
-                <button type="button" class="remove-skill">Remove</button>
+                <input type="text" name="skill" placeholder="Enter skill" data-translate-placeholder="enter-skill" required>
+                <button type="button" class="remove-skill" data-translate="remove">Remove</button>
             </div>
         </div>
     `;
+
 
     document.querySelector('.add-skill')?.addEventListener('click', () => {
         const container = document.getElementById('skillsContainer');
@@ -1089,6 +1174,10 @@ document.addEventListener('DOMContentLoaded', () => {
         entry.querySelector('.remove-skill').addEventListener('click', () => {
             entry.remove();
         });
+
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
     });
 
     document.querySelector('.edit-skills-btn')?.addEventListener('click', () => {
@@ -1117,6 +1206,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.closest('.skill-entry').remove();
             });
         });
+
+        
+     if (window.updateTranslations) {
+                            window.updateTranslations();
+    }
     });
 
     function updateUserData(newData) {
@@ -1129,5 +1223,22 @@ document.addEventListener('DOMContentLoaded', () => {
         userData = updatedData;
         
         updateProfileDisplay();
+    }
+
+    // Add translation attributes to the education modal buttons
+    document.querySelector('.add-education')?.setAttribute('data-translate', 'add-education');
+    document.querySelector('.save-btn')?.setAttribute('data-translate', 'save-changes');
+    document.querySelector('.cancel-btn')?.setAttribute('data-translate', 'cancel');
+
+    // Update the education modal HTML to include translation attributes
+    const educationModal = document.getElementById('editEducationModal');
+    if (educationModal) {
+        const addEducationBtn = educationModal.querySelector('.add-education');
+        const saveBtn = educationModal.querySelector('.save-btn');
+        const cancelBtn = educationModal.querySelector('.cancel-btn');
+
+        if (addEducationBtn) addEducationBtn.setAttribute('data-translate', 'add-education');
+        if (saveBtn) saveBtn.setAttribute('data-translate', 'save-changes');
+        if (cancelBtn) cancelBtn.setAttribute('data-translate', 'cancel');
     }
 });

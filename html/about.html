@@ -20,10 +20,10 @@
     <link rel="stylesheet" href="../css/chat.css">
 </head>
 <body>
-    <header class="header">
+   <header class="header">
         <nav class="nav container">
            <div class="nav__data">
-              <a href="#" class="nav__logo">
+              <a href="../index.html" class="nav__logo">
                  <img src="../img/logo.png" alt="logo">
               </a>
 
@@ -64,12 +64,12 @@
            <!--=============== NAV MENU ===============-->
            <div class="nav__menu" id="nav-menu">
               <ul class="nav__list">
-                 <li><a href="../index.html" class="nav__link">Home</a></li>
-                 <li><a href="jobs.html" class="nav__link">Jobs</a></li>
-                 <li><a href="post-job.html" class="nav__link">Post a Job</a></li>
+                 <li><a href="../index.html" class="nav__link" data-translate="Home">Home</a></li>
+                 <li><a href="jobs.html" class="nav__link" data-translate="Jobs">Jobs</a></li>
+                 <li><a href="post-job.html" class="nav__link" data-translate="Post a Job">Post a Job</a></li>
                 
-                 <li><a href="about.html" class="nav__link active">About</a></li>
-                 <li><a href="contact.html" class="nav__link">Contact</a></li>
+                 <li><a href="about.html" class="nav__link active" data-translate="About">About</a></li>
+                 <li><a href="contact.html" class="nav__link" data-translate="Contact">Contact</a></li>
                   <li class="dropdown__item">
                      <div class="nav__link">
                         <span id="accountText">Account <i class="ri-arrow-down-s-line dropdown__arrow"></i></span>
@@ -86,6 +86,24 @@
                      </div>
                      <ul class="dropdown__menu" id="accountMenu">
                      </ul>
+
+                     
+                 <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="notification-bell ">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="notification-count"></div>
+                  </div>   
+                  </a>
+                 </li>
+
+                      <li class="dropdown__item">
+                     <div class="nav__link">
+                        <span id="currentLanguage" onclick="toggleLanguage()">
+                           <img src="../img/albanian-flag.png" alt="Albanian" class="language-flag" id="languageFlag">
+                        </span>
+                     </div>
+                  </li>
                   </li>
                  <!-- <li><a href="#" class="nav__link" id="headerChatBtn"><i class="ri-message-2-line"></i> Messages</a></li> -->
 
@@ -105,14 +123,6 @@
                      </a>
                   </li> -->
 
-                 <li class="nonee none2">
-                  <a href="#" class="nav__link">
-                  <div class="notification-bell ">
-                     <i class="fa-regular fa-bell"></i>
-                     <div class="notification-count"></div>
-                  </div>   
-                  </a>
-                 </li>
 
                  
 <!-- 
@@ -141,13 +151,13 @@
                 <div class="about-hero-content">
                     <div class="hero-left">
                         <div class="hero-badge">
-                            <span>About HireHub</span>
+                            <span data-translate="about-hirehub">About HireHub</span>
                         </div>
-                        <h1>Connecting Talent with <span>Opportunity</span></h1>
-                        <p class="hero-description">We're revolutionizing the way companies and professionals connect, making hiring simpler, faster, and more effective.</p>
+                        <h1><span data-translate="connection-talent" style="color: unset;">Connecting Talent with</span> <span data-translate="opportunity">Opportunity</span></h1>
+                        <p class="hero-description" data-translate="about-text">We're revolutionizing the way companies and professionals connect, making hiring simpler, faster, and more effective.</p>
                         <div class="hero-cta">
-                            <a href="jobs.html" class="btn-primary">Find Jobs</a>
-                            <a href="post-job.html" class="btn-secondary">Post Jobs</a>
+                            <a href="jobs.html" class="btn-primary" data-translate="find-jobs-button">Find Jobs</a>
+                            <a href="post-job.html" class="btn-secondary" data-translate="post-job-button">Post Jobs</a>
                         </div>
                     </div>
                     <div class="hero-right">
@@ -162,30 +172,30 @@
         <section class="about-mission">
             <div class="container">
                 <div class="mission-header">
-                    <h2>Our Mission</h2>
-                    <p>To create a world where finding the right job or the perfect candidate is effortless.</p>
+                    <h2 data-translate="our-mission">Our Mission</h2>
+                    <p data-translate="our-mission-text">To create a world where finding the right job or the perfect candidate is effortless.</p>
                 </div>
                 <div class="mission-content">
                     <div class="mission-card">
                         <div class="mission-icon">
                             <i class="fas fa-bullseye"></i>
                         </div>
-                        <h3>Our Mission</h3>
-                        <p>To revolutionize the hiring process through innovative technology and human-centered design.</p>
+                        <h3 data-translate="our-mission">Our Mission</h3>
+                        <p data-translate="our-mission-text2">To revolutionize the hiring process through innovative technology and human-centered design.</p>
                     </div>
                     <div class="mission-card">
                         <div class="mission-icon">
                             <i class="fas fa-eye"></i>
                         </div>
-                        <h3>Our Vision</h3>
-                        <p>To become the global standard for professional connections and career growth.</p>
+                        <h3 data-translate="our-vision">Our Vision</h3>
+                        <p data-translate="our-vision-text">To become the global standard for professional connections and career growth.</p>
                     </div>
                     <div class="mission-card">
                         <div class="mission-icon">
                             <i class="fas fa-heart"></i>
                         </div>
-                        <h3>Our Values</h3>
-                        <p>We believe in transparency, innovation, and creating meaningful connections that last.</p>
+                        <h3 data-translate="our-values">Our Values</h3>
+                        <p data-translate="our-values-text">We believe in transparency, innovation, and creating meaningful connections that last.</p>
                     </div>
                 </div>
             </div>
@@ -194,37 +204,37 @@
         <section class="about-features">
             <div class="container">
                 <div class="features-header">
-                    <h2>Why Choose HireHub?</h2>
-                    <p>We're changing the way people find jobs and companies find talent.</p>
+                    <h2 data-translate="why-choose-hirehub">Why Choose HireHub?</h2>
+                    <p data-translate="why-choose-hirehub-text">We're changing the way people find jobs and companies find talent.</p>
                 </div>
                 <div class="features-grid">
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-search"></i>
                         </div>
-                        <h3>Smart Matching</h3>
-                        <p>Our AI-powered matching system connects you with the most relevant opportunities.</p>
+                        <h3 data-translate="smart-matching">Smart Matching</h3>
+                        <p data-translate="smart-matching-text">Our smart matching system connects you with the most relevant opportunities.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-shield-alt"></i>
                         </div>
-                        <h3>Verified Profiles</h3>
-                        <p>Every profile is verified to ensure authenticity and build trust.</p>
+                        <h3 data-translate="verified-profiles">Verified Profiles</h3>
+                        <p data-translate="verified-profiles-text">Every profile is verified to ensure authenticity and build trust.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <h3>Career Insights</h3>
-                        <p>Get valuable insights to make informed career decisions.</p>
+                        <h3 data-translate="career-insights">Career Insights</h3>
+                        <p data-translate="career-insights-text">Get valuable insights to make informed career decisions.</p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">
                             <i class="fas fa-comments"></i>
                         </div>
-                        <h3>Direct Communication</h3>
-                        <p>Connect directly with employers through our messaging platform.</p>
+                        <h3 data-translate="direct-communication">Direct Communication</h3>
+                        <p data-translate="direct-communication-text">Connect directly with employers through our messaging platform.</p>
                     </div>
                 </div>
             </div>
@@ -233,11 +243,11 @@
         <section class="about-cta">
             <div class="container">
                 <div class="cta-content">
-                    <h2>Ready to Start Your Journey?</h2>
-                    <p>Join thousands of professionals who have found their dream jobs through HireHub.</p>
+                    <h2 data-translate="ready-to-start">Ready to Start Your Journey?</h2>
+                    <p data-translate="ready-to-start-text">Join thousands of professionals who have found their dream jobs through HireHub.</p>
                     <div class="cta-buttons">
-                        <a href="jobs.html" class="btn-primary">Find Jobs</a>
-                        <a href="post-job.html" class="btn-secondary">Post a Job</a>
+                        <a href="jobs.html" class="btn-primary" data-translate="find-jobs-button">Find Jobs</a>
+                        <a href="post-job.html" class="btn-secondary" data-translate="post-job-button">Post a Job</a>
                     </div>
                 </div>
             </div>
@@ -248,10 +258,10 @@
       <div class="container">
          <div class="wrapper">
             <div class="footer-widget wrapper-center">
-               <a href="#">
+               <a href="../index.html">
                   <img src="../img/logo.png" alt="" class="logo">
                </a>
-               <p class="desc">
+               <p class="desc" data-translate="footer-dsc">
                   Connecting skilled professionals with top employers for success and growth.
                </p>
                <ul class="socials">
@@ -278,34 +288,34 @@
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Quick Links</h6>
+               <h6 data-translate="quick-links">Quick Links</h6>
                <ul class="links">
-                  <li><a href="../index.html">Home</a></li>
-                  <li><a href="jobs.html">Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="about.html">About</a></li>
-                  <li><a href="contact.html">Contact</a></li>
+                  <li><a href="../index.html" data-translate="Home">Home</a></li>
+                  <li><a href="jobs.html" data-translate="Jobs">Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="about.html" data-translate="About">About</a></li>
+                  <li><a href="contact.html" data-translate="Contact">Contact</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Services</h6>
+               <h6 data-translate="services">Services</h6>
                <ul class="links">
-                  <li><a href="profile.html">Profile</a></li>
-                  <li><a href="saved-jobs.html">Save Jobs</a></li>
-                  <li><a href="post-job.html">Post a Job</a></li>
-                  <li><a href="dashboard.html">Manage Applications</a></li>
-                  <li><a href="settings.html">Settings</a></li>
+                  <li><a href="profile.html" data-translate="Profile">Profile</a></li>
+                  <li><a href="saved-jobs.html" data-translate="Saved Jobs">Saved Jobs</a></li>
+                  <li><a href="post-job.html" data-translate="Post a Job">Post a Job</a></li>
+                  <li><a href="dashboard.html" data-translate="manage-applications">Manage Applications</a></li>
+                  <li><a href="settings.html" data-translate="Settings">Settings</a></li>
                </ul>
             </div>
             <div class="footer-widget">
-               <h6>Help &amp; Support</h6>
-               <ul class="links">
-                  <li><a href="contact.html">Contact</a></li>
-                  <li><a href="">Live Chat</a></li>
-                  <li><a href="">Privacy Policy</a></li>
-                  <li><a href="">Terms of Service</a></li>
-               </ul>
-            </div>
+            <h6 data-translate="help-support">Help & Support</h6>
+            <ul class="links">
+               <li><a href="contact.html" data-translate="Contact">Contact</a></li>
+               <li><a href="" data-translate="live-chat">Live Chat</a></li>
+               <li><a href="" data-translate="privacy-policy">Privacy Policy</a></li>
+               <li><a href="" data-translate="terms-service">Terms of Service</a></li>
+            </ul>
+         </div>
          </div>
       </div>
    </footer>
@@ -313,11 +323,11 @@
         
    <div class="chat-widget" id="chatWidget">
         <div class="chat-header">
-            <h3>Messages</h3>
-            <button class="minimize-btn" id="minimizeChat">
+            <h3 data-translate="Messages">Messages</h3>
+            <button class="minimize-btn" id="minimizeChat" title="Minimize">
                 <i class="ri-subtract-line"></i>
             </button>
-            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;" data-translate="Update Chat Names">Update Chat Names</button>
         </div>
         <div class="chat-body" id="chatBody">
             <div class="chat-list" id="chatList">
@@ -326,8 +336,8 @@
                 <div class="messages-container" id="messagesContainer">
                 </div>
                 <div class="message-input">
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="sendMessage">
+                    <input type="text" id="messageInput" data-translate-placeholder="type-your-message" placeholder="Type your message...">
+                    <button id="sendMessage" title="Send">
                         <i class="ri-send-plane-fill"></i>
                     </button>
                 </div>
@@ -341,5 +351,7 @@
 
     <script type="module" src="../js/header.js"></script>
     <script type="module" src="../js/chat.js"></script>
+    <script script type="module" src="../js/translations.js"></script>
+
 </body>
 </html> 

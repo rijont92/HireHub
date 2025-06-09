@@ -55,10 +55,10 @@
 </head>
 <body>
    
-    <header class="header">
+  <header class="header">
         <nav class="nav container">
            <div class="nav__data">
-              <a href="#" class="nav__logo">
+              <a href="index.html" class="nav__logo">
                  <img src="img/logo.png" alt="logo">
               </a>
 
@@ -99,12 +99,12 @@
            <!--=============== NAV MENU ===============-->
            <div class="nav__menu" id="nav-menu">
               <ul class="nav__list">
-                 <li><a href="index.html" class="nav__link active">Home</a></li>
-                 <li><a href="html/jobs.html" class="nav__link">Jobs</a></li>
-                 <li><a href="html/post-job.html" class="nav__link">Post a Job</a></li>
+                 <li><a href="index.html" class="nav__link active" data-translate="Home">Home</a></li>
+                 <li><a href="html/jobs.html" class="nav__link" data-translate="Jobs">Jobs</a></li>
+                 <li><a href="html/post-job.html" class="nav__link" data-translate="Post a Job">Post a Job</a></li>
                 
-                 <li><a href="html/about.html" class="nav__link">About</a></li>
-                 <li><a href="html/contact.html" class="nav__link">Contact</a></li>
+                 <li><a href="html/about.html" class="nav__link" data-translate="About">About</a></li>
+                 <li><a href="html/contact.html" class="nav__link" data-translate="Contact">Contact</a></li>
                   <li class="dropdown__item">
                      <div class="nav__link">
                         <span id="accountText">Account <i class="ri-arrow-down-s-line dropdown__arrow"></i></span>
@@ -120,8 +120,23 @@
                         </div>
                      </div>
                      <ul class="dropdown__menu" id="accountMenu">
-                        <!-- Menu items will be populated by JavaScript -->
                      </ul>
+                       <li class="nonee none2">
+                  <a href="#" class="nav__link">
+                  <div class="notification-bell ">
+                     <i class="fa-regular fa-bell"></i>
+                     <div class="notification-count"></div>
+                  </div>   
+                  </a>
+                 </li>
+
+                      <li class="dropdown__item">
+                     <div class="nav__link">
+                        <span id="currentLanguage" onclick="toggleLanguage()">
+                           <img src="img/albanian-flag.svg" alt="Albanian" class="language-flag" id="languageFlag">
+                        </span>
+                     </div>
+                  </li>
                   </li>
                  <!-- <li><a href="#" class="nav__link" id="headerChatBtn"><i class="ri-message-2-line"></i> Messages</a></li> -->
 
@@ -141,14 +156,7 @@
                      </a>
                   </li> -->
 
-                 <li class="nonee none2">
-                  <a href="#" class="nav__link">
-                  <div class="notification-bell ">
-                     <i class="fa-regular fa-bell"></i>
-                     <div class="notification-count"></div>
-                  </div>   
-                  </a>
-                 </li>
+               
 
                  
 <!-- 
@@ -177,11 +185,11 @@
             <div class="left-banner">
 
                <div class="banner-title">
-                  <h1>Start Your Journey with <span>HireHub</span> Today</h1>
+                  <h1 data-translate="start-journey">Start Your Journey with <span>HireHub</span> Today</h1>
                </div>
 
                <div class="banner-text">
-                 <p>At HireHub, we connect talent with opportunity like never before. Whether you're searching for the perfect job or looking to hire the best candidates, HireHub has everything you need. Explore personalized job recommendations, post detailed listings, and manage your career or hiring process seamlessly. Your next big move starts here!</p>
+                 <p data-translate="banner-text">At HireHub, we connect talent with opportunity like never before. Whether you're searching for the perfect job or looking to hire the best candidates, HireHub has everything you need. Explore personalized job recommendations, post detailed listings, and manage your career or hiring process seamlessly. Your next big move starts here!</p>
                </div>
 
                
@@ -191,7 +199,7 @@
                         <path d="M10,21.236,6.755,14.745.264,11.5,6.755,8.255,10,1.764l3.245,6.491L19.736,11.5l-6.491,3.245ZM18,21l1.5,3L21,21l3-1.5L21,18l-1.5-3L18,18l-3,1.5ZM19.333,4.667,20.5,7l1.167-2.333L24,3.5,21.667,2.333,20.5,0,19.333,2.333,17,3.5Z"></path>
                      </svg>
 
-                     <span class="text">Find Jobs</span>
+                     <span class="text" data-translate="find-jobs-button">Find Jobs</span>
                   </button>
                </a>
 
@@ -214,8 +222,8 @@
      <section class="popular-categories">
         <div class="container">
             <div class="section-title">
-                <h2>Popular Categories</h2>
-                <p>Find jobs in the most popular categories</p>
+                <h2 data-translate="popular-categories-title">Popular Categories</h2>
+                <p data-translate="popular-categories-text">Find jobs in the most popular categories</p>
             </div>
             <div class="categories-container" id="categories-container">
                 <div class="loading-spinner">
@@ -228,8 +236,8 @@
 
     <section class="container">
       <div class="featured-title">
-         <h2>Hot Job Opportunities</h2>
-         <p>Discover top job opportunities from leading companies. Find roles that match your skills and take the next step in your career today!</p>
+         <h2 data-translate="hot-job-opportunities-title">Hot Job Opportunities</h2>
+         <p data-translate="hot-job-opportunities-text">Discover top job opportunities from leading companies. Find roles that match your skills and take the next step in your career today!</p>
       </div>
 
       <div class="featured-container" id="featured-container">
@@ -257,7 +265,7 @@
          <div class="best-reviews-content">
    
            <i class="fa-solid fa-quote-left"></i>
-           <p>HireHub made it so easy for me to find part-time jobs and internships that fit my schedule. I never thought job hunting could be this simple! The categories are super helpful, and the website is really easy to use. I even found my first paid internship through HireHub, and it's been an amazing experience. I'm so glad I signed up!</p>
+           <p data-translate="happy-client">HireHub made it so easy for me to find part-time jobs and internships that fit my schedule. I never thought job hunting could be this simple! The categories are super helpful, and the website is really easy to use. I even found my first paid internship through HireHub, and it's been an amazing experience. I'm so glad I signed up!</p>
            <div class="best-reviews-stars">
              <i class="fa-solid fa-star"></i>
              <i class="fa-solid fa-star"></i>
@@ -267,7 +275,7 @@
              <h3>Drin Zahiti</h3>
 
             <div class="review-button">
-               <a href="html/post-job.html">Post Job</a>
+               <a data-translate="post-job-button" href="html/post-job.html">Post Job</a>
             </div>
             
 
@@ -280,7 +288,7 @@
     <section class="container work">
 
       <div class="work-title">
-          <h2>How HireHub Works</h2>
+          <h2 data-translate="how-hirehub-works">How HireHub Works</h2>
       </div>
 
       <div class="work-all">
@@ -301,8 +309,8 @@
               </div>
 
               <div class="work-col-text">
-                  <h2>Create an Account</h2>
-                  <p>Sign up for a single account, whether you're a job seeker or an employer. Customize your profile by adding your details, such as skills, experience, or company information, to get started.</p>
+                  <h2 data-translate="title1">Create an Account</h2>
+                  <p data-translate="dsc1">Sign up for a single account, whether you're a job seeker or an employer. Customize your profile by adding your details, such as skills, experience, or company information, to get started.</p>
               </div>
 
               
@@ -326,8 +334,8 @@
                   </div>
 
               <div class="work-col-text">
-                  <h2>Search or Post Jobs</h2>
-                  <p>Browse job listings tailored to your skills and interests, or post job opportunities with clear requirements and descriptions.</p>
+                  <h2 data-translate="title2">Search or Post Jobs</h2>
+                  <p data-translate="dsc2">Browse job listings tailored to your skills and interests, or post job opportunities with clear requirements and descriptions.</p>
               </div>
 
                  
@@ -352,8 +360,8 @@
               </div>
 
               <div class="work-col-text">
-                  <h2>Apply or Manage Applications</h2>
-                  <p>Apply for jobs with a few clicks or manage job applications as an employer, reviewing profiles and communicating with candidates.</p>
+                  <h2 data-translate="title3">Apply or Manage Applications</h2>
+                  <p data-translate="dsc3">Apply for jobs with a few clicks or manage job applications as an employer, reviewing profiles and communicating with candidates.</p>
               </div>
 
               
@@ -377,8 +385,8 @@
                   </div>
 
               <div class="work-col-text">
-                  <h2>Track & Save</h2>
-                  <p>Keep track of your application statuses or save jobs you're interested in. Employers can monitor job post activity and shortlist candidates.</p>
+                  <h2 data-translate="title4">Track & Save</h2>
+                  <p data-translate="dsc4">Keep track of your application statuses or save jobs you're interested in. Employers can monitor job post activity and shortlist candidates.</p>
               </div>
 
           </div>
@@ -400,8 +408,8 @@
               </div>
 
               <div class="work-col-text">
-                  <h2>Connect & Finalize</h2>
-                  <p>Communicate with potential hires or employers through the platform and finalize the hiring process with ease.</p>
+                  <h2 data-translate="title5">Connect & Finalize</h2>
+                  <p data-translate="dsc5">Communicate with potential hires or employers through the platform and finalize the hiring process with ease.</p>
               </div>
 
               
@@ -422,11 +430,11 @@
    <div class="container">
       <div class="wrapper">
          <div class="footer-widget wrapper-center">
-            <a href="#">
+            <a href="index.html">
                <img src="img/logo.png" alt="" class="logo">
             </a>
 
-            <p class="desc">
+            <p class="desc" data-translate="footer-dsc">
                Connecting skilled professionals with top employers for success and growth.
             </p>
 
@@ -458,34 +466,34 @@
             </ul>
          </div>
          <div class="footer-widget">
-            <h6>Quick Links</h6>
+            <h6 data-translate="quick-links">Quick Links</h6>
             <ul class="links">
-               <li><a href="../index.html">Home</a></li>
-               <li><a href="html/jobs.html">Jobs</a></li>
-               <li><a href="html/post-job.html">Post a Job</a></li>
-               <li><a href="html/about.html">About</a></li>
-               <li><a href="html/contact.html">Contact</a></li>
+               <li><a href="../index.html" data-translate="Home">Home</a></li>
+               <li><a href="html/jobs.html" data-translate="Jobs">Jobs</a></li>
+               <li><a href="html/post-job.html" data-translate="Post a Job">Post a Job</a></li>
+               <li><a href="html/about.html" data-translate="About">About</a></li>
+               <li><a href="html/contact.html" data-translate="Contact">Contact</a></li>
             </ul>
          </div>
 
          <div class="footer-widget">
-            <h6>Services</h6>
+            <h6 data-translate="services">Services</h6>
             <ul class="links">
-               <li><a href="html/profile.html">Profile</a></li>
-               <li><a href="html/saved-jobs.html">Save Jobs</a></li>
-               <li><a href="html/post-job.html">Post a Job</a></li>
-               <li><a href="html/dashboard.html">Manage Applications</a></li>
-               <li><a href="html/settings.html">Settings</a></li>
+               <li><a href="html/profile.html" data-translate="Profile">Profile</a></li>
+               <li><a href="html/saved-jobs.html" data-translate="Saved Jobs">Saved Jobs</a></li>
+               <li><a href="html/post-job.html" data-translate="Post a Job">Post a Job</a></li>
+               <li><a href="html/dashboard.html" data-translate="manage-applications">Manage Applications</a></li>
+               <li><a href="html/settings.html" data-translate="Settings">Settings</a></li>
             </ul>
          </div>
 
          <div class="footer-widget">
-            <h6>Help &amp; Support</h6>
+            <h6 data-translate="help-support">Help & Support</h6>
             <ul class="links">
-               <li><a href="html/contact.html">Contact</a></li>
-               <li><a href="">Live Chat</a></li>
-               <li><a href="">Privacy Policy</a></li>
-               <li><a href="">Terms of Service</a></li>
+               <li><a href="html/contact.html" data-translate="Contact">Contact</a></li>
+               <li><a href="" data-translate="live-chat">Live Chat</a></li>
+               <li><a href="" data-translate="privacy-policy">Privacy Policy</a></li>
+               <li><a href="" data-translate="terms-service">Terms of Service</a></li>
             </ul>
          </div>
       </div>
@@ -514,11 +522,11 @@
    
     <div class="chat-widget" id="chatWidget">
         <div class="chat-header">
-            <h3>Messages</h3>
-            <button class="minimize-btn" id="minimizeChat">
+            <h3 data-translate="Messages">Messages</h3>
+            <button class="minimize-btn" id="minimizeChat" title="Minimize">
                 <i class="ri-subtract-line"></i>
             </button>
-            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">Update Chat Names</button>
+            <button id="updateChatNamesBtn" style="margin-left:10px;background:#ffb347;color:#222;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;" data-translate="Update Chat Names">Update Chat Names</button>
         </div>
         <div class="chat-body" id="chatBody">
             <div class="chat-list" id="chatList">
@@ -527,8 +535,8 @@
                 <div class="messages-container" id="messagesContainer">
                 </div>
                 <div class="message-input">
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="sendMessage">
+                    <input type="text" id="messageInput" data-translate-placeholder="type-your-message" placeholder="Type your message...">
+                    <button id="sendMessage" title="Send">
                         <i class="ri-send-plane-fill"></i>
                     </button>
                 </div>
@@ -536,9 +544,11 @@
         </div>
     </div>
 
-    <button class="chat-toggle" id="chatToggle">
+    <button class="chat-toggle" id="chatToggle" title="Chat">
         <i class="ri-message-2-line"></i>
     </button>
+
+    <script type="module" src="js/translations.js"></script>
 
 </body>
 </html>
