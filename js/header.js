@@ -289,7 +289,7 @@ function setLanguage(lang) {
 
 // Initialize language on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const savedLanguage = localStorage.getItem('preferredLanguage') || 'sq'; // Default to Albanian
+    const savedLanguage = localStorage.getItem('preferredLanguage') || 'en'; // Default to English
     setLanguage(savedLanguage);
 });
 
