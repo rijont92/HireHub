@@ -1,6 +1,7 @@
 import { auth, db } from './firebase-config.js';
 import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { createNewChat, openChat } from './chat.js';
+import { translations, currentLanguage } from './translations.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -27,6 +28,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const educationList = document.getElementById('educationList');
     const postedJobs = document.getElementById('postedJobs');
     const startChatBtn = document.getElementById('startChatBtn');
+
+    // Add translation attributes to elements
+    userLocation.setAttribute('data-translate', 'location-not-specified');
+    userBio.setAttribute('data-translate', 'no-bio');
+    userPhone.setAttribute('data-translate', 'phone-not-specified');
+    userWebsite.setAttribute('data-translate', 'website-not-specified');
+    userProfession.setAttribute('data-translate', 'profession-not-specified');
+    userCompany.setAttribute('data-translate', 'company-not-specified');
+
+    // Update translations when language changes
+    window.addEventListener('languageChanged', () => {
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
+    });
+
+    // Initial translation update
+    if (window.updateTranslations) {
+        window.updateTranslations();
+    }
 
     startChatBtn.addEventListener('click', async () => {
         if (!auth.currentUser) {
@@ -71,19 +92,20 @@ document.addEventListener('DOMContentLoaded', function() {
             profileImage.src = userData.profileImage || '../img/logo.png';
             userName3.textContent = userData.name || 'No Name';
             userEmail.textContent = userData.email || 'No Email';
-            userLocation.textContent = userData.location || 'Location not specified';
-            userBio.textContent = userData.bio || 'No bio available';
-            userPhone.textContent = userData.phone || 'Phone not specified';
-            userWebsite.textContent = userData.website || 'Website not specified';
-            userProfession.textContent = userData.title || 'Profession not specified';
-            userCompany.textContent = userData.company || 'Company not specified';
+            userLocation.innerHTML = userData.location || '<span data-translate="location-not-specified">Location not specified</span>';
+            userBio.innerHTML = userData.bio || '<span data-translate="no-bio">No bio available</span>';
+            userPhone.innerHTML = userData.phone || '<span data-translate="phone-not-specified">Phone not specified</span>';
+            userWebsite.innerHTML = userData.website || '<span data-translate="website-not-specified">Website not specified</span>';
+            userProfession.innerHTML = userData.title || '<span data-translate="profession-not-specified">Profession not specified</span>';
+            userCompany.innerHTML = userData.company || '<span data-translate="company-not-specified">Company not specified</span>';
+
 
             if (userData.skills && userData.skills.length > 0) {
                 skillsList.innerHTML = userData.skills.map(skill => `
                     <div class="skill-tag">${skill}</div>
                 `).join('');
             } else {
-                skillsList.innerHTML = '<p>No skills listed</p>';
+                skillsList.innerHTML = '<p data-translate="no-skills">No skills listed</p>';
             }
 
             if (userData.experience && userData.experience.length > 0) {
@@ -91,25 +113,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="experience-item">
                         <h3>${exp.title}</h3>
                         <p class="company">${exp.company}</p>
-                        <p class="duration">${exp.startDate} - ${exp.endDate || 'Present'}</p>
+                        <p class="duration">${exp.startDate} - ${exp.endDate || translations[currentLanguage]['present']}</p>
                         <p class="description">${exp.description}</p>
                     </div>
                 `).join('');
             } else {
-                experienceList.innerHTML = '<p>No experience listed</p>';
+                experienceList.innerHTML = '<p data-translate="no-experience">No experience listed</p>';
             }
 
             if (userData.education && userData.education.length > 0) {
                 educationList.innerHTML = userData.education.map(edu => `
                     <div class="education-item">
-                        <h3>${edu.degree}</h3>
-                        <p class="institution">${edu.institution}</p>
-                        <p class="duration">${edu.startDate} - ${edu.endDate || 'Present'}</p>
+                        <h3>${edu.degree || translations[currentLanguage]['degree']}</h3>
+                        <p class="institution">${edu.school || translations[currentLanguage]['school-university']}</p>
+                        <p class="duration">${edu.startDate || ''} - ${edu.endDate || translations[currentLanguage]['present']}</p>
                         <p class="description">${edu.description || ''}</p>
                     </div>
                 `).join('');
             } else {
-                educationList.innerHTML = '<p>No education listed</p>';
+                educationList.innerHTML = '<p data-translate="no-education">No education listed</p>';
             }
 
             await loadPostedJobs();
@@ -118,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
             profileContent.style.display = 'block';
         } catch (error) {
             console.error('Error loading user profile:', error);
-            showError('Failed to load user profile');
+            showError(translations[currentLanguage]['error-loading-profile']);
         }
     }
 
@@ -149,15 +171,18 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 postedJobs.innerHTML = `
                     <div class="no-jobs-message">
-                        <p>No jobs posted yet</p>
+                        <p data-translate="no-jobs-posted">No jobs posted yet</p>
                     </div>
                 `;
+                if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
             }
         } catch (error) {
             console.error('Error loading posted jobs:', error);
             postedJobs.innerHTML = `
                 <div class="error-message">
-                    <p>Failed to load posted jobs</p>
+                    <p data-translate="error-loading-jobs">Failed to load posted jobs</p>
                 </div>
             `;
         }
@@ -168,6 +193,12 @@ document.addEventListener('DOMContentLoaded', function() {
         card.className = 'job-card';
         
         const jobTypeClass = job.jobType.toLowerCase().replace(/\s+/g, '-');
+          const status_r = {
+            "full-time": "Full Time",
+            "part-time": "Part Time",
+            "contract": "Contract",
+            "internship": "Internship"
+        }
         
         card.innerHTML = `
             <div class="job-card-content">
@@ -183,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="job-meta-info">
                         <div class="meta-item job-type ${jobTypeClass}">
                             <i class="fas fa-briefcase"></i>
-                            <span>${job.jobType}</span>
+                            <span data-translate="${status_r[job.jobType]}">${status_r[job.jobType]}</span>
                         </div>
                         <div class="meta-item location">
                             <i class="fas fa-map-marker-alt"></i>
@@ -202,6 +233,10 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = `single-job.html?id=${job.id}`;
         });
 
+         if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
+
         return card;
     }
 
@@ -209,11 +244,14 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingSpinner.style.display = 'none';
         profileContent.innerHTML = `
             <div class="error-message">
-                <h3>Error</h3>
+                <h3 data-translate="error">Error</h3>
                 <p>${message}</p>
             </div>
         `;
         profileContent.style.display = 'block';
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
     }
 
     loadUserProfile();

@@ -316,11 +316,11 @@ const translations = {
         "edit": "Edit",
         "no-bio": "No bio available",
         "skills": "Skills",
-        "no-skills": "No skills added yet",
+        "no-skills": "No skills listed",
         "experience": "Experience",
-        "no-experience": "No experience added yet",
+        "no-experience": "No experience listed",
         "education": "Education",
-        "no-education": "No education added yet",
+        "no-education": "No education listed",
         "applied-jobs": "Applied Jobs",
         "no-applications": "No Applications Yet",
         "havent-applied": "You haven't applied to any jobs yet.",
@@ -503,8 +503,25 @@ const translations = {
         "o1":"You haven't received any applications for your posted jobs yet.",
         "dd1": "You haven't posted any jobs yet. Start by posting a job to receive applications.",
         "01":"No Jobs Found",
-        "02":"No jobs match your current filters."
+        "02":"No jobs match your current filters.",
+        
+  "location-not-specified": "Location not specified",
+  "no-bio": "No bio available",
+  "phone-not-specified": "Phone not specified",
+  "website-not-specified": "Website not specified",
+  "profession-not-specified": "Profession not specified",
+  "company-not-specified": "Company not specified",
+  "no-jobs-posted": "No jobs posted yet",
+  "error-loading-jobs": "Failed to load posted jobs",
+  "error-loading-profile": "Failed to load user profile",
+  "error": "Error",
+  "present": "Present",
 
+
+
+
+
+        "start-chatting":"Start Chatting",
 
 
     },
@@ -823,11 +840,11 @@ const translations = {
         "edit": "Ndrysho",
         "no-bio": "Nuk ka biografi të disponueshme",
         "skills": "Aftësit",
-        "no-skills": "Nuk ka aftësi të disponueshme",
+        "no-skills": "Nuk ka aftësi të listuara",
         "experience": "Eksperienca",
-        "no-experience": "Nuk është shtuar asnjë eksperiencë ende",
+        "no-experience": "Nuk ka eksperiencë të listuar",
         "education": "Edukimi",
-        "no-education": "Nuk është shtuar asnjë arsimim ende",
+        "no-education": "Nuk ka edukim të listuar",
         "applied-jobs": "Punët e Aplikuara",
         "no-applications": "Nuk ka aplikime ende",
         "havent-applied": "Ende nuk keni aplikuar për ndonjë punë.",
@@ -974,7 +991,23 @@ const translations = {
         "o1": "Ende nuk keni marrë asnjë aplikim për punët që keni publikuar.",
         "dd1": "Ende nuk keni publikuar asnjë punë. Filloni duke publikuar një punë për të marrë aplikime.",
         "01": "Asnjë punë nuk u gjet",
-        "02": "Asnjë punë nuk përputhet me filtrat tuaj aktualë."
+        "02": "Asnjë punë nuk përputhet me filtrat tuaj aktualë.",
+        
+  "location-not-specified": "Vendndodhja nuk është specifikuar",
+  "no-bio": "Asnjë biografi në dispozicion",
+  "phone-not-specified": "Numri i telefonit nuk është specifikuar",
+  "website-not-specified": "Faqja e internetit nuk është specifikuar",
+  "profession-not-specified": "Profesioni nuk është specifikuar",
+  "company-not-specified": "Kompania nuk është specifikuar",
+  "no-jobs-posted": "Nuk ka punë të postuara ende",
+  "error-loading-jobs": "Dështoi ngarkimi i punëve të postuara",
+  "error-loading-profile": "Dështoi ngarkimi i profilit të përdoruesit",
+  "error": "Gabim",
+  "present": "Aktualisht",
+  "start-chatting": "Fillo bisedën",
+
+
+
 
 
 

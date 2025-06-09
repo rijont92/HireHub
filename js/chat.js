@@ -204,50 +204,60 @@ async function loadChats() {
     );
 
     chatListener = onSnapshot(q, async (snapshot) => {
+        if (!chatList) return;
+        
         chatList.innerHTML = '';
         if (snapshot.empty) {
             messagesContainer.innerHTML = '<div style="padding:20px;color:#888;text-align:center; display:flex; justify-content:center; align-items:center; height:100%;" data-translate="no active chats">No active chats. Start a conversation from a user\'s profile!</div>';
-                if (window.updateTranslations) {
-                            window.updateTranslations();
-                        }
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
             return;
         }
 
-    
-        
-        for (const doc of snapshot.docs) {
-            const chat = doc.data();
-            const chatId = doc.id;
+        const chatPromises = snapshot.docs.map(async (chatDoc) => {
+            const chat = chatDoc.data();
+            const chatId = chatDoc.id;
             const otherUserId = chat.participants.find(id => id !== currentUser.uid);
             
             if (!otherUserId) {
                 console.error('Invalid chat data - missing other participant:', chatId);
-                continue;
+                return null;
             }
 
             let otherUserName = chat.participantNames?.[otherUserId];
+            let shouldUpdateNames = false;
             
-            if (!otherUserName) {
-                try {
-                    const userDocRef = doc(db, 'users', otherUserId);
-                    const userDocSnap = await getDoc(userDocRef);
-                    if (userDocSnap.exists()) {
-                        const userData = userDocSnap.data();
-                        otherUserName = userData.displayName || userData.name || 'User';
-                        
-                        await updateDoc(doc.ref, {
-                            participantNames: {
-                                ...chat.participantNames,
-                                [otherUserId]: otherUserName
-                            }
-                        });
-                    } else {
-                        console.error('User document not found:', otherUserId);
-                        continue;
+            try {
+                const userDocRef = doc(db, 'users', otherUserId);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const newName = userData.displayName || userData.name || 'User';
+                    
+                    if (otherUserName !== newName) {
+                        otherUserName = newName;
+                        shouldUpdateNames = true;
                     }
+                } else {
+                    console.error('User document not found:', otherUserId);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                return null;
+            }
+
+            if (shouldUpdateNames) {
+                try {
+                    await updateDoc(chatDoc.ref, {
+                        participantNames: {
+                            ...chat.participantNames,
+                            [otherUserId]: otherUserName
+                        }
+                    });
                 } catch (error) {
-                    console.error('Error fetching user data:', error);
-                    continue;
+                    console.error('Error updating participant names:', error);
                 }
             }
 
@@ -267,9 +277,20 @@ async function loadChats() {
 
             listenForUnread(chatId, chatItem);
 
-            chatItem.addEventListener('click', () => openChat(chatId, otherUserId));
-            chatList.appendChild(chatItem);
-        }
+            chatItem.addEventListener('click', () => {
+                openChat(chatId, otherUserId);
+                chatWidget.classList.add('active');
+            });
+
+            return chatItem;
+        });
+
+        const chatItems = await Promise.all(chatPromises);
+        chatItems.forEach(item => {
+            if (item) {
+                chatList.appendChild(item);
+            }
+        });
     });
 }
 
@@ -313,28 +334,52 @@ async function openChat(chatId, otherUserId) {
         }
     });
 
+    // Load and update participant names
     participantNames = {};
     try {
         const chatData = chatDoc.data();
+        const participantIds = chatData.participants || [];
+        let shouldUpdateNames = false;
+
+        // First try to get names from chat document
         if (chatData.participantNames) {
-            participantNames = chatData.participantNames;
-        } else {
-            const participantIds = chatData.participants || [];
-            for (const uid of participantIds) {
+            participantNames = { ...chatData.participantNames };
+        }
+
+        // Then verify and update names from user documents
+        for (const uid of participantIds) {
+            try {
                 const userDocRef = doc(db, 'users', uid);
                 const userDocSnap = await getDoc(userDocRef);
                 if (userDocSnap.exists()) {
                     const user = userDocSnap.data();
-                    participantNames[uid] = user.displayName || user.name || 'User';
+                    const newName = user.displayName || user.name || 'User';
+                    
+                    // Update if name is different or missing
+                    if (!participantNames[uid] || participantNames[uid] !== newName) {
+                        participantNames[uid] = newName;
+                        shouldUpdateNames = true;
+                    }
                 }
+            } catch (e) {
+                console.error('Error fetching user data for participant:', uid, e);
             }
-            await updateDoc(chatRef, { participantNames });
+        }
+
+        // Update chat document if names changed
+        if (shouldUpdateNames) {
+            try {
+                await updateDoc(chatRef, { participantNames });
+            } catch (e) {
+                console.error('Error updating participant names:', e);
+            }
         }
     } catch (e) {
         console.error('Error loading participant names:', e);
         participantNames = {};
     }
 
+    // Load messages
     const messagesRef = collection(db, 'chats', chatId, 'messages');
     const q = query(messagesRef, orderBy('timestamp', 'asc'));
 
@@ -350,6 +395,7 @@ async function openChat(chatId, otherUserId) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
 
+    // Update chat banner
     const chatMessages = document.getElementById('chatMessages');
     let chatWithBanner = document.getElementById('chatWithBanner');
     if (!chatWithBanner) {
@@ -366,7 +412,6 @@ async function openChat(chatId, otherUserId) {
     const otherUserName = participantNames[otherUserId] || 'User';
     chatWithBanner.innerHTML = `<span data-translate="chatting-with">Chatting with</span> ${otherUserName}`;
     
-    // Apply translations after setting the banner text
     if (window.updateTranslations) {
         window.updateTranslations();
     }
@@ -499,6 +544,12 @@ async function createNewChat(otherUserId, otherUserName, companyName = null) {
         const chatRef = await addDoc(chatsRef, chatData);
         const chatId = chatRef.id;
 
+        // Ensure chat widget is visible
+        if (chatWidget) {
+            chatWidget.classList.add('active');
+        }
+
+        // Load chats to update the list
         await loadChats();
 
         return chatId;
