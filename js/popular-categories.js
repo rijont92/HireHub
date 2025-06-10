@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     <div class="category-content">
                         <h4 data-translate="${category}">${category}</h4>
-                        <p>${count} ${count === 1 ? 'Job' : 'Jobs'}</p>
+                        <p><span>${count}</span> <span data-translate="${count === 1 ? 'job_one' : 'job_many'}">${count === 1 ? translations[currentLanguage].job_one : translations[currentLanguage].job_many}</span></p>
                     </div>
                 </div>
         `;

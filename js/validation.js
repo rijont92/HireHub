@@ -1,8 +1,5 @@
 import { currentLanguage, translations } from './translations.js';
 
-console.log('Validation module loaded');
-console.log('Current language:', currentLanguage);
-console.log('Available translations:', translations);
 
 function validateEmail(email) {
     if (!email || email.trim() === '') {
@@ -38,15 +35,12 @@ function validateName(name) {
 }
 
 function validateLoginPassword(password) {
-    console.log('Validating password:', password);
     if (!password || password.trim() === '') {
-        console.log('Password is empty, returning validation error');
         return { 
             isValid: false, 
             message: translations[currentLanguage]['validation-password-required'] 
         };
     }
-    console.log('Password is valid');
     return { isValid: true, message: '' };
 }
 
@@ -158,14 +152,6 @@ function setupLoginValidation() {
     const errorPassword = document.getElementById('error-password');
     const submitButton = document.getElementById('submit');
 
-    console.log('Validation elements:', {
-        emailInput: emailInput,
-        passwordInput: passwordInput,
-        errorEmail: errorEmail,
-        errorEmail,
-        errorPassword: errorPassword,
-        submitButton: submitButton
-    });
 
     // Clear error messages on focus
     if (emailInput && errorEmail) {
@@ -192,17 +178,7 @@ function setupSignupValidation() {
     const errorPassword2 = document.getElementById('error-password2');
     const submitButton = document.getElementById('submit');
 
-    console.log('Signup validation elements:', {
-        nameInput,
-        emailInput,
-        passwordInput,
-        password2Input,
-        errorName,
-        errorEmail,
-        errorPassword,
-        errorPassword2,
-        submitButton
-    });
+   
 
     // Clear error messages on focus
     if (nameInput && errorName) {

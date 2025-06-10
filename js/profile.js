@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let unsubscribeFirestore;
     
     onAuthStateChanged(auth, (user) => {
-        console.log('Auth state changed:', user ? 'User logged in' : 'No user');
         if (user && user.emailVerified) {
             const userRef = doc(db, 'users', user.uid);
             
@@ -65,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Error listening to Firestore changes:", error);
             });
         } else {
-            console.log('User not authenticated or email not verified');
             window.location.href = 'login.html';
         }
     });
@@ -148,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openModal(modalType) {
-        console.log('Opening modal:', modalType);
         const modal = modals[modalType];
         if (!modal) {
             console.error('Modal not found:', modalType);
@@ -248,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editProfileBtn.addEventListener('click', () => openModal('profile'));
     editAboutBtn.addEventListener('click', () => {
-        console.log('Edit About button clicked');
         openModal('about');
     });
     editSkillsBtn.addEventListener('click', () => openModal('skills'));
@@ -323,11 +319,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (editAboutForm) {
         editAboutForm.addEventListener('submit', async (e) => {
-            console.log('About form submitted');
             e.preventDefault();
             
             const bio = document.getElementById('editBio').value;
-            console.log('Bio value:', bio);
 
             // Check if user is authenticated
             if (!auth.currentUser) {
@@ -349,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 updateProfileDisplay();
                 closeModal('about');
-                console.log('Bio updated successfully');
             } catch (error) {
                 console.error('Error updating bio:', error);
                 alert('Error updating bio. Please try again.');

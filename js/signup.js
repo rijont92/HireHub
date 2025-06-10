@@ -85,14 +85,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log('Form submitted');
 
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const password2 = document.getElementById('password2').value;
 
-        console.log('Form values:', { name, email, password, password2 });
 
         errorEmail.textContent = '';
         errorPassword.textContent = '';
@@ -100,10 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
         errorName.textContent = '';
 
         const validation = validateSignupForm(name, email, password, password2);
-        console.log('Validation result:', validation);
 
         if (!validation.isValid) {
-            console.log('Validation failed, setting error messages');
             errorName.textContent = validation.errors.name;
             errorName.style.color = 'red';
             errorEmail.textContent = validation.errors.email;
