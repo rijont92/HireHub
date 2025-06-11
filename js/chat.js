@@ -554,50 +554,9 @@ async function createNewChat(otherUserId, otherUserName, companyName = null) {
 
         return chatId;
     } catch (error) {
-        console.error('Error creating chat:', error);
+        console.error('Error creating new chat:', error);
         return null;
     }
 }
 
-async function updateAllChatParticipantNames() {
-    const chatsRef = collection(db, 'chats');
-    const chatsSnapshot = await getDocs(chatsRef);
-    for (const chatDoc of chatsSnapshot.docs) {
-        const chatData = chatDoc.data();
-        const participantIds = chatData.participants || [];
-        const participantNames = {};
-        for (const uid of participantIds) {
-            let displayName = 'User';
-            try {
-                const userDocRef = doc(db, 'users', uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    const user = userDocSnap.data();
-                    if (user.displayName) displayName = user.displayName;
-                    else if (user.companyName) displayName = user.companyName;
-                }
-            } catch (e) {}
-            participantNames[uid] = displayName;
-        }
-        await updateDoc(chatDoc.ref, { participantNames });
-    }
-    alert('All chats updated with correct participant names!');
-}
-
 export { createNewChat, openChat };
-
-window.updateAllChatParticipantNames = updateAllChatParticipantNames;
-
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('updateChatNamesBtn');
-    if (btn && typeof updateAllChatParticipantNames === 'function') {
-        btn.addEventListener('click', () => {
-            btn.disabled = true;
-            btn.textContent = 'Updating...';
-            updateAllChatParticipantNames().then(() => {
-                btn.textContent = 'Done!';
-                setTimeout(() => btn.remove(), 2000);
-            });
-        });
-    }
-});
