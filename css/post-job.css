@@ -95,7 +95,7 @@
     gap: 0.8rem;
     margin-top: 0.8rem;
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
 }
 
 .form-group label {
@@ -368,7 +368,8 @@
     }
 
     .form-group {
-        min-height: 70px;
+        min-height: auto;
+        margin-bottom: 2.5rem;
     }
     
     .form-group input,
@@ -384,6 +385,10 @@
 
     .form-submit {
         margin-top: 1.5rem;
+    }
+
+    .error-message {
+        font-size: 0.8rem;
     }
 }
 
@@ -410,7 +415,8 @@
     }
 
     .form-group {
-        min-height: 65px;
+        min-height: auto;
+        margin-bottom: 2.5rem;
     }
     
     .form-group input,
@@ -427,6 +433,10 @@
     .submit-btn {
         padding: 0.9rem;
         font-size: 0.95rem;
+    }
+
+    .error-message {
+        font-size: 0.75rem;
     }
 }
 
@@ -468,16 +478,17 @@
 .error-message {
     color: #dc3545;
     font-size: 0.875rem;
-    margin-top: 0.25rem;
-    position: absolute;
-    bottom: -1.25rem;
+    margin-top: 0.5rem;
+    position: relative;
     left: 0;
+    width: 100%;
 }
 
 input.error,
 select.error,
 textarea.error {
     border-color: #dc3545 !important;
+    margin-bottom: 0.25rem;
 }
 
 input.error:focus,

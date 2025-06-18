@@ -120,6 +120,8 @@ document.addEventListener('DOMContentLoaded', function() {
             errorDiv.style.marginTop = '0.3rem';
             errorDiv.textContent = message;
             formGroup.appendChild(errorDiv);
+        } else {
+            existingError.textContent = message;
         }
         
         input.style.borderColor = '#ff4444';
@@ -639,4 +641,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.closeLoginPopup = closeLoginPopup;
+
+    // Add event listener for language change
+    window.addEventListener('languageChanged', function() {
+        // Get all form inputs that have error messages
+        const inputs = postJobForm.querySelectorAll('input:not([type="file"]), select, textarea');
+        inputs.forEach(input => {
+            const formGroup = input.closest('.form-group');
+            const errorDiv = formGroup.querySelector('.error-message');
+            if (errorDiv) {
+                // Re-validate the field to get the translated error message
+                validateField(input);
+            }
+        });
+    });
 }); 
