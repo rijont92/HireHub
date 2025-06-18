@@ -65,17 +65,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const icon = getCategoryIcon(category);
         const color = getCategoryColor(category);
         
+        // Convert 'Others' to 'Other' for the URL
+        const urlCategory = category === 'Others' ? 'Other' : category;
+        
         return `
-           
-                <div class="category-col">
-                    <div class="category-icon" style="background-color: ${color}20">
-                        <i class="fas ${icon}" style="color: ${color}"></i>
-                    </div>
-                    <div class="category-content">
-                        <h4 data-translate="${category}">${category}</h4>
-                        <p><span>${count}</span> <span data-translate="${count === 1 ? 'job_one' : 'job_many'}">${count === 1 ? translations[currentLanguage].job_one : translations[currentLanguage].job_many}</span></p>
-                    </div>
+            <div class="category-col" onclick="window.location.href='/html/jobs.html?category=${encodeURIComponent(urlCategory)}'">
+                <div class="category-icon" style="background-color: ${color}20">
+                    <i class="fas ${icon}" style="color: ${color}"></i>
                 </div>
+                <div class="category-content">
+                    <h4 data-translate="${category}">${category}</h4>
+                    <p><span>${count}</span> <span data-translate="${count === 1 ? 'job_one' : 'job_many'}">${count === 1 ? translations[currentLanguage].job_one : translations[currentLanguage].job_many}</span></p>
+                </div>
+            </div>
         `;
          if (window.updateTranslations) {
                             window.updateTranslations();
