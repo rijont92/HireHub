@@ -25,6 +25,20 @@ document.addEventListener('DOMContentLoaded', function() {
     let allJobs = [];
     let isFetching = false;
 
+    // Get category from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryFromUrl = urlParams.get('category');
+    if (categoryFromUrl) {
+        // Wait for category filter to be populated
+        const checkCategoryFilter = setInterval(() => {
+            if (categoryFilter.options.length > 1) {
+                categoryFilter.value = categoryFromUrl;
+                filterJobs();
+                clearInterval(checkCategoryFilter);
+            }
+        }, 100);
+    }
+
     function createJobCard(job) {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
