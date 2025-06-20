@@ -263,8 +263,8 @@
 
 .similar-jobs-grid-2 {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 50px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
 }
 
 
@@ -895,19 +895,18 @@
 }
 
 .apply-btn, .save-btn {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
 .apply-btn {
@@ -1004,14 +1003,19 @@
 
     .job-actions {
         grid-template-columns: 1fr;
-        gap: 0;
     }
+}
+
+@media (max-width:1100px) {
+    .similar-jobs-grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
 }
 
 @media (max-width:768px) {
     .job-actions,.card-flex {
         grid-template-columns: 1fr;
-        gap: 0;
     }
 
     .company-logo-wrapper {
@@ -1027,6 +1031,8 @@
     }
     
 }
+
+
 
 .job-status {
     display: inline-block;
@@ -1303,4 +1309,22 @@
     border-color: #333 transparent transparent transparent;
     margin-bottom: -5px;
 }
+
+/* Your Job button styling */
+.apply-btn.disabled[data-translate="your-job"] {
+    background-color: #6c757d;
+    color: #fff;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.apply-btn.disabled[data-translate="your-job"]:hover {
+    transform: none;
+    background-color: #6c757d;
+}
+
+.apply-btn.disabled[data-translate="your-job"] i {
+    color: #fff;
+}
+
 

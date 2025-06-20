@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyBtn = document.querySelector('.apply-btn');
     const saveBtn = document.querySelector('.save-btn');
 
+    let currentJob = null; // Store current job data globally
+
     function showLoading() {
         if (loadingSpinner) {
             loadingSpinner.style.display = 'flex';
@@ -88,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const jobData = jobDoc.data();
             jobData.id = jobDoc.id;
             
+            currentJob = jobData; // Store job data globally
             updateJobDetails(jobData);
 
             if (auth.currentUser) {
@@ -193,8 +196,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const jobCard = document.querySelector('.job-card');
         const applyBtn = document.querySelector('.apply-btn');
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
+        const isOwnJob = job.postedBy === auth.currentUser?.uid;
+        const isClosed = job.status === 'closed';
         
-        if (isApplied) {
+        if (isOwnJob) {
+            applyBtn.disabled = true;
+            applyBtn.innerHTML = '<i class="fas fa-user"></i> <span data-translate="your-job">Your Job</span>';
+            applyBtn.style.backgroundColor = '#999';
+            applyBtn.style.cursor = 'not-allowed';
+        } else if (isApplied) {
             const applicationsRef = collection(db, 'applications');
             const q = query(
                 applicationsRef,
@@ -290,7 +300,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-
             const jobsQuery = query(
                 collection(db, 'jobs'),
                 where('jobType', '==', currentJob.jobType),
@@ -316,21 +325,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-
             similarJobs.sort((a, b) => {
                 if (a.location === currentJob.location && b.location !== currentJob.location) return -1;
                 if (a.location !== currentJob.location && b.location === currentJob.location) return 1;
                 return 0;
-            }).slice(0, 3);
+            });
 
+            // Limit to 3 similar jobs
+            const limitedSimilarJobs = similarJobs.slice(0, 3);
 
             similarJobsContainer.innerHTML = '';
 
-            if (similarJobs.length > 0) {
+            if (limitedSimilarJobs.length > 0) {
                 const jobsGrid = document.createElement('div');
                 jobsGrid.className = 'similar-jobs-grid-2';
 
-                similarJobs.forEach(job => {
+                limitedSimilarJobs.forEach(job => {
                     const jobCard = createJobCard(job);
                     jobsGrid.appendChild(jobCard);
                 });
@@ -507,10 +517,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (applyBtn) {
-        applyBtn.addEventListener('click', () => {
-            const jobTitle = document.getElementById('jobTitle')?.textContent;
-            showApplyModal(jobId, jobTitle);
+        applyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const user = auth.currentUser;
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check if user is the job poster
+            if (isOwnJob) {
+                showNotification('You cannot apply to your own job posting.', 'error');
+                return;
+            }
+            
+            // Check if job is closed
+            if (isClosed) {
+                showNotification('This job is closed and no longer accepting applications.', 'error');
+                return;
+            }
+            
+            showApplyModal(jobId, job.jobTitle);
         });
+
+        if (auth.currentUser) {
+            updateApplicationStatus(jobId);
+        }
     }
 
     applyModalOverlay.addEventListener('click', (e) => {
@@ -537,24 +569,37 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Check if user is trying to apply to their own job
+        if (currentJob && currentJob.postedBy === user.uid) {
+            showNotification('You cannot apply to your own job posting.', 'error');
+            hideApplyModal();
+            return;
+        }
+        
+        // Check if job is closed
+        if (currentJob && currentJob.status === 'closed') {
+            showNotification('This job is closed and no longer accepting applications.', 'error');
+            hideApplyModal();
+            return;
+        }
 
         try {
             const formData = new FormData(applyForm);
             const resumeFile = formData.get('resume');
             
             if (!resumeFile || resumeFile.size === 0) {
-                alert('Please upload your resume');
+                showNotification('Please upload your resume', 'error');
                 return;
             }
 
             if (resumeFile.size > 5 * 1024 * 1024) {
-                alert('Resume file size should be less than 5MB');
+                showNotification('Resume file size should be less than 5MB', 'error');
                 return;
             }
 
             const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!allowedTypes.includes(resumeFile.type)) {
-                alert('Please upload a PDF or Word document');
+                showNotification('Please upload a PDF or Word document', 'error');
                 return;
             }
 
@@ -738,6 +783,10 @@ document.addEventListener('DOMContentLoaded', function() {
             "internship": "internship"
         }
         
+        // Check if this is the user's own job
+        const isOwnJob = job.postedBy === auth.currentUser?.uid;
+        const isClosed = job.status === 'closed';
+        
         card.innerHTML = `
             <div class="job-card" data-job-id="${jobId}">
                 <div class="job-card-content">
@@ -775,10 +824,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <div class="job-actions">
-                            <button class="apply-btn">
-                                <i class="fas fa-paper-plane"></i> 
-                                <span data-translate="apply-now">Apliko Tani</span>
-                            </button>
+                            ${isOwnJob ? `
+                                <button class="apply-btn disabled" disabled>
+                                    <i class="fas fa-user"></i> <span data-translate="your-job">Your Job</span>
+                                </button>
+                            ` : isClosed ? `
+                                <button class="apply-btn disabled" disabled>
+                                    <i class="fas fa-lock"></i> <span data-translate="closed">Closed</span>
+                                </button>
+                            ` : `
+                                <button class="apply-btn">
+                                    <i class="fas fa-paper-plane"></i> 
+                                    <span data-translate="apply-now">Apliko Tani</span>
+                                </button>
+                            `}
                             <button class="save-btn" data-job-id="${jobId}">
                                 <i class="far fa-bookmark"></i>
                                 <span data-translate="save">Save Job</span>
@@ -807,6 +866,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = 'login.html';
                     return;
                 }
+                
+                // Check if user is the job poster
+                if (isOwnJob) {
+                    showNotification('You cannot apply to your own job posting.', 'error');
+                    return;
+                }
+                
+                // Check if job is closed
+                if (isClosed) {
+                    showNotification('This job is closed and no longer accepting applications.', 'error');
+                    return;
+                }
+                
                 showApplyModal(jobId, job.jobTitle);
             });
 

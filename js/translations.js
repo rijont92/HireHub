@@ -140,6 +140,7 @@ const translations = {
         "approved": "Approved",
         "rejected": "Rejected",
         "closed": "Closed",
+        "your-job": "Your Job",
         "apply-for": "Apply for",
         "full-name": "Full Name",
         "email":"Email",
@@ -520,8 +521,8 @@ const translations = {
 
 
         "start-chatting":"Start Chatting",
-
-
+        "closed-job-message": "This job is closed and no longer accepting applications.",
+        "apply-for": "Apply for"
     },
     
     sq: {
@@ -662,6 +663,7 @@ const translations = {
         "approved": "I aprovuar",
         "rejected": "I refuzuar",
         "closed": "E mbyllur",
+        "your-job": "Puna juaj",
         "apply-for": "Apliko për",
         "full-name": "Emri i plotë",
         "email":"Email",
@@ -1001,20 +1003,8 @@ const translations = {
   "error": "Gabim",
   "present": "Aktualisht",
   "start-chatting": "Fillo bisedën",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  "closed-job-message": "Kjo punë është e mbyllur dhe nuk pranon më aplikime.",
+  "apply-for": "Apliko për"
     }
 };
 

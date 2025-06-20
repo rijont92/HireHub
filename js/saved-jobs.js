@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isClosed = job.status === 'closed';
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
+        const isOwnJob = job.postedBy === auth.currentUser?.uid;
         
         const jobItem = document.createElement('div');
         jobItem.className = `job-item ${isClosed ? 'closed' : ''}`;
@@ -74,7 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                     
                     <div class="job-actions">
-                        ${isClosed ? `
+                        ${isOwnJob ? `
+                            <button class="apply-btn disabled" disabled>
+                                <i class="fas fa-user"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job']}</span>
+                            </button>
+                        ` : isClosed ? `
                             <button class="apply-btn disabled" disabled>
                                 <i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed']}</span>
                             </button>
@@ -113,6 +118,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (applyBtn && !applyBtn.disabled) {
             applyBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                
+                // Check if user is the job poster
+                if (isOwnJob) {
+                    showNotification('You cannot apply to your own job posting.', 'error');
+                    return;
+                }
+                
+                // Check if job is closed
+                if (isClosed) {
+                    showNotification('This job is closed and no longer accepting applications.', 'error');
+                    return;
+                }
+                
                 showApplyModal(jobId, job.jobTitle);
             });
         }
@@ -326,6 +344,31 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!user) {
             window.location.href = '../html/login.html';
             return;
+        }
+
+        // Check if user is trying to apply to their own job
+        if (currentJobId) {
+            try {
+                const jobRef = doc(db, 'jobs', currentJobId);
+                const jobDoc = await getDoc(jobRef);
+                if (jobDoc.exists()) {
+                    const jobData = jobDoc.data();
+                    if (jobData.postedBy === user.uid) {
+                        showNotification('You cannot apply to your own job posting.', 'error');
+                        hideApplyModal();
+                        return;
+                    }
+                    
+                    // Check if job is closed
+                    if (jobData.status === 'closed') {
+                        showNotification('This job is closed and no longer accepting applications.', 'error');
+                        hideApplyModal();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking job ownership:', error);
+            }
         }
 
         try {
