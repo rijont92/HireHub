@@ -707,4 +707,21 @@ body {
 .job-item .application-status[title]:not([title=""]):hover::after {
     opacity: 1;
     visibility: visible;
+}
+
+/* Your Job button styling */
+.apply-btn.disabled[data-translate="your-job"] {
+    background-color: #6c757d;
+    color: #fff;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.apply-btn.disabled[data-translate="your-job"]:hover {
+    transform: none;
+    background-color: #6c757d;
+}
+
+.apply-btn.disabled[data-translate="your-job"] i {
+    color: #fff;
 } 

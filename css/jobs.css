@@ -773,6 +773,23 @@
     background-color: #999;
 }
 
+/* Your Job button styling */
+.apply-btn.disabled[data-translate="your-job"] {
+    background-color: #6c757d;
+    color: #fff;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.apply-btn.disabled[data-translate="your-job"]:hover {
+    transform: none;
+    background-color: #6c757d;
+}
+
+.apply-btn.disabled[data-translate="your-job"] i {
+    color: #fff;
+}
+
 .success-notification {
     position: fixed;
     top: 20px;
@@ -846,4 +863,54 @@
 .job-card.hot-job:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Notification styling */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 1001;
+    animation: slideIn 0.3s ease;
+}
+
+.notification.success {
+    border-left: 4px solid #4caf50;
+}
+
+.notification.error {
+    border-left: 4px solid #f44336;
+}
+
+.notification.fade-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }

@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const isClosed = job.status === 'closed';
         const isSaved = job.isSaved || false;
         const isHotJob = job.isHotJob;
+        const isOwnJob = job.postedBy === auth.currentUser?.uid;
         
         let applicationStatus = 'pending';
         let statusClass = 'status-pending';
@@ -128,7 +129,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <div class="job-actions">
-                            ${isApplied ? `
+                            ${isOwnJob ? `
+                                <button class="apply-btn disabled" disabled>
+                                    <i class="fas fa-user"></i> <span data-translate="your-job">Your Job</span>
+                                </button>
+                            ` : isApplied ? `
                                 <div class="application-status ${statusClass}" title="${applicationMessage}">
                                     <i class="fas fa-clock"></i>
                                     <span data-translate="${applicationStatus}">${applicationStatus.charAt(0).toUpperCase() + applicationStatus.slice(1)}</span>
@@ -430,7 +435,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if (applyBtn) {
             e.stopPropagation();
             const jobId = applyBtn.dataset.jobId;
-            showApplyModal(jobId, allJobs.find(job => job.id === jobId).jobTitle);
+            const job = allJobs.find(job => job.id === jobId);
+            
+            // Check if user is the job poster
+            if (job && job.postedBy === auth.currentUser?.uid) {
+                showNotification('You cannot apply to your own job posting.', 'error');
+                return;
+            }
+            
+            // Check if job is closed
+            if (job && job.status === 'closed') {
+                showNotification('This job is closed and no longer accepting applications.', 'error');
+                return;
+            }
+            
+            showApplyModal(jobId, job.jobTitle);
             return;
         }
 
@@ -466,6 +485,22 @@ document.addEventListener('DOMContentLoaded', function() {
         currentJobId = null;
     }
 
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
     applyModalOverlay.addEventListener('click', (e) => {
         if (e.target === applyModalOverlay) {
             hideApplyModal();
@@ -484,23 +519,40 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Check if user is trying to apply to their own job
+        if (currentJobId) {
+            const job = allJobs.find(job => job.id === currentJobId);
+            if (job && job.postedBy === user.uid) {
+                showNotification('You cannot apply to your own job posting.', 'error');
+                hideApplyModal();
+                return;
+            }
+            
+            // Check if job is closed
+            if (job && job.status === 'closed') {
+                showNotification('This job is closed and no longer accepting applications.', 'error');
+                hideApplyModal();
+                return;
+            }
+        }
+
         try {
             const formData = new FormData(applyForm);
             const resumeFile = formData.get('resume');
             
             if (!resumeFile || resumeFile.size === 0) {
-                alert('Please upload your resume');
+                showNotification('Please upload your resume', 'error');
                 return;
             }
 
             if (resumeFile.size > 5 * 1024 * 1024) {
-                alert('Resume file size should be less than 5MB');
+                showNotification('Resume file size should be less than 5MB', 'error');
                 return;
             }
 
             const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
             if (!allowedTypes.includes(resumeFile.type)) {
-                alert('Please upload a PDF or Word document');
+                showNotification('Please upload a PDF or Word document', 'error');
                 return;
             }
 
@@ -541,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 2000);
         } catch (error) {
             console.error('Error submitting application:', error);
-            alert('Error submitting application. Please try again.');
+            showNotification('Error submitting application. Please try again.', 'error');
         }
     });
 
@@ -600,7 +652,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error saving job:', error);
-            alert('Failed to save job. Please try again.');
+            showNotification('Failed to save job. Please try again.', 'error');
         }
     }
 
