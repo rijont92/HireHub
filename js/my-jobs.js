@@ -1,7 +1,7 @@
 import { auth, db } from './firebase-config.js';
 import { collection, query, where, getDocs, doc, getDoc, updateDoc, deleteDoc, arrayRemove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
+import { translations, currentLanguage } from './translations.js';
 document.addEventListener('DOMContentLoaded', function() {
     const jobsList = document.getElementById('jobsList');
     const searchInput = document.getElementById('searchInput');
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Zubin Potok', 'Zveçan', 'Leposaviç', 'North Mitrovica', 'Other'
             ];
 
-            locationFilter.innerHTML = '<option value="" data-translate="All Locations">All Locations</option>';
+            locationFilter.innerHTML = `<option value="" data-translate="All Locations">${translations[currentLanguage]['All Locations'] || 'All Locations'}</option>`;
             predefinedLocations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = location;
@@ -133,7 +133,7 @@ if (window.updateTranslations) {
                     <div class="job-title-section">
                         <h3 class="job-title">${job.jobTitle}</h3>
                         <p class="company-name">${job.companyName}</p>
-                        ${job.status === 'closed' ? '<span class="job-status closed" data-translate="closed">Closed</span>' : ''}
+                        ${job.status === 'closed' ? `<span class="job-status closed" data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>` : ''}
                     </div>
                     <div class="job-meta-info">
                         <div class="meta-item job-type">
