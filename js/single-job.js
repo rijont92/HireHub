@@ -18,6 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
         window.updateTranslations();
     }
 
+    // Small delay to ensure translation system is ready
+    setTimeout(() => {
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
+    }, 100);
+
     const urlParams = new URLSearchParams(window.location.search);
     const jobId = urlParams.get('id');
 
@@ -137,6 +144,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading job:', error);
             showError('There was an error loading the job details');
         }
+        
+        // Ensure translations are applied after job data is loaded
+        if (window.updateTranslations) {
+            window.updateTranslations();
+        }
     }
 
     function updateJobDetails(job) {
@@ -177,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const saveBtn = document.querySelector('.save-btn');
         if (saveBtn) {
             saveBtn.setAttribute('data-job-id', job.id);
-            saveBtn.innerHTML = `<i class="far fa-bookmark"></i><span data-translate="save">Save Job</span>`;
+            saveBtn.innerHTML = `<i class="far fa-bookmark"></i><span data-translate="save">${translations[currentLanguage]['save'] || 'Save Job'}</span>`;
             saveBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const user = auth.currentUser;
@@ -201,9 +213,25 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isOwnJob) {
             applyBtn.disabled = true;
-            applyBtn.innerHTML = '<i class="fas fa-user"></i> <span data-translate="your-job">Your Job</span>';
+            if (isClosed) {
+                // If it's your own job and it's closed, show closed styling but with "Your Job (Closed)" text
+                jobCard.classList.add('closed');
+                applyBtn.innerHTML = `<i class="fas fa-lock"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span> <span data-translate="closed">(${translations[currentLanguage]['closed'] || 'Closed'})</span>`;
+                
+                const jobTitleSection = document.querySelector('.job-title-section');
+                const statusIndicator = document.createElement('span');
+                statusIndicator.className = 'job-status closed';
+                statusIndicator.innerHTML = `<span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>`;
+                jobTitleSection.appendChild(statusIndicator);
+            } else {
+                // If it's your own job and it's active, show just "Your Job"
+                applyBtn.innerHTML = `<i class="fas fa-user"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span>`;
+            }
             applyBtn.style.backgroundColor = '#999';
             applyBtn.style.cursor = 'not-allowed';
+             if (window.updateTranslations) {
+            window.updateTranslations();
+        }
         } else if (isApplied) {
             const applicationsRef = collection(db, 'applications');
             const q = query(
@@ -238,17 +266,17 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (job.status === 'closed') {
             jobCard.classList.add('closed');
             applyBtn.disabled = true;
-            applyBtn.innerHTML = '<i class="fas fa-lock"></i> <span data-translate="closed">Closed</span>';
+            applyBtn.innerHTML = `<i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>`;
             applyBtn.style.backgroundColor = '#999';
             applyBtn.style.cursor = 'not-allowed';
             
             const jobTitleSection = document.querySelector('.job-title-section');
             const statusIndicator = document.createElement('span');
             statusIndicator.className = 'job-status closed';
-            statusIndicator.innerHTML = '<span data-translate="closed">Closed</span>';
+            statusIndicator.innerHTML = `<span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>`;
             jobTitleSection.appendChild(statusIndicator);
         } else {
-            applyBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span data-translate="apply-now">Apliko Tani</span>';
+            applyBtn.innerHTML = `<i class="fas fa-paper-plane"></i> <span data-translate="apply-now">${translations[currentLanguage]['apply-now'] || 'Apply Now'}</span>`;
         }
 
         // Update translations after updating job details
@@ -819,34 +847,37 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                             <div class="deadline">
                                 <i class="far fa-clock"></i>
-                                <span data-translate="apply-before">Apliko para:</span> ${formatSimpleDate(job.applicationDeadline)}
+                                <span data-translate="apply-before">${translations[currentLanguage]['apply-before'] || 'Apply before:'}</span> ${formatSimpleDate(job.applicationDeadline)}
                             </div>
                         </div>
                         
                         <div class="job-actions">
                             ${isOwnJob ? `
                                 <button class="apply-btn disabled" disabled>
-                                    <i class="fas fa-user"></i> <span data-translate="your-job">Your Job</span>
+                                    <i class="fas ${isClosed ? 'fa-lock' : 'fa-user'}"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span>${isClosed ? ` <span data-translate="closed">(${translations[currentLanguage]['closed'] || 'Closed'})</span>` : ''}
                                 </button>
                             ` : isClosed ? `
                                 <button class="apply-btn disabled" disabled>
-                                    <i class="fas fa-lock"></i> <span data-translate="closed">Closed</span>
+                                    <i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>
                                 </button>
                             ` : `
                                 <button class="apply-btn">
                                     <i class="fas fa-paper-plane"></i> 
-                                    <span data-translate="apply-now">Apliko Tani</span>
+                                    <span data-translate="apply-now">${translations[currentLanguage]['apply-now'] || 'Apply Now'}</span>
                                 </button>
                             `}
                             <button class="save-btn" data-job-id="${jobId}">
                                 <i class="far fa-bookmark"></i>
-                                <span data-translate="save">Save Job</span>
+                                <span data-translate="save">${translations[currentLanguage]['save'] || 'Save Job'}</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
+         if (window.updateTranslations) {
+            window.updateTranslations();
+        }
 
         card.addEventListener('click', (e) => {
             if (e.target.closest('.job-actions')) {
@@ -854,6 +885,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             window.location.href = `single-job.html?id=${jobId}`;
         });
+         if (window.updateTranslations) {
+            window.updateTranslations();
+        }
 
         const applyBtn = card.querySelector('.apply-btn');
         const saveBtn = card.querySelector('.save-btn');
@@ -878,13 +912,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     showNotification('This job is closed and no longer accepting applications.', 'error');
                     return;
                 }
-                
+                 if (window.updateTranslations) {
+            window.updateTranslations();
+        }
                 showApplyModal(jobId, job.jobTitle);
             });
 
             if (auth.currentUser) {
                 updateApplicationStatus(jobId);
             }
+             if (window.updateTranslations) {
+            window.updateTranslations();
+        }
         }
 
         if (saveBtn) {
@@ -902,9 +941,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkSavedStatus(jobId);
             }
         }
+         if (window.updateTranslations) {
+            window.updateTranslations();
+        }
 
         return card;
+
+        
     }
+     if (window.updateTranslations) {
+            window.updateTranslations();
+        }
 
     loadJobData();
 

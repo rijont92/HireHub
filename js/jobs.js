@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="job-title-section">
                         <h3 class="job-title">${job.jobTitle}</h3>
                         <p class="company-name">${job.companyName}</p>
-                        ${isClosed ? '<span class="job-status closed" data-translate="closed">Closed</span>' : ''}
+                        ${isClosed ? `<span class="job-status closed" data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>` : ''}
                     </div>
                     <div class="job-meta-info">
                         <div class="meta-item job-type ${jobTypeClass}">
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="job-actions">
                             ${isOwnJob ? `
                                 <button class="apply-btn disabled" disabled>
-                                    <i class="fas fa-user"></i> <span data-translate="your-job">Your Job</span>
+                                    <i class="fas fa-user"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span>
                                 </button>
                             ` : isApplied ? `
                                 <div class="application-status ${statusClass}" title="${applicationMessage}">
@@ -140,11 +140,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             ` : isClosed ? `
                                 <button class="apply-btn disabled" disabled>
-                                    <i class="fas fa-lock"></i> <span data-translate="closed">Closed</span>
+                                    <i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>
                                 </button>
                             ` : `
                                 <button class="apply-btn" data-job-id="${job.id}">
-                                    <i class="fas fa-paper-plane"></i> <span data-translate="apply-now">Apply Now</span>
+                                    <i class="fas fa-paper-plane"></i> <span data-translate="apply-now">${translations[currentLanguage]['apply-now'] || 'Apply Now'}</span>
                                 </button>
                             `}
                             <button class="save-btn ${isSaved ? 'saved' : ''}" data-job-id="${job.id}">
