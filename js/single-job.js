@@ -50,7 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyBtn = document.querySelector('.apply-btn');
     const saveBtn = document.querySelector('.save-btn');
 
+    // Add missing modal element declarations
+    const applyModalOverlay = document.getElementById('applyModalOverlay');
+    const closeApplyModal = document.getElementById('closeApplyModal');
+    const cancelApply = document.getElementById('cancelApply');
+    const applyForm = document.getElementById('applyForm');
+    const applyJobTitle = document.getElementById('applyJobTitle');
+
     let currentJob = null; // Store current job data globally
+    let isOwnJob = false; // Track if current user is the job poster
+    let isClosed = false; // Track if job is closed
 
     function showLoading() {
         if (loadingSpinner) {
@@ -208,8 +217,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const jobCard = document.querySelector('.job-card');
         const applyBtn = document.querySelector('.apply-btn');
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
-        const isOwnJob = job.postedBy === auth.currentUser?.uid;
-        const isClosed = job.status === 'closed';
+        isOwnJob = job.postedBy === auth.currentUser?.uid;
+        isClosed = job.status === 'closed';
         
         if (isOwnJob) {
             applyBtn.disabled = true;
@@ -565,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            showApplyModal(jobId, job.jobTitle);
+            showApplyModal(jobId, currentJob.jobTitle);
         });
 
         if (auth.currentUser) {
