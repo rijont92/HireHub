@@ -318,6 +318,9 @@ function displayApplication(applicationId, application, jobData, userData) {
         </div>
     `;
     
+     if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
     const approveBtn = applicationCard.querySelector('.approve-btn');
     const rejectBtn = applicationCard.querySelector('.reject-btn');
     const deleteBtn = applicationCard.querySelector('.delete-btn');
@@ -338,8 +341,13 @@ function displayApplication(applicationId, application, jobData, userData) {
             );
         });
     }
-    
+     if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
     applicationsContainer.appendChild(applicationCard);
+     if (window.updateTranslations) {
+                            window.updateTranslations();
+                        }
 }
 
 function showStatusUpdateModal(applicationId, newStatus) {
@@ -448,10 +456,21 @@ async function updateApplicationStatus(applicationId, newStatus, message = '') {
             }
         }
 
+        // --- Auto-close job if approved count >= vacancy ---
+        let approvedCount = 0;
+        const approvedQuery = query(collection(db, 'applications'), where('jobId', '==', application.jobId), where('status', '==', 'approved'));
+        const approvedSnapshot = await getDocs(approvedQuery);
+        approvedCount = approvedSnapshot.size;
+        let newStatusForJob = jobData.status;
+        if (jobData.vacancy && approvedCount >= jobData.vacancy) {
+            newStatusForJob = 'closed';
+        }
         batch.update(jobRef, {
             applications: applications,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            status: newStatusForJob
         });
+        // --- End auto-close logic ---
 
         const notificationData = {
             type: 'status',
@@ -739,6 +758,7 @@ async function editJob(jobId) {
         locationSelect.value = jobData.location || '';
         
         document.getElementById('editSalary').value = jobData.salary;
+        document.getElementById('editVacancy').value = jobData.vacancy || 1;
         document.getElementById('editJobDescription').value = jobData.jobDescription;
         document.getElementById('editRequirements').value = jobData.requirements;
         document.getElementById('editBenefits').value = jobData.benefits;
@@ -763,13 +783,11 @@ function closeEditPopup() {
 
 document.getElementById('editJobForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-
     const jobId = this.dataset.jobId;
     if (!jobId) {
         alert('Job ID not found');
         return;
     }
-
     try {
         const formData = {
             jobTitle: document.getElementById('editJobTitle').value,
@@ -778,6 +796,7 @@ document.getElementById('editJobForm').addEventListener('submit', async function
             category: document.getElementById('editCategory').value,
             location: document.getElementById('editLocation').value,
             salary: document.getElementById('editSalary').value,
+            vacancy: parseInt(document.getElementById('editVacancy').value),
             jobDescription: document.getElementById('editJobDescription').value,
             requirements: document.getElementById('editRequirements').value,
             benefits: document.getElementById('editBenefits').value,
@@ -786,13 +805,24 @@ document.getElementById('editJobForm').addEventListener('submit', async function
             status: document.getElementById('editStatus').value,
             lastUpdated: new Date().toISOString()
         };
-
+        // --- Prevent reopening unless vacancy is increased ---
+        if (formData.status === 'active') {
+            const jobRef = doc(db, 'jobs', jobId);
+            const jobDoc = await getDoc(jobRef);
+            const jobData = jobDoc.data();
+            const approvedQuery = query(collection(db, 'applications'), where('jobId', '==', jobId), where('status', '==', 'approved'));
+            const approvedSnapshot = await getDocs(approvedQuery);
+            const approvedCount = approvedSnapshot.size;
+            const newVacancy = parseInt(document.getElementById('editVacancy').value);
+            if (approvedCount >= newVacancy) {
+                showNotification('To reopen this job, you must increase the number of vacancies above the number of already approved applicants.', 'error');
+                return;
+            }
+        }
+        // --- End prevent reopening logic ---
         await updateDoc(doc(db, 'jobs', jobId), formData);
-
         closeEditPopup();
-
         loadPostedJobs(auth.currentUser.uid);
-
         showNotification('Job updated successfully!');
     } catch (error) {
         console.error('Error updating job:', error);

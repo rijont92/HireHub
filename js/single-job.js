@@ -43,12 +43,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const salary = document.getElementById('salary');
     const deadline = document.getElementById('deadline');
     const jobDescription = document.getElementById('jobDescription');
+    const Vacancies = document.getElementById('number-vnc');
     const requirements = document.getElementById('requirements');
     const benefits = document.getElementById('benefits');
     const similarJobsContainer = document.getElementById('similarJobs');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const applyBtn = document.querySelector('.apply-btn');
-    const saveBtn = document.querySelector('.save-btn');
+    const saveBtn = document.querySelector('.save-btn')
 
     // Add missing modal element declarations
     const applyModalOverlay = document.getElementById('applyModalOverlay');
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (salary) salary.textContent = '';
         if (deadline) deadline.textContent = '';
         if (jobDescription) jobDescription.textContent = '';
+        if (Vacancies) Vacancies.textContent = '';
         if (requirements) requirements.textContent = '';
         if (benefits) benefits.textContent = '';
         if (similarJobsContainer) similarJobsContainer.innerHTML = '';
@@ -88,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (salary) salary.textContent = '';
         if (deadline) deadline.textContent = '';
         if (jobDescription) jobDescription.textContent = '';
+        if (Vacancies) Vacancies.textContent = '';
         if (requirements) requirements.textContent = '';
         if (benefits) benefits.textContent = '';
         if (similarJobsContainer) similarJobsContainer.innerHTML = '';
@@ -149,6 +152,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             showPosterInfo(jobData.postedBy);
+
+            // Count approved applications
+            let approvedCount = 0;
+            if (jobData.applications && Array.isArray(jobData.applications)) {
+                approvedCount = jobData.applications.length;
+            }
+            if (jobData.approvedCount !== undefined) {
+                approvedCount = jobData.approvedCount;
+            }
+            const isFull = jobData.vacancy && approvedCount >= jobData.vacancy;
+            isClosed = jobData.status === 'closed' || isFull;
         } catch (error) {
             console.error('Error loading job:', error);
             showError('There was an error loading the job details');
@@ -187,6 +201,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (jobDescription) {
             jobDescription.textContent = job.description;
         }
+        if (Vacancies) {
+            Vacancies.textContent = job.vacancy;
+        }
         if (requirements) {
             requirements.textContent = job.requirements;
         }
@@ -218,29 +235,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const applyBtn = document.querySelector('.apply-btn');
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
         isOwnJob = job.postedBy === auth.currentUser?.uid;
-        isClosed = job.status === 'closed';
         
         if (isOwnJob) {
             applyBtn.disabled = true;
-            if (isClosed) {
-                // If it's your own job and it's closed, show closed styling but with "Your Job (Closed)" text
-                jobCard.classList.add('closed');
-                applyBtn.innerHTML = `<i class="fas fa-lock"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span> <span data-translate="closed">(${translations[currentLanguage]['closed'] || 'Closed'})</span>`;
-                
+            const isActuallyClosed = job.status === 'closed' || (job.vacancy && job.applications && Array.isArray(job.applications) && job.applications.length >= job.vacancy);
+            if (isActuallyClosed) {
+                if (jobCard) {
+                    jobCard.classList.add('closed');
+                }
+                applyBtn.innerHTML = `<i class="fas fa-lock"></i> <span data-translate="your-job2">${translations[currentLanguage]['your-job2'] || 'Your Job |'}</span><span data-translate="closed">(${translations[currentLanguage]['closed'] || 'Closed'})</span>`;
                 const jobTitleSection = document.querySelector('.job-title-section');
                 const statusIndicator = document.createElement('span');
                 statusIndicator.className = 'job-status closed';
                 statusIndicator.innerHTML = `<span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>`;
-                jobTitleSection.appendChild(statusIndicator);
+                if (jobTitleSection) {
+                    jobTitleSection.appendChild(statusIndicator);
+                }
             } else {
-                // If it's your own job and it's active, show just "Your Job"
                 applyBtn.innerHTML = `<i class="fas fa-user"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span>`;
             }
             applyBtn.style.backgroundColor = '#999';
             applyBtn.style.cursor = 'not-allowed';
-             if (window.updateTranslations) {
-            window.updateTranslations();
-        }
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         } else if (isApplied) {
             const applicationsRef = collection(db, 'applications');
             const q = query(
@@ -278,12 +296,13 @@ document.addEventListener('DOMContentLoaded', function() {
             applyBtn.innerHTML = `<i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>`;
             applyBtn.style.backgroundColor = '#999';
             applyBtn.style.cursor = 'not-allowed';
-            
             const jobTitleSection = document.querySelector('.job-title-section');
             const statusIndicator = document.createElement('span');
             statusIndicator.className = 'job-status closed';
             statusIndicator.innerHTML = `<span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>`;
-            jobTitleSection.appendChild(statusIndicator);
+            if (jobTitleSection) {
+                jobTitleSection.appendChild(statusIndicator);
+            }
         } else {
             applyBtn.innerHTML = `<i class="fas fa-paper-plane"></i> <span data-translate="apply-now">${translations[currentLanguage]['apply-now'] || 'Apply Now'}</span>`;
         }
@@ -386,8 +405,8 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 similarJobsContainer.innerHTML = `
                     <div class="no-similar-jobs">
-                        <h3>No Similar Jobs Found</h3>
-                        <p>We couldn't find any similar jobs at the moment. Check back later for new opportunities.</p>
+                        <h3 data-translate="no-similar-title">No Similar Jobs Found</h3>
+                        <p data-translate="no-similar-text">We couldn't find any similar jobs at the moment. Check back later for new opportunities.</p>
                     </div>
                 `;
             }
@@ -400,6 +419,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p>There was an error loading similar jobs. Please try again later.</p>
                 </div>
             `;
+
+             if (window.updateTranslations) {
+                window.updateTranslations();
+            }
         }
     }
 
@@ -574,6 +597,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            let approvedCount = 0;
+            if (currentJob && currentJob.applications && Array.isArray(currentJob.applications)) {
+                approvedCount = currentJob.applications.length;
+            }
+            if (currentJob && currentJob.approvedCount !== undefined) {
+                approvedCount = currentJob.approvedCount;
+            }
+            const isJobClosed = (isClosed) || (currentJob && currentJob.vacancy && approvedCount >= currentJob.vacancy);
+            if (isJobClosed) {
+                showNotification('This job is closed or has reached its application limit.', 'error');
+                return;
+            }
+            
             showApplyModal(jobId, currentJob.jobTitle);
         });
 
@@ -613,9 +649,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Check if job is closed
-        if (currentJob && currentJob.status === 'closed') {
-            showNotification('This job is closed and no longer accepting applications.', 'error');
+        let approvedCount = 0;
+        if (currentJob && currentJob.applications && Array.isArray(currentJob.applications)) {
+            approvedCount = currentJob.applications.length;
+        }
+        if (currentJob && currentJob.approvedCount !== undefined) {
+            approvedCount = currentJob.approvedCount;
+        }
+        const isJobClosed = (currentJob && currentJob.status === 'closed') || (currentJob && currentJob.vacancy && approvedCount >= currentJob.vacancy);
+        if (isJobClosed) {
+            showNotification('This job is closed or has reached its application limit.', 'error');
             hideApplyModal();
             return;
         }
@@ -863,7 +906,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="job-actions">
                             ${isOwnJob ? `
                                 <button class="apply-btn disabled" disabled>
-                                    <i class="fas ${isClosed ? 'fa-lock' : 'fa-user'}"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span>${isClosed ? ` <span data-translate="closed">(${translations[currentLanguage]['closed'] || 'Closed'})</span>` : ''}
+                                    <i class="fas ${isClosed ? 'fa-lock' : 'fa-user'}"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span> ${isClosed ? ` <span data-translate="closed">(${translations[currentLanguage]['closed'] || 'Closed'})</span>` : ''}
                                 </button>
                             ` : isClosed ? `
                                 <button class="apply-btn disabled" disabled>

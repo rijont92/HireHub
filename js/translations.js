@@ -139,8 +139,9 @@ const translations = {
         "pending": "Pending",
         "approved": "Approved",
         "rejected": "Rejected",
-        "closed": "Closed",
+        "closed": " Closed",
         "your-job": "Your Job",
+        "your-job2": "Your Job |",
         "apply-for": "Apply for",
         "full-name": "Full Name",
         "email":"Email",
@@ -522,7 +523,10 @@ const translations = {
 
         "start-chatting":"Start Chatting",
         "closed-job-message": "This job is closed and no longer accepting applications.",
-        "apply-for": "Apply for"
+        "apply-for": "Apply for",
+        "Vacancies":"Vacancies",
+        "no-similar-title":"No Similar Jobs Found",
+        "no-similar-text":"We couldn't find any similar jobs at the moment. Check back later for new opportunities."
     },
     
     sq: {
@@ -1004,7 +1008,15 @@ const translations = {
   "present": "Aktualisht",
   "start-chatting": "Fillo bisedën",
   "closed-job-message": "Kjo punë është e mbyllur dhe nuk pranon më aplikime.",
-  "apply-for": "Apliko për"
+  "apply-for": "Apliko për",
+  "Vacancies":"Vende të lira",
+  "your-job2": "Puna Juaj |",
+  "no-similar-title": "Asnjë Punë e Ngjashme Nuk u Gjet",
+  "no-similar-text": "Nuk mundëm të gjejmë ndonjë punë të ngjashme për momentin. Kontrollo përsëri më vonë për mundësi të reja."
+
+        
+
+
     }
 };
 

@@ -263,9 +263,9 @@ if (window.updateTranslations) {
                 window.updateTranslations();
             }
             
-            // Populate location select
+            // Set the location value in the select dropdown
             const locationSelect = document.getElementById('editLocation');
-            locationSelect.innerHTML = ''; // Clear existing options
+            locationSelect.innerHTML = '<option value="">Select Location</option>'; // Clear existing options
             
             const predefinedLocations = [
                 'Prishtinë', 'Prizren', 'Gjakovë', 'Pejë', 'Mitrovicë', 'Ferizaj', 'Gjilan',
@@ -286,6 +286,7 @@ if (window.updateTranslations) {
             locationSelect.value = jobData.location || '';
 
             document.getElementById('editSalary').value = jobData.salary;
+            document.getElementById('editVacancy').value = jobData.vacancy || 1;
             document.getElementById('editJobDescription').value = jobData.description;
             document.getElementById('editRequirements').value = jobData.requirements;
             document.getElementById('editBenefits').value = jobData.benefits;
@@ -310,13 +311,11 @@ if (window.updateTranslations) {
 
     document.getElementById('editJobForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-
         const jobId = this.dataset.jobId;
         if (!jobId) {
             alert('Job ID not found');
             return;
         }
-
         try {
             const formData = {
                 jobTitle: document.getElementById('editJobTitle').value,
@@ -325,6 +324,7 @@ if (window.updateTranslations) {
                 category: document.getElementById('editCategory').value,
                 location: document.getElementById('editLocation').value,
                 salary: document.getElementById('editSalary').value,
+                vacancy: parseInt(document.getElementById('editVacancy').value),
                 jobDescription: document.getElementById('editJobDescription').value,
                 requirements: document.getElementById('editRequirements').value,
                 benefits: document.getElementById('editBenefits').value,
@@ -333,17 +333,26 @@ if (window.updateTranslations) {
                 status: document.getElementById('editStatus').value,
                 lastUpdated: new Date().toISOString()
             };
-
+            if (formData.status === 'active') {
+                const jobRef = doc(db, 'jobs', jobId);
+                const jobDoc = await getDoc(jobRef);
+                const jobData = jobDoc.data();
+                const approvedQuery = query(collection(db, 'applications'), where('jobId', '==', jobId), where('status', '==', 'approved'));
+                const approvedSnapshot = await getDocs(approvedQuery);
+                const approvedCount = approvedSnapshot.size;
+                const newVacancy = parseInt(document.getElementById('editVacancy').value);
+                if (approvedCount >= newVacancy) {
+                    showNotification('To reopen this job, you must increase the number of vacancies above the number of already approved applicants.', 'error');
+                    return;
+                }
+            }
             await updateDoc(doc(db, 'jobs', jobId), formData);
-
             closeEditPopup();
-
             fetchUserJobs(auth.currentUser.uid);
-
             showNotification('Job updated successfully!');
         } catch (error) {
-            console.error('Error updating job:', error);
-            showNotification('Error updating job. Please try again.', 'error');
+            console.error('Error updating job data:', error);
+            showNotification('Error updating job data. Please try again.', 'error');
         }
     });
 
