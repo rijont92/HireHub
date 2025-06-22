@@ -32,12 +32,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function createJobCard(job, jobId) {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
-        const isClosed = job.status === 'closed';
+        let approvedCount = 0;
+        if (job.applications && Array.isArray(job.applications)) {
+            approvedCount = job.applications.length;
+        }
+        if (job.approvedCount !== undefined) {
+            approvedCount = job.approvedCount;
+        }
+        const isFull = job.vacancy && approvedCount >= job.vacancy;
+        const isJobClosed = job.status === 'closed' || isFull;
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
         const isOwnJob = job.postedBy === auth.currentUser?.uid;
         
         const jobItem = document.createElement('div');
-        jobItem.className = `job-item ${isClosed ? 'closed' : ''}`;
+        jobItem.className = `job-item ${isJobClosed ? 'closed' : ''}`;
         jobItem.dataset.jobId = jobId;
 
         jobItem.innerHTML = `
@@ -79,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button class="apply-btn disabled" disabled>
                                 <i class="fas fa-user"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job']}</span>
                             </button>
-                        ` : isClosed ? `
+                        ` : isJobClosed ? `
                             <button class="apply-btn disabled" disabled>
                                 <i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed']}</span>
                             </button>
@@ -126,8 +134,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Check if job is closed
-                if (isClosed) {
+                if (isJobClosed) {
                     showNotification('This job is closed and no longer accepting applications.', 'error');
+                    return;
+                }
+                
+                let approvedCount = 0;
+                if (job.applications && Array.isArray(job.applications)) {
+                    approvedCount = job.applications.length;
+                }
+                if (job.approvedCount !== undefined) {
+                    approvedCount = job.approvedCount;
+                }
+                const isJobClosed = (job.status === 'closed') || (job.vacancy && approvedCount >= job.vacancy);
+                if (isJobClosed) {
+                    showNotification('This job is closed or has reached its application limit.', 'error');
                     return;
                 }
                 
@@ -353,15 +374,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const jobDoc = await getDoc(jobRef);
                 if (jobDoc.exists()) {
                     const jobData = jobDoc.data();
-                    if (jobData.postedBy === user.uid) {
-                        showNotification('You cannot apply to your own job posting.', 'error');
-                        hideApplyModal();
-                        return;
+                    let approvedCount = 0;
+                    if (jobData.applications && Array.isArray(jobData.applications)) {
+                        approvedCount = jobData.applications.length;
                     }
-                    
-                    // Check if job is closed
-                    if (jobData.status === 'closed') {
-                        showNotification('This job is closed and no longer accepting applications.', 'error');
+                    if (jobData.approvedCount !== undefined) {
+                        approvedCount = jobData.approvedCount;
+                    }
+                    const isJobClosed = (jobData.status === 'closed') || (jobData.vacancy && approvedCount >= jobData.vacancy);
+                    if (isJobClosed) {
+                        showNotification('This job is closed or has reached its application limit.', 'error');
                         hideApplyModal();
                         return;
                     }

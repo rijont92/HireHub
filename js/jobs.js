@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function createJobCard(job) {
         const jobTypeClass = job.jobType.toLowerCase().replace(' ', '-');
         const isApplied = job.applications && job.applications.includes(auth.currentUser?.uid);
-        const isClosed = job.status === 'closed';
         const isSaved = job.isSaved || false;
         const isHotJob = job.isHotJob;
         const isOwnJob = job.postedBy === auth.currentUser?.uid;
@@ -91,8 +90,20 @@ document.addEventListener('DOMContentLoaded', function() {
             "internship": "internship"
         }
         
+        // Count approved applications
+        let approvedCount = 0;
+        if (job.applications && Array.isArray(job.applications)) {
+            approvedCount = job.applications.length; // fallback if only storing user IDs
+        }
+        if (job.approvedCount !== undefined) {
+            approvedCount = job.approvedCount;
+        }
+        // If job is closed or full, mark as closed
+        const isFull = job.vacancy && approvedCount >= job.vacancy;
+        const isJobClosed = job.status === 'closed' || isFull;
+        
         return `
-            <div class="job-card ${isClosed ? 'closed' : ''} ${isHotJob ? 'hot-job' : ''}" data-job-id="${job.id}">
+            <div class="job-card ${isJobClosed ? 'closed' : ''} ${isHotJob ? 'hot-job' : ''}" data-job-id="${job.id}">
                 ${isHotJob ? '<div class="hot-job-badge"><i class="fas fa-fire"></i> <span data-translate="hot-job">Hot Job</span></div>' : ''}
                 <div class="job-card-content">
                     <div class="job-header">
@@ -103,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="job-title-section">
                         <h3 class="job-title">${job.jobTitle}</h3>
                         <p class="company-name">${job.companyName}</p>
-                        ${isClosed ? `<span class="job-status closed" data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>` : ''}
+                        ${isJobClosed ? `<span class="job-status closed" data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>` : ''}
                     </div>
                     <div class="job-meta-info">
                         <div class="meta-item job-type ${jobTypeClass}">
@@ -138,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <i class="fas fa-clock"></i>
                                     <span data-translate="${applicationStatus}">${applicationStatus.charAt(0).toUpperCase() + applicationStatus.slice(1)}</span>
                                 </div>
-                            ` : isClosed ? `
+                            ` : isJobClosed ? `
                                 <button class="apply-btn disabled" disabled>
                                     <i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>
                                 </button>
@@ -443,9 +454,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Check if job is closed
-            if (job && job.status === 'closed') {
-                showNotification('This job is closed and no longer accepting applications.', 'error');
+            // Check if job is closed or full
+            let approvedCount = 0;
+            if (job.applications && Array.isArray(job.applications)) {
+                approvedCount = job.applications.length;
+            }
+            if (job.approvedCount !== undefined) {
+                approvedCount = job.approvedCount;
+            }
+            const isJobClosed = (job.status === 'closed') || (job.vacancy && approvedCount >= job.vacancy);
+            if (isJobClosed) {
+                showNotification('This job is closed or has reached its application limit.', 'error');
                 return;
             }
             
@@ -528,9 +547,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Check if job is closed
-            if (job && job.status === 'closed') {
-                showNotification('This job is closed and no longer accepting applications.', 'error');
+            // Check if job is closed or full
+            let approvedCount = 0;
+            if (job.applications && Array.isArray(job.applications)) {
+                approvedCount = job.applications.length;
+            }
+            if (job.approvedCount !== undefined) {
+                approvedCount = job.approvedCount;
+            }
+            const isJobClosed = (job.status === 'closed') || (job.vacancy && approvedCount >= job.vacancy);
+            if (isJobClosed) {
+                showNotification('This job is closed or has reached its application limit.', 'error');
                 hideApplyModal();
                 return;
             }
