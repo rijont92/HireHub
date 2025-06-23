@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
             color: '#3F51B5',
             count: 0
         },
-          'Others': {
+        'Others': {
             icon: 'fa-ellipsis-h',
             color: '#E91E63',
             count: 0
@@ -64,29 +64,32 @@ document.addEventListener('DOMContentLoaded', function() {
     function createCategoryCard(category, count) {
         const icon = getCategoryIcon(category);
         const color = getCategoryColor(category);
-        
-        // Convert 'Others' to 'Other' for the URL
-        const urlCategory = category === 'Others' ? 'Other' : category;
+
+        // For 'Others', link without any query param
+        const link = category === 'Others'
+            ? '/html/jobs.html'
+            : `/html/jobs.html?category=${encodeURIComponent(category)}`;
         
         return `
-            <div class="category-col" onclick="window.location.href='/html/jobs.html?category=${encodeURIComponent(urlCategory)}'">
+            <div class="category-col" onclick="window.location.href='${link}'">
                 <div class="category-icon" style="background-color: ${color}20">
                     <i class="fas ${icon}" style="color: ${color}"></i>
                 </div>
                 <div class="category-content">
                     <h4 data-translate="${category}">${category}</h4>
-                    <p><span>${count}</span> <span data-translate="${count === 1 ? 'job_one' : 'job_many'}">${count === 1 ? translations[currentLanguage].job_one : translations[currentLanguage].job_many}</span></p>
+                    <p>
+                        <span>${count}</span> 
+                        <span data-translate="${count === 1 ? 'job_one' : 'job_many'}">
+                            ${count === 1 ? translations[currentLanguage].job_one : translations[currentLanguage].job_many}
+                        </span>
+                    </p>
                 </div>
             </div>
         `;
-         if (window.updateTranslations) {
-                            window.updateTranslations();
-                        }
     }
 
     async function loadPopularCategories() {
         try {
-            
             categoriesContainer.innerHTML = `
                 <div class="loading-spinner">
                     <div class="spinner"></div>
@@ -94,12 +97,10 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
 
             const jobsQuery = query(collection(db, 'jobs'));
-            
             const querySnapshot = await getDocs(jobsQuery);
 
-            
             const categoryCounts = { ...defaultCategories };
-            
+
             querySnapshot.forEach((doc) => {
                 const job = doc.data();
                 if (job.category) {
@@ -110,7 +111,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-
 
             const categories = Object.entries(categoryCounts)
                 .map(([category, data]) => ({ 
@@ -125,7 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     return b.count - a.count;
                 });
 
-
             categoriesContainer.innerHTML = '';
 
             categories.forEach(({ category, count }) => {
@@ -133,10 +132,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 categoriesContainer.innerHTML += categoryCard;
             });
 
-                if (window.updateTranslations) {
-                            window.updateTranslations();
-                        }
-
+            if (window.updateTranslations) {
+                window.updateTranslations();
+            }
 
         } catch (error) {
             console.error('Error loading popular categories:', error);
@@ -152,4 +150,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     loadPopularCategories();
-}); 
+});
