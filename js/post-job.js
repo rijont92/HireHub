@@ -82,19 +82,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (hotJobCheckbox) {
         hotJobCheckbox.addEventListener('change', function() {
             if (this.checked) {
-                // For testing: allow hot job without payment
-                // Comment out the payment requirement for testing
-                /*
                 paypalButtonContainer.style.display = 'block';
                 if (!paypalButtonInitialized) {
                     initializePayPalButton();
                 }
-                */
-                
-                // Testing mode: hide payment button but keep checkbox enabled
-                paypalButtonContainer.style.display = 'none';
             } else {
                 paypalButtonContainer.style.display = 'none';
+                hotJobCheckbox.disabled = false;
             }
         });
     }
@@ -325,12 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (hotJobCheckbox.checked && !hotJobCheckbox.disabled) {
-                // For testing: allow hot job without payment
-                // Comment out the payment requirement for testing
-                /*
                 showNotification('Please complete the payment for hot job feature before posting.', 'error');
                 return;
-                */
             }
             
             clearErrors();
@@ -360,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         status: 'active',
                         applications: [],
                         savedBy: [],
-                        isHotJob: hotJobCheckbox.checked
+                        isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled 
                     };
 
                     await saveAndRedirect(jobData);
@@ -425,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 status: 'active',
                 applications: [],
                 savedBy: [],
-                isHotJob: hotJobCheckbox.checked
+                isHotJob: hotJobCheckbox.checked && hotJobCheckbox.disabled 
             };
 
             const jobRef = await addDoc(collection(db, 'jobs'), jobData);
