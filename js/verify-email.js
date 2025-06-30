@@ -5,7 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const resendEmailBtn = document.getElementById('resendEmail');
     const checkVerificationBtn = document.getElementById('checkVerification');
     const verificationMessage = document.getElementById('verification-message');
-
+    
+     const yearDate = new Date().getFullYear();
+    date.innerHTML = yearDate;
+    
     onAuthStateChanged(auth, (user) => {
         if (!user) {
             window.location.href = 'login.html';

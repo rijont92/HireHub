@@ -12,7 +12,7 @@
 
 .post-job-container {
     max-width: 100%;
-    margin: 0 auto;
+    margin: 3rem auto;
     background-color: #fff;
     padding: 3rem;
     border-radius: 20px;
@@ -300,14 +300,14 @@
 @media (max-width: 1400px) {
     .post-job-container {
         max-width: 95%;
-        margin: 1.5rem auto;
+        margin: 3rem auto;
     }
 }
 
 @media (max-width: 1200px) {
     .post-job-container {
         padding: 1.8rem;
-        margin: 1.5rem auto;
+        margin: 3rem auto;
     }
     
     .post-job-form {
@@ -319,7 +319,7 @@
     .post-job-container {
         max-width: 90%;
         padding: 2rem;
-        margin: 1.5rem auto;
+        margin: 3rem auto;
     }
     
     .post-job-form {
@@ -349,7 +349,7 @@
     .post-job-container {
         max-width: 95%;
         padding: 1.5rem;
-        margin: 1.5rem auto;
+        margin: 3rem auto;
         border-radius: 12px;
     }
 
@@ -400,7 +400,7 @@
     .post-job-container {
         max-width: 100%;
         padding: 1.2rem;
-        margin: 1rem auto;
+        margin: 3rem auto;
         border-radius: 10px;
     }
 

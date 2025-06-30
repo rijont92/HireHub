@@ -15,26 +15,33 @@
     <div class="all-cnt">
         <div class="container container-signup">
             <div class="right">
-                <div class="logo">
-                    <a href="../index.html"><img src="../img/logo.png" alt="logo"></a>
-                </div>
+                <div class="roww">
+    
+              <div class="logo">
+                 <a href="../index.html"><img src="../img/logo.png" alt="logo"></a>
+              </div>
 
-                <h2>Verify Your Email</h2>
+                <span id="currentLanguage" onclick="toggleLanguage()">
+                   <img src="../img/albanian-flag.svg" alt="Albanian" class="language-flag" id="languageFlag">
+                </span>
+            </div>
+
+                <h2 data-translate="verify-email">Verify Your Email</h2>
 
                 <div class="verification-content">
                     <i class="fas fa-envelope verification-icon"></i>
-                    <p>We've sent a verification email to your email address.</p>
-                    <p>Please check your inbox and click the verification link to continue.</p>
+                    <p data-translate="verification-sent">We've sent a verification email to your email address.</p>
+                    <p data-translate="verification-instructions">Please check your inbox and click the verification link to continue.</p>
                     
                     <div class="verification-actions">
-                        <button id="resendEmail" class="resend-btn">Resend Verification Email</button>
-                        <button id="checkVerification" class="check-btn">I've Verified My Email</button>
+                        <button id="resendEmail" class="resend-btn" data-translate="resend-verification">Resend Verification Email</button>
+                        <button id="checkVerification" class="check-btn" data-translate="check-verification">I've Verified My Email</button>
                     </div>
                     
                     <p id="verification-message" class="verification-message"></p>
                 </div>
+                    <p class="last">&copy; <span style="color: unset; font-weight: unset;" id="date"></span> <span>Hire Hub</span> <span style="color: unset;" data-translate="all-rights-reserved">All rights reserved</span></p>
 
-                <p class="last">&copy;2024 <span>Rijon Tahiri.</span> All rights reserved</p>
             </div>
 
             <div class="left" style="border: none; border-left: 1px solid #f1f1f2;">
@@ -46,5 +53,7 @@
     </div>
 
     <script type="module" src="../js/verify-email.js"></script>
+    <script type="module" src="../js/translations.js"></script>
+    <script type="module" src="../js/header.js"></script>
 </body>
 </html> 

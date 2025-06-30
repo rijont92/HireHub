@@ -1012,8 +1012,12 @@ const translations = {
   "Vacancies":"Vende të lira",
   "your-job2": "Puna Juaj |",
   "no-similar-title": "Asnjë Punë e Ngjashme Nuk u Gjet",
-  "no-similar-text": "Nuk mundëm të gjejmë ndonjë punë të ngjashme për momentin. Kontrollo përsëri më vonë për mundësi të reja."
-
+  "no-similar-text": "Nuk mundëm të gjejmë ndonjë punë të ngjashme për momentin. Kontrollo përsëri më vonë për mundësi të reja.",
+  "verify-email": "Verifiko Email-in Tënd",
+  "verification-sent": "Ne kemi dërguar një email verifikimi në adresën tënde të email-it.",
+  "verification-instructions": "Ju lutem kontrolloni inbox-in dhe klikoni në linkun e verifikimit për të vazhduar.",
+  "resend-verification": "Ridërgo Email-in e Verifikimit",
+  "check-verification": "Kam Verifikuar Email-in Tim"
         
 
 
