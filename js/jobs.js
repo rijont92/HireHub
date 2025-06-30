@@ -546,7 +546,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideApplyModal();
                 return;
             }
-            
             // Check if job is closed or full
             let approvedCount = 0;
             if (job.applications && Array.isArray(job.applications)) {
@@ -583,6 +582,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            // Upload resume to Firebase Storage
+            let resumeURL = '';
+            if (resumeFile && resumeFile.size > 0) {
+                const storageRef = ref(storage, `resumes/${user.uid}/${Date.now()}-${resumeFile.name}`);
+                await uploadBytes(storageRef, resumeFile);
+                resumeURL = await getDownloadURL(storageRef);
+            }
+
             const applicationData = {
                 fullName: formData.get('fullName'),
                 email: formData.get('email'),
@@ -591,7 +598,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 jobId: currentJobId,
                 userId: user.uid,
                 status: 'pending',
-                appliedAt: new Date().toISOString()
+                appliedAt: new Date().toISOString(),
+                resumeURL // Save the download URL
             };
 
             const applicationsRef = collection(db, 'applications');

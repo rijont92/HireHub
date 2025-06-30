@@ -1,4 +1,5 @@
-import { auth, db } from './firebase-config.js';
+import { auth, db, storage } from './firebase-config.js';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { doc, getDoc, updateDoc, deleteDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword, sendPasswordResetEmail, deleteUser, updateEmail, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
@@ -139,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const successMessage = document.createElement('div');
                     successMessage.style.color = 'green';
-                    successMessage.style.marginTop = '10px';
+                    successMessage.marginTop = '10px';
                     successMessage.textContent = `Please check ${newEmail} for a verification email. Click the link in the email to verify your new email address.`;
                     emailInput.parentNode.appendChild(successMessage);
 
@@ -355,98 +356,81 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file) {
             try {
                 const user = auth.currentUser;
-                if (!user) {
-                    throw new Error('No user logged in');
-                }
+                if (!user) throw new Error('No user logged in');
 
                 const loadingIndicator = document.createElement('div');
                 loadingIndicator.className = 'loading-indicator';
                 loadingIndicator.innerHTML = 'Uploading image...';
                 document.body.appendChild(loadingIndicator);
-                
-                if (file.size > 10 * 1024 * 1024) { 
-                    throw new Error('File size too large. Please select an image under 10MB.');
-                }
-                
-                if (!file.type.match('image.*')) {
-                    throw new Error('Please select an image file.');
-                }
-                
-                const reader = new FileReader();
-                
-                reader.onload = async (e) => {
+
+                if (file.size > 10 * 1024 * 1024) throw new Error('File size too large. Please select an image under 10MB.');
+                if (!file.type.match('image.*')) throw new Error('Please select an image file.');
+
+                // 1. Delete old image if it exists and is not the default
+                if (userData.profileImage && userData.profileImage.startsWith('https://firebasestorage.googleapis.com')) {
                     try {
-                        const img = new Image();
-                        img.src = e.target.result;
-                        
-                        img.onload = async () => {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            
-                            let width = img.width;
-                            let height = img.height;
-                            
-                            const maxDimension = 800;
-                            
-                            if (width > height && width > maxDimension) {
-                                height = Math.round((height * maxDimension) / width);
-                                width = maxDimension;
-                            } else if (height > maxDimension) {
-                                width = Math.round((width * maxDimension) / height);
-                                height = maxDimension;
-                            }
-                            
-                            canvas.width = width;
-                            canvas.height = height;
-                            
-                            ctx.drawImage(img, 0, 0, width, height);
-                            
-                            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                            
-                            const estimatedSize = Math.ceil(compressedBase64.length * 0.75);
-                            
-                            if (estimatedSize > 900000) { 
-                                throw new Error('Image is still too large after compression. Please try a smaller image.');
-                            }
-                            
-                            profileImage.src = compressedBase64;
-                            
-                            userData.profileImage = compressedBase64;
-                            localStorage.setItem('userData', JSON.stringify(userData));
-                            
-                            const userRef = doc(db, 'users', user.uid);
-                            await updateDoc(userRef, {
-                                profileImage: compressedBase64
-                            });
-                            
-                            loadingIndicator.remove();
-                            
-                            alert('Profile picture updated successfully!');
-                        };
-                        
-                        img.onerror = () => {
-                            throw new Error('Error loading image for compression.');
-                        };
-                    } catch (error) {
-                        console.error('Error processing image:', error);
-                        loadingIndicator.remove();
-                        alert('Error processing image: ' + error.message);
+                        // Extract the storage path from the download URL
+                        const url = new URL(userData.profileImage);
+                        const path = decodeURIComponent(url.pathname.split('/o/')[1]);
+                        const oldImageRef = ref(storage, path);
+                        await deleteObject(oldImageRef);
+                    } catch (err) {
+                        // If the file doesn't exist or can't be deleted, ignore
+                        console.warn('Could not delete old profile image:', err.message);
                     }
+                }
+
+                // Compress and upload new image
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDimension = 800;
+                    if (width > height && width > maxDimension) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else if (height > maxDimension) {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob(async (blob) => {
+                        try {
+                            const timestamp = Date.now();
+                            const storageRef = ref(storage, `profile-images/${user.uid}/${timestamp}-${file.name}`);
+                            await uploadBytes(storageRef, blob);
+                            const downloadURL = await getDownloadURL(storageRef);
+
+                            profileImage.src = downloadURL;
+                            userData.profileImage = downloadURL;
+                            localStorage.setItem('userData', JSON.stringify(userData));
+                            const userRef = doc(db, 'users', user.uid);
+                            await updateDoc(userRef, { profileImage: downloadURL });
+
+                            loadingIndicator.remove();
+                            alert('Profile picture updated successfully!');
+                        } catch (error) {
+                            console.error('Error uploading to storage:', error);
+                            loadingIndicator.remove();
+                            alert('Error uploading image: ' + error.message);
+                        }
+                    }, 'image/jpeg', 0.7);
                 };
-                
-                reader.onerror = () => {
-                    console.error('Error reading file');
+                img.onerror = () => {
                     loadingIndicator.remove();
-                    alert('Error reading file. Please try again.');
+                    alert('Error loading image for compression.');
                 };
-                
-                reader.readAsDataURL(file);
             } catch (error) {
                 console.error('Error handling file selection:', error);
                 alert(error.message || 'Error handling file selection. Please try again.');
             }
         }
-        
         setTimeout(() => {
             if (document.body.contains(fileInput)) {
                 document.body.removeChild(fileInput);

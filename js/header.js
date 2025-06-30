@@ -300,3 +300,11 @@ export function updateHeaderName(newName) {
         userName.textContent = newName || 'User';
     }
 }
+
+// Function to update header profile image
+export function updateHeaderProfileImage(newUrl) {
+    const userProfileImg = document.getElementById('userProfileImg');
+    if (userProfileImg) {
+        userProfileImg.src = newUrl || 'img/useri.png';
+    }
+}

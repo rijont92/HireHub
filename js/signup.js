@@ -3,6 +3,8 @@ import { setupSignupValidation, validateSignupForm } from '../js/validation.js';
 import { isAuthenticated } from '../js/auth.js';
 import { doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { db } from './firebase-config.js';
+import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+import { storage } from './firebase-config.js';
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -17,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const icon2 = document.getElementById('icon2');
     const useriImg = document.querySelector('.useri-img');
     const fileInput = document.getElementById('file-input');
+    let profileImageFile = null;
     let profileImageBase64 = '../img/useri.png';
 
 
@@ -63,10 +66,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const file = event.target.files[0];
         if (file) {
             if (file.type.startsWith('image/')) {
+                profileImageFile = file; // store the file
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     profileImageBase64 = e.target.result;
-                    
                     const previewImg = document.getElementById('preview-img');
                         if (previewImg) {
                     previewImg.src = profileImageBase64;
@@ -115,11 +118,19 @@ document.addEventListener("DOMContentLoaded", function () {
             const result = await signUp(email, password);
 
             if (result.success) {
+                let profileImageURL = '../img/useri.png';
+                if (profileImageFile) {
+                    // Upload to Firebase Storage
+                    const storageRef = ref(storage, `profile-images/${result.user.uid}/${Date.now()}-${profileImageFile.name}`);
+                    await uploadBytes(storageRef, profileImageFile);
+                    profileImageURL = await getDownloadURL(storageRef);
+                }
+
                 const userData = {
                     name: name,
                     displayName: name,
                     email: email,
-                    profileImage: profileImageBase64,
+                    profileImage: profileImageURL,
                     createdAt: new Date().toISOString(),
                     bio: '',
                     skills: [],

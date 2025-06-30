@@ -7,7 +7,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBy4bVUtUwSUSijmr0Rvjiwu9rlbWBhOG8",
   authDomain: "hirehub-218fb.firebaseapp.com",
   projectId: "hirehub-218fb",
-  storageBucket: "hirehub-218fb.appspot.com",
+  storageBucket: "hirehub-218fb.firebasestorage.app",
   messagingSenderId: "415486449267",
   appId: "1:415486449267:web:142dfe1371a01f7a02bc06"
 };

@@ -1,6 +1,7 @@
-import { auth, db } from './firebase-config.js';
+import { auth, db, storage } from './firebase-config.js';
 import { collection, addDoc, doc, updateDoc, arrayUnion, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 import { translations, currentLanguage } from './translations.js';
 
 const paypalScript = document.createElement('script');
@@ -19,6 +20,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const paypalButtonContainer = document.getElementById('paypal-button-container');
 
     let paypalButtonInitialized = false;
+    let storageFailed = false; // Reset to false to allow storage attempts
+    
+    // Temporary flag to disable storage until rules are configured
+    const STORAGE_DISABLED = false; // Set to false once Firebase Storage rules are fixed
+    
+    // Clear any previous storage failure state
+    localStorage.removeItem('storageFailed');
+
+    // Log storage state
+    console.log('Storage failed state:', storageFailed);
+    console.log('Storage disabled:', STORAGE_DISABLED);
 
     // Check authentication state
     onAuthStateChanged(auth, (user) => {
@@ -136,6 +148,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         input.style.borderColor = '#e0e0e0';
         input.style.backgroundColor = '#f8f9fa';
+    }
+
+    function compressImage(file) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                // Calculate new dimensions (max 800x800)
+                const maxSize = 800;
+                let { width, height } = img;
+                
+                if (width > height) {
+                    if (width > maxSize) {
+                        height = (height * maxSize) / width;
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width = (width * maxSize) / height;
+                        height = maxSize;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(resolve, 'image/jpeg', 0.8);
+            };
+            
+            img.src = URL.createObjectURL(file);
+        });
     }
 
     function isValidEmail(email) {
@@ -264,12 +311,14 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'companyLogo':
                 if (input.files.length > 0) {
                     const file = input.files[0];
-                    if (!file.type.startsWith('image/')) {
-                        showError(input, translations[currentLanguage]['error-logo-format']);
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                    
+                    if (!validTypes.includes(file.type)) {
+                        showError(input, translations[currentLanguage]['error-logo-format'] || 'Please select a valid image file (JPEG, PNG, GIF, or WebP)');
                         return false;
                     }
-                    if (file.size > 5 * 1024 * 1024) {
-                        showError(input, translations[currentLanguage]['error-logo-size']);
+                    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                        showError(input, translations[currentLanguage]['error-logo-size'] || 'Image size must be less than 10MB');
                         return false;
                     }
                 }
@@ -283,12 +332,14 @@ document.addEventListener('DOMContentLoaded', function() {
         logoInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
-                if (!file.type.startsWith('image/')) {
-                    showError(logoInput, translations[currentLanguage]['error-logo-format']);
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                
+                if (!validTypes.includes(file.type)) {
+                    showError(logoInput, translations[currentLanguage]['error-logo-format'] || 'Please select a valid image file (JPEG, PNG, GIF, or WebP)');
                     return;
                 }
-                if (file.size > 5 * 1024 * 1024) {
-                    showError(logoInput, translations[currentLanguage]['error-logo-size']);
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    showError(logoInput, translations[currentLanguage]['error-logo-size'] || 'Image size must be less than 10MB');
                     return;
                 }
 
@@ -367,11 +418,38 @@ document.addEventListener('DOMContentLoaded', function() {
         notification.className = `notification ${type}`;
         notification.textContent = message;
         
+        // Add different styles for different notification types
+        switch(type) {
+            case 'error':
+                notification.style.backgroundColor = '#ff4444';
+                notification.style.color = 'white';
+                break;
+            case 'warning':
+                notification.style.backgroundColor = '#ff8800';
+                notification.style.color = 'white';
+                break;
+            case 'info':
+                notification.style.backgroundColor = '#2196F3';
+                notification.style.color = 'white';
+                break;
+            default: // success
+                notification.style.backgroundColor = '#4CAF50';
+                notification.style.color = 'white';
+        }
+        
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.padding = '15px 20px';
+        notification.style.borderRadius = '5px';
+        notification.style.zIndex = '10000';
+        notification.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+        
         document.body.appendChild(notification);
         
         setTimeout(() => {
             notification.remove();
-        }, 3000);
+        }, 5000);
     }
 
     async function saveAndRedirect(jobData) {
@@ -381,18 +459,72 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('User not authenticated or email not verified');
             }
 
+            // Show loading state
+            const submitBtn = document.getElementById("btn");
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span>Uploading...</span>';
+            submitBtn.disabled = true;
+
             const formData = new FormData(postJobForm);
             
             let companyLogoUrl = 'img/logo.png'; 
             const logoFile = formData.get('companyLogo');
             
             if (logoFile && logoFile instanceof File) {
+                // Check storage failure status more robustly
+                const isStorageFailed = localStorage.getItem('storageFailed') === 'true';
+                console.log('Storage failed check:', isStorageFailed, 'storageFailed variable:', storageFailed);
+                
+                if (!isStorageFailed && !STORAGE_DISABLED) {
+                    try {
+                        // Compress the image
+                        const compressedFile = await compressImage(logoFile);
+                        
+                        // Create a unique filename for the storage
+                        const timestamp = Date.now();
+                        const fileName = `${timestamp}-${logoFile.name}`;
+                        const storageRef = ref(storage, `job-logos/${user.uid}/${fileName}`);
+                        
+                        console.log('Attempting to upload to storage...');
+                        
+                        // Add timeout to prevent hanging
+                        const uploadPromise = uploadBytes(storageRef, compressedFile);
+                        const timeoutPromise = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Upload timeout')), 5000)
+                        );
+                        
+                        const snapshot = await Promise.race([uploadPromise, timeoutPromise]);
+                        console.log('Upload successful:', snapshot);
+                        
+                        // Get the download URL
+                        companyLogoUrl = await getDownloadURL(snapshot.ref);
+                        console.log('Download URL:', companyLogoUrl);
+                    } catch (uploadError) {
+                        console.error('Error uploading image to storage:', uploadError);
+                        storageFailed = true; // Mark storage as failed
+                        localStorage.setItem('storageFailed', 'true'); // Save to localStorage
+                        
+                        // Fallback to base64 if storage fails
+                        console.log('Falling back to base64 storage...');
+                        const reader = new FileReader();
+                        companyLogoUrl = await new Promise((resolve, reject) => {
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(logoFile);
+                        });
+                        
+                        showNotification('Info: Image stored as base64 (storage upload failed).', 'info');
+                    }
+                } else {
+                    // Storage has failed before, use base64 directly
+                    console.log('Storage previously failed, using base64...');
                 const reader = new FileReader();
                 companyLogoUrl = await new Promise((resolve, reject) => {
                     reader.onload = () => resolve(reader.result);
                     reader.onerror = reject;
                     reader.readAsDataURL(logoFile);
                 });
+                }
             }
             
             const jobData = {
@@ -449,10 +581,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 jobs: jobs
             });
 
+            // Reset button state
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+
             showSuccessPopup();
         } catch (error) {
             console.error('Error saving job:', error);
             showNotification('Error saving job. Please try again.', 'error');
+            
+            // Reset button state on error
+            const submitBtn = document.getElementById("btn");
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span data-translate="post-job">Post Job</span>';
+                submitBtn.disabled = false;
+            }
         }
     }
 
@@ -586,9 +729,12 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         } else {
             const file = companyLogo.files[0];
-            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
             if (!validTypes.includes(file.type)) {
-                showError(companyLogo, translations[currentLanguage]['error-logo-format']);
+                showError(companyLogo, translations[currentLanguage]['error-logo-format'] || 'Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+                isValid = false;
+            } else if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                showError(companyLogo, translations[currentLanguage]['error-logo-size'] || 'Image size must be less than 10MB');
                 isValid = false;
             }
         }
@@ -641,6 +787,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.closeLoginPopup = closeLoginPopup;
+
+    // Function to reset storage failure flag (for testing purposes)
+    window.resetStorageFailure = function() {
+        storageFailed = false;
+        localStorage.removeItem('storageFailed');
+        console.log('Storage failure flag reset. Will attempt storage upload on next job post.');
+    };
 
     // Add event listener for language change
     window.addEventListener('languageChanged', function() {

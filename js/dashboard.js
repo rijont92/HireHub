@@ -290,6 +290,11 @@ function displayApplication(applicationId, application, jobData, userData) {
                             <i class="ri-phone-line"></i>
                             ${application.phone}
                         </span>
+                         <span class="contact-item">
+                            ${application.resumeURL ? `<a href="${application.resumeURL}" target="_blank" rel="noopener noreferrer"><i class="ri-download-2-line"></i> <span data-translate="download-cv">Download CV</span></a>` : ''}
+                            
+                        </span>
+
                     </div>
                 </div>
             </div>
@@ -301,6 +306,7 @@ function displayApplication(applicationId, application, jobData, userData) {
             <div class="cover-letter">
                 <h4 data-translate="cover-letter1">Cover Letter</h4>
                 <p>${application.coverLetter || 'No cover letter provided'}</p>
+                    
             </div>
             <div class="application-actions">
                 ${(application.status === 'pending' || !application.status) ? `
@@ -759,7 +765,7 @@ async function editJob(jobId) {
         
         document.getElementById('editSalary').value = jobData.salary;
         document.getElementById('editVacancy').value = jobData.vacancy || 1;
-        document.getElementById('editJobDescription').value = jobData.jobDescription;
+        document.getElementById('editJobDescription').value = jobData.description;
         document.getElementById('editRequirements').value = jobData.requirements;
         document.getElementById('editBenefits').value = jobData.benefits;
         document.getElementById('editApplicationDeadline').value = jobData.applicationDeadline;
