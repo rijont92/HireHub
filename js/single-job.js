@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function loadJobData() {
+        showLoading(); // Ensure loading spinner is shown at the start
         try {
             const jobRef = doc(db, 'jobs', jobId);
             const jobDoc = await getDoc(jobRef);
@@ -150,8 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-
-            showPosterInfo(jobData.postedBy);
 
             // Count approved applications
             let approvedCount = 0;
@@ -912,4 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         return card;
     }
+
+    // At the end of the DOMContentLoaded handler, call loadJobData
+    loadJobData();
 });
