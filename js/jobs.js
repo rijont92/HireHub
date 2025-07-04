@@ -99,8 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
             approvedCount = job.approvedCount;
         }
         // If job is closed or full, mark as closed
-        const isFull = job.vacancy && approvedCount >= job.vacancy;
-        const isJobClosed = job.status === 'closed' || isFull;
+        // const isFull = job.vacancy && approvedCount >= job.vacancy;
+        // const isJobClosed = job.status === 'closed' || isFull;
+        const isJobClosed = job.status === 'closed';
         
         return `
             <div class="job-card ${isJobClosed ? 'closed' : ''} ${isHotJob ? 'hot-job' : ''}" data-job-id="${job.id}">
@@ -454,17 +455,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Check if job is closed or full
-            let approvedCount = 0;
-            if (job.applications && Array.isArray(job.applications)) {
-                approvedCount = job.applications.length;
-            }
-            if (job.approvedCount !== undefined) {
-                approvedCount = job.approvedCount;
-            }
-            const isJobClosed = (job.status === 'closed') || (job.vacancy && approvedCount >= job.vacancy);
-            if (isJobClosed) {
-                showNotification('This job is closed or has reached its application limit.', 'error');
+            // Check if job is closed
+            if (job.status === 'closed') {
+                showNotification('This job is closed and no longer accepting applications.', 'error');
                 return;
             }
             
@@ -546,17 +539,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideApplyModal();
                 return;
             }
-            // Check if job is closed or full
-            let approvedCount = 0;
-            if (job.applications && Array.isArray(job.applications)) {
-                approvedCount = job.applications.length;
-            }
-            if (job.approvedCount !== undefined) {
-                approvedCount = job.approvedCount;
-            }
-            const isJobClosed = (job.status === 'closed') || (job.vacancy && approvedCount >= job.vacancy);
-            if (isJobClosed) {
-                showNotification('This job is closed or has reached its application limit.', 'error');
+            // Check if job is closed
+            if (job.status === 'closed') {
+                showNotification('This job is closed and no longer accepting applications.', 'error');
                 hideApplyModal();
                 return;
             }

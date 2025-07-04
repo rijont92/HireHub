@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
     localStorage.removeItem('storageFailed');
 
     // Log storage state
-    console.log('Storage failed state:', storageFailed);
-    console.log('Storage disabled:', STORAGE_DISABLED);
 
     // Check authentication state
     onAuthStateChanged(auth, (user) => {
@@ -473,7 +471,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (logoFile && logoFile instanceof File) {
                 // Check storage failure status more robustly
                 const isStorageFailed = localStorage.getItem('storageFailed') === 'true';
-                console.log('Storage failed check:', isStorageFailed, 'storageFailed variable:', storageFailed);
                 
                 if (!isStorageFailed && !STORAGE_DISABLED) {
                     try {
@@ -485,7 +482,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         const fileName = `${timestamp}-${logoFile.name}`;
                         const storageRef = ref(storage, `job-logos/${user.uid}/${fileName}`);
                         
-                        console.log('Attempting to upload to storage...');
                         
                         // Add timeout to prevent hanging
                         const uploadPromise = uploadBytes(storageRef, compressedFile);
@@ -494,18 +490,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         );
                         
                         const snapshot = await Promise.race([uploadPromise, timeoutPromise]);
-                        console.log('Upload successful:', snapshot);
                         
                         // Get the download URL
                         companyLogoUrl = await getDownloadURL(snapshot.ref);
-                        console.log('Download URL:', companyLogoUrl);
                     } catch (uploadError) {
                         console.error('Error uploading image to storage:', uploadError);
                         storageFailed = true; // Mark storage as failed
                         localStorage.setItem('storageFailed', 'true'); // Save to localStorage
                         
                         // Fallback to base64 if storage fails
-                        console.log('Falling back to base64 storage...');
                         const reader = new FileReader();
                         companyLogoUrl = await new Promise((resolve, reject) => {
                             reader.onload = () => resolve(reader.result);
@@ -517,7 +510,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 } else {
                     // Storage has failed before, use base64 directly
-                    console.log('Storage previously failed, using base64...');
                 const reader = new FileReader();
                 companyLogoUrl = await new Promise((resolve, reject) => {
                     reader.onload = () => resolve(reader.result);
@@ -792,7 +784,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.resetStorageFailure = function() {
         storageFailed = false;
         localStorage.removeItem('storageFailed');
-        console.log('Storage failure flag reset. Will attempt storage upload on next job post.');
     };
 
     // Add event listener for language change

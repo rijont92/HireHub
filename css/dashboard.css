@@ -281,6 +281,7 @@
 
 .applicant-details {
     flex: 1;
+    word-break: break-all;
 }
 
 .applicant-details h3 {

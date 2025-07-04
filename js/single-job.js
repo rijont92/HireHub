@@ -155,14 +155,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Count approved applications
             let approvedCount = 0;
-            if (jobData.applications && Array.isArray(jobData.applications)) {
-                approvedCount = jobData.applications.length;
+            if (jobData && jobData.id) {
+                const applicationsRef = collection(db, 'applications');
+                const q = query(applicationsRef, where('jobId', '==', jobData.id), where('status', '==', 'approved'));
+                getDocs(q).then(snapshot => {
+                    approvedCount = snapshot.size;
+                    isClosed = jobData.status === 'closed';
+                    // ... update UI or state as needed ...
+                });
+            } else {
+                isClosed = jobData.status === 'closed';
             }
-            if (jobData.approvedCount !== undefined) {
-                approvedCount = jobData.approvedCount;
-            }
-            const isFull = jobData.vacancy && approvedCount >= jobData.vacancy;
-            isClosed = jobData.status === 'closed' || isFull;
         } catch (error) {
             console.error('Error loading job:', error);
             showError('There was an error loading the job details');
@@ -238,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isOwnJob) {
             applyBtn.disabled = true;
-            const isActuallyClosed = job.status === 'closed' || (job.vacancy && job.applications && Array.isArray(job.applications) && job.applications.length >= job.vacancy);
+            const isActuallyClosed = job.status === 'closed';
             if (isActuallyClosed) {
                 if (jobCard) {
                     jobCard.classList.add('closed');
@@ -592,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Check if job is closed
-            if (isClosed) {
+            if (currentJob && currentJob.status === 'closed') {
                 showNotification('This job is closed and no longer accepting applications.', 'error');
                 return;
             }
@@ -604,7 +607,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentJob && currentJob.approvedCount !== undefined) {
                 approvedCount = currentJob.approvedCount;
             }
-            const isJobClosed = (isClosed) || (currentJob && currentJob.vacancy && approvedCount >= currentJob.vacancy);
+            const isJobClosed = (currentJob && currentJob.status === 'closed');
             if (isJobClosed) {
                 showNotification('This job is closed or has reached its application limit.', 'error');
                 return;
@@ -656,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentJob && currentJob.approvedCount !== undefined) {
             approvedCount = currentJob.approvedCount;
         }
-        const isJobClosed = (currentJob && currentJob.status === 'closed') || (currentJob && currentJob.vacancy && approvedCount >= currentJob.vacancy);
+        const isJobClosed = (currentJob && currentJob.status === 'closed');
         if (isJobClosed) {
             showNotification('This job is closed or has reached its application limit.', 'error');
             hideApplyModal();
@@ -878,7 +881,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="job-title-section">
                         <h3 class="job-title">${job.jobTitle}</h3>
                         <p class="company-name">${job.companyName}</p>
-                        
                         <div class="job-meta-info">
                             <div class="meta-item job-type ${jobTypeClass}">
                                 <i class="fas fa-briefcase"></i>
@@ -890,7 +892,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     </div>
-
                     <div class="job-footer">
                         <div class="job-info">
                             <div class="salary">
@@ -902,177 +903,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span data-translate="apply-before">${translations[currentLanguage]['apply-before'] || 'Apply before:'}</span> ${formatSimpleDate(job.applicationDeadline)}
                             </div>
                         </div>
-                        
                         <div class="job-actions">
-                            ${isOwnJob ? `
-                                <button class="apply-btn disabled" disabled>
-                                    <i class="fas ${isClosed ? 'fa-lock' : 'fa-user'}"></i> <span data-translate="your-job">${translations[currentLanguage]['your-job'] || 'Your Job'}</span> ${isClosed ? ` <span data-translate="closed">(${translations[currentLanguage]['closed'] || 'Closed'})</span>` : ''}
-                                </button>
-                            ` : isClosed ? `
-                                <button class="apply-btn disabled" disabled>
-                                    <i class="fas fa-lock"></i> <span data-translate="closed">${translations[currentLanguage]['closed'] || 'Closed'}</span>
-                                </button>
-                            ` : `
-                                <button class="apply-btn">
-                                    <i class="fas fa-paper-plane"></i> 
-                                    <span data-translate="apply-now">${translations[currentLanguage]['apply-now'] || 'Apply Now'}</span>
-                                </button>
-                            `}
-                            <button class="save-btn" data-job-id="${jobId}">
-                                <i class="far fa-bookmark"></i>
-                                <span data-translate="save">${translations[currentLanguage]['save'] || 'Save Job'}</span>
-                            </button>
+                            <!-- Job action buttons will be added here dynamically -->
                         </div>
                     </div>
                 </div>
             </div>
         `;
-         if (window.updateTranslations) {
-            window.updateTranslations();
-        }
-
-        card.addEventListener('click', (e) => {
-            if (e.target.closest('.job-actions')) {
-                return;
-            }
-            window.location.href = `single-job.html?id=${jobId}`;
-        });
-         if (window.updateTranslations) {
-            window.updateTranslations();
-        }
-
-        const applyBtn = card.querySelector('.apply-btn');
-        const saveBtn = card.querySelector('.save-btn');
-
-        if (applyBtn) {
-            applyBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const user = auth.currentUser;
-                if (!user) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                // Check if user is the job poster
-                if (isOwnJob) {
-                    showNotification('You cannot apply to your own job posting.', 'error');
-                    return;
-                }
-                
-                // Check if job is closed
-                if (isClosed) {
-                    showNotification('This job is closed and no longer accepting applications.', 'error');
-                    return;
-                }
-                 if (window.updateTranslations) {
-            window.updateTranslations();
-        }
-                showApplyModal(jobId, job.jobTitle);
-            });
-
-            if (auth.currentUser) {
-                updateApplicationStatus(jobId);
-            }
-             if (window.updateTranslations) {
-            window.updateTranslations();
-        }
-        }
-
-        if (saveBtn) {
-            saveBtn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const user = auth.currentUser;
-                if (!user) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                await toggleSaveJob(jobId);
-            });
-
-            if (auth.currentUser) {
-                checkSavedStatus(jobId);
-            }
-        }
-         if (window.updateTranslations) {
-            window.updateTranslations();
-        }
-
         return card;
-
-        
-    }
-     if (window.updateTranslations) {
-            window.updateTranslations();
-        }
-
-    loadJobData();
-
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            checkSavedStatus(jobId);
-            updateApplicationStatus(jobId);
-            
-            const similarJobs = document.querySelectorAll('.job-card');
-            similarJobs.forEach(jobCard => {
-                const jobId = jobCard.dataset.jobId;
-                if (jobId) {
-                    checkSavedStatus(jobId);
-                    updateApplicationStatus(jobId);
-                }
-            });
-        }
-    });
-
-    async function showPosterInfo(uid) {
-        if (!uid) {
-            return;
-        }
-
-        const posterInfoDiv = document.getElementById('posterInfo');
-        const posterImage = document.getElementById('posterImage');
-        const posterName = document.getElementById('posterName');
-        const posterEmail = document.getElementById('posterEmail');
-
-        if (!posterInfoDiv || !posterImage || !posterName || !posterEmail) {
-            console.error('Required poster info elements not found');
-            return;
-        }
-
-        try {
-            posterInfoDiv.style.display = 'flex';
-            posterImage.src = '../img/logo.png';
-            posterName.textContent = 'Loading...';
-            posterEmail.textContent = '';
-
-            const userRef = doc(db, 'users', uid);
-            const userSnap = await getDoc(userRef);
-            
-            if (userSnap.exists()) {
-                const user = userSnap.data();
-                
-                posterImage.src = user.profileImage || '../img/logo.png';
-                posterImage.onerror = () => {
-                    posterImage.src = '../img/logo.png';
-                };
-                
-                posterName.textContent = user.name || user.fullName || 'Anonymous User';
-                posterEmail.textContent = user.email || 'Email not available';
-                
-                posterInfoDiv.style.cursor = 'pointer';
-                posterInfoDiv.title = 'Click to view profile';
-                
-                const newPosterInfoDiv = posterInfoDiv.cloneNode(true);
-                posterInfoDiv.parentNode.replaceChild(newPosterInfoDiv, posterInfoDiv);
-                
-                newPosterInfoDiv.addEventListener('click', () => {
-                    window.location.href = `view-profile.html?id=${uid}`;
-                });
-            } else {
-                posterInfoDiv.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error loading poster info:', error);
-            posterInfoDiv.style.display = 'none';
-        }
     }
 });
