@@ -321,12 +321,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isNaN(date.getTime())) {
                 return dateString;
             }
-
-            const day = date.getDate();
-            const month = date.toLocaleString('en-US', { month: 'long' });
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
-
-            return `${day} <span data-translate="${month}">${month}</span> ${year}`;
+            return `${day}/${month}/${year}`;
         } catch (error) {
             console.error('Error formatting date:', error);
             return dateString;

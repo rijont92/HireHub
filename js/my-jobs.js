@@ -522,7 +522,7 @@ if (window.updateTranslations) {
                 <div class="application-details">
                     <p><strong>Applicant:</strong> ${app.applicantName}</p>
                     <p><strong>Email:</strong> ${app.applicantEmail}</p>
-                    <p><strong>Applied:</strong> ${new Date(app.appliedAt).toLocaleDateString()}</p>
+                    <p><strong>Applied:</strong> ${(() => { const d = new Date(app.appliedAt); return isNaN(d) ? '' : d.toLocaleDateString('en-GB'); })()}</p>
                     <div class="cover-letter">
                         <strong>Cover Letter:</strong>
                         <p>${app.coverLetter}</p>

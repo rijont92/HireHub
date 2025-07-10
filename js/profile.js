@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="job-details">
                         <p><strong data-translate="Company">Company</strong>: ${job.companyName}</p>
                         <p><strong data-translate="location">Location</strong>: ${job.location}</p>
-                        <p><strong data-translate="applied-on">Applied on</strong>: ${new Date(job.appliedAt).toLocaleDateString()}</p>
+                        <p><strong data-translate="applied-on">Applied on</strong>: ${(() => { const d = new Date(job.appliedAt); return isNaN(d) ? '' : d.toLocaleDateString('en-GB'); })()}</p>
                     </div>
                     <div class="job-actions">
                         <a href="single-job.html?id=${job.id}" class="view-job-btn" data-translate="view-job">View Job</a>

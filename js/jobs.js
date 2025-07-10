@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                             <div class="deadline">
                                 <i class="far fa-clock"></i>
-                                <span> <span data-translate="apply-before">Apply before</span>: ${new Date(job.applicationDeadline).toLocaleDateString()}</span>
+                                <span> <span data-translate="apply-before">Apply before</span>: ${(() => { const d = new Date(job.applicationDeadline); return isNaN(d) ? '' : d.toLocaleDateString('en-GB'); })()}</span>
                             </div>
                         </div>
                         
@@ -879,7 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="status ${application.status}">${application.status}</span>
                     </div>
                     <div class="application-details">
-                        <p><strong>Applied on:</strong> ${new Date(application.appliedAt).toLocaleDateString()}</p>
+                        <p><strong>Applied on:</strong> ${(() => { const d = new Date(application.appliedAt); return isNaN(d) ? '' : d.toLocaleDateString('en-GB'); })()}</p>
                         ${application.message ? `<p><strong>Message:</strong> ${application.message}</p>` : ''}
                     </div>
                     ${application.status === 'pending' ? `

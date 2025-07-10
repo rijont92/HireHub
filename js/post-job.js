@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
 
-            showSuccessPopup();
+            showSuccessPopup(jobData.applicationDeadline);
         } catch (error) {
             console.error('Error saving job:', error);
             showNotification('Error saving job. Please try again.', 'error');
@@ -591,11 +591,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function showSuccessPopup() {
+    function formatDateDDMMYYYY(dateString) {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function showSuccessPopup(applicationDeadline) {
         const popupOverlay = document.getElementById('popupOverlay');
-        popupOverlay.style.display = 'block';
-        
-        document.body.style.overflow = 'hidden';
+        const successPopup = popupOverlay.querySelector('.success-popup');
+        let deadlineInfo = '';
+        if (applicationDeadline) {
+            deadlineInfo = `<p><strong>Application Deadline:</strong> ${formatDateDDMMYYYY(applicationDeadline)}</p>`;
+        }
+        successPopup.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <h2 data-translate="job-posted-success">Job Posted Successfully!</h2>
+            <p data-translate="job-posted-message">Your job listing has been posted and is now visible to potential candidates.</p>
+            <button onclick="closePopup()" data-translate="continue">Continue</button>
+        `;
+        popupOverlay.style.display = 'flex';
     }
 
     function closePopup() {
